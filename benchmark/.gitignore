@@ -1,0 +1,2 @@
+predictions/*/*.parquet
+__pycache__/

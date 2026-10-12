@@ -1,0 +1,8 @@
+data/
+__pycache__/
+*.part
+web/public/data/
+.pytest_cache/
+*.pyc
+.venv/
+.claude/

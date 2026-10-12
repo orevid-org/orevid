@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OREVID — open, evidence-based drug repurposing</title>
+<meta name="description" content="Research tool: drug-repurposing candidates and targets for each disease, with explanations. Not medical advice.">
+<link rel="stylesheet" href="style.css?v=24">
+</head>
+<body>
+<!-- Static texts are the English defaults; app.js replaces every [data-t] element from i18n/<lang>.json -->
+<header class="header">
+  <a class="brand" href="#/">OREVID</a>
+  <nav>
+    <a href="#/method" data-t="nav_method">Method and validation</a>
+    <span id="langs" class="langs" role="group" aria-label="Language">
+      <button class="lang-button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" data-lang="ca" aria-pressed="false">CA</button>
+    </span>
+  </nav>
+</header>
+
+<div class="disclaimer" role="note" data-t="disclaimer">
+  Research tool for generating hypotheses. <strong>Not medical advice</strong>; do not use it to make
+  treatment decisions. Suggestions may be wrong or harmful.
+</div>
+
+<main id="content">
+  <section class="search">
+    <h1 data-t="title">Which existing drugs could work for a disease?</h1>
+    <p class="subtitle" data-t="subtitle">Search a disease to see repurposing candidates, why they were proposed,
+      and which targets could be hit.</p>
+    <div class="search-box">
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="multiple sclerosis, Parkinson disease…" aria-label="Disease">
+      <ul id="suggestions" role="listbox"></ul>
+    </div>
+    <p class="examples"><span data-t="examples">Examples:</span>
+      <a href="#/d/37722">multiple sclerosis</a> ·
+      <a href="#/d/28714">cystic fibrosis</a> ·
+      <a href="#/d/27248">amyotrophic lateral sclerosis</a> · <a href="#/d/30661">idiopathic pulmonary fibrosis</a>
+    </p>
+  </section>
+  <section id="view"></section>
+</main>
+
+<footer class="footer">
+  <a href="#/legal" data-t="nav_legal">Legal notice and terms of use</a> ·
+  <a href="https://github.com/orevid-org/orevid" rel="noopener">GitHub</a> ·
+  <a href="https://github.com/orevid-org/orevid/tree/main/benchmark" rel="noopener">OREVID-bench</a> ·
+  <a href="https://github.com/orevid-org/orevid/blob/main/CITATION.cff" rel="noopener">Cite</a> ·
+  <a href="mailto:contact@orevid.org">contact@orevid.org</a>
+  <div><span data-t="footer">OREVID</span></div>
+</footer>
+<script src="app.js?v=24"></script>
+</body>
+</html>

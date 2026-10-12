@@ -1,0 +1,9 @@
+pandas
+numpy
+scipy
+pyarrow
+scikit-learn
+lightgbm
+rdkit
+pytest
+anthropic  # optional: only for sources.pubmed (literature extraction with Claude)

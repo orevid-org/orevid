@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use OREVID or OREVID-bench, please cite it as below, together with the original data sources (PrimeKG, and TxGNN for the benchmark)."
+title: "OREVID: Open Repurposing Evidence"
+abstract: "An open knowledge-graph tool that ranks existing drugs for each disease, shows the evidence behind every candidate, and an honest, reproducible drug-repurposing benchmark (OREVID-bench) with TxGNN run on the same splits."
+type: software
+authors:
+  - family-names: Quadrada
+    given-names: Joaquim
+repository-code: "https://github.com/orevid-org/orevid"
+url: "https://orevid.org"
+license: MIT
+keywords:
+  - drug repurposing
+  - knowledge graph
+  - benchmark
+  - PrimeKG
+  - TxGNN
+date-released: "2026-10-12"
+version: "1.0.0"

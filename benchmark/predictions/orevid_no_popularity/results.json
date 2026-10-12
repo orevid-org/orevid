@@ -1,0 +1,542 @@
+{
+ "area_adrenal_gland": {
+  "all": {
+   "AUPRC": 0.9844036960514233,
+   "AUROC": 0.9706152433425161,
+   "Recall@100": 0.9111111111111111,
+   "Precision@K": 0.4444444444444444,
+   "Avg Rank": 0.9465119810648904
+  },
+  "hard": {
+   "AUPRC": 0.9678160919540229,
+   "AUROC": 0.9377777777777778,
+   "Recall@100": 0.8916666666666666,
+   "Precision@K": 0.3666666666666667,
+   "Avg Rank": 0.9207113233630766
+  },
+  "A_approved_only": {
+   "Recall@100": 0.9444444444444443,
+   "Precision@K": 0.47222222222222215,
+   "Avg Rank": 0.9401904467443426,
+   "n_diseases": 6
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.8,
+   "Precision@K": 0.2,
+   "Avg Rank": 0.9936579695169208,
+   "n_diseases": 5
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.0,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.9833920483140413,
+   "n_diseases": 2
+  },
+  "n_test_diseases": 6,
+  "n_hard": 4,
+  "diseases_without_predictions": 0
+ },
+ "area_anemia": {
+  "all": {
+   "AUPRC": 0.8779464820650605,
+   "AUROC": 0.8172778925619835,
+   "Recall@100": 0.5462962962962964,
+   "Precision@K": 0.35523504273504275,
+   "Avg Rank": 0.7525230789997662
+  },
+  "hard": {
+   "AUPRC": 0.7423762506972285,
+   "AUROC": 0.62,
+   "Recall@100": 0.3194444444444444,
+   "Precision@K": 0.18055555555555558,
+   "Avg Rank": 0.5601065216278236
+  },
+  "A_approved_only": {
+   "Recall@100": 0.6336088154269972,
+   "Precision@K": 0.40336935791481243,
+   "Avg Rank": 0.7917661036517633,
+   "n_diseases": 11
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.6969696969696971,
+   "Precision@K": 0.3849862258953168,
+   "Avg Rank": 0.7742398043124755,
+   "n_diseases": 11
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.6,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.6315224311437505,
+   "n_diseases": 5
+  },
+  "n_test_diseases": 12,
+  "n_hard": 6,
+  "diseases_without_predictions": 0
+ },
+ "area_autoimmune": {
+  "all": {
+   "AUPRC": 0.8694339113136393,
+   "AUROC": 0.7959111111111111,
+   "Recall@100": 0.7105970952124798,
+   "Precision@K": 0.3143491124260355,
+   "Avg Rank": 0.8790980789269669
+  },
+  "hard": {
+   "AUPRC": 0.791749517794797,
+   "AUROC": 0.6730103806228374,
+   "Recall@100": 0.4615384615384615,
+   "Precision@K": 0.32532051282051283,
+   "Avg Rank": 0.7734063916199143
+  },
+  "A_approved_only": {
+   "Recall@100": 0.7353415814954277,
+   "Precision@K": 0.30843195266272194,
+   "Avg Rank": 0.8583880904607147,
+   "n_diseases": 13
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.5454545454545454,
+   "Precision@K": 0.32954545454545453,
+   "Avg Rank": 0.779039917291652,
+   "n_diseases": 11
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.0,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.3974881387823525,
+   "n_diseases": 2
+  },
+  "n_test_diseases": 13,
+  "n_hard": 6,
+  "diseases_without_predictions": 0
+ },
+ "area_cardiovascular": {
+  "all": {
+   "AUPRC": 0.6376661890986195,
+   "AUROC": 0.575826215758695,
+   "Recall@100": 0.3661240212027902,
+   "Precision@K": 0.15804237538529534,
+   "Avg Rank": 0.7449563179882451
+  },
+  "hard": {
+   "AUPRC": 0.6205907256950176,
+   "AUROC": 0.5591754997012289,
+   "Recall@100": 0.32676348429766305,
+   "Precision@K": 0.12227817368990343,
+   "Avg Rank": 0.7262320498421104
+  },
+  "A_approved_only": {
+   "Recall@100": 0.4767146164021164,
+   "Precision@K": 0.1997255291005291,
+   "Avg Rank": 0.741645997120338,
+   "n_diseases": 48
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.3287367287973471,
+   "Precision@K": 0.17258686958626338,
+   "Avg Rank": 0.7573554500846621,
+   "n_diseases": 49
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.04063220729887397,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.622216134516854,
+   "n_diseases": 27
+  },
+  "n_test_diseases": 53,
+  "n_hard": 49,
+  "diseases_without_predictions": 0
+ },
+ "area_cell_proliferation": {
+  "all": {
+   "AUPRC": 0.929940720273991,
+   "AUROC": 0.8970471406155511,
+   "Recall@100": 0.7962753731062985,
+   "Precision@K": 0.5085640863678359,
+   "Avg Rank": 0.9324146359929668
+  },
+  "hard": {
+   "AUPRC": 0.8770038293558335,
+   "AUROC": 0.8293032173233603,
+   "Recall@100": 0.6748812693801801,
+   "Precision@K": 0.30824820463164687,
+   "Avg Rank": 0.8958097919838371
+  },
+  "A_approved_only": {
+   "Recall@100": 0.9116674493101252,
+   "Precision@K": 0.5655218119089394,
+   "Avg Rank": 0.9697753445451747,
+   "n_diseases": 166
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.7099824397653826,
+   "Precision@K": 0.4549143262935042,
+   "Avg Rank": 0.9052350768190458,
+   "n_diseases": 137
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.0,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.592904559155099,
+   "n_diseases": 46
+  },
+  "n_test_diseases": 180,
+  "n_hard": 108,
+  "diseases_without_predictions": 0
+ },
+ "area_diabetes": {
+  "all": {
+   "AUPRC": 0.4494294816168024,
+   "AUROC": 0.3484236831987697,
+   "Recall@100": 0.0777820562187139,
+   "Precision@K": 0.06834809395456296,
+   "Avg Rank": 0.6899274832490327
+  },
+  "hard": {
+   "AUPRC": 0.4494294816168024,
+   "AUROC": 0.3484236831987697,
+   "Recall@100": 0.0777820562187139,
+   "Precision@K": 0.06834809395456296,
+   "Avg Rank": 0.6899274832490327
+  },
+  "A_approved_only": {
+   "Recall@100": 1.0,
+   "Precision@K": 0.75,
+   "Avg Rank": 0.9987959060806744,
+   "n_diseases": 2
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.08721601848286484,
+   "Precision@K": 0.0777820562187139,
+   "Avg Rank": 0.7015392399946285,
+   "n_diseases": 2
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.01020408163265306,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.6683171211969965,
+   "n_diseases": 2
+  },
+  "n_test_diseases": 2,
+  "n_hard": 2,
+  "diseases_without_predictions": 0
+ },
+ "area_mental_health": {
+  "all": {
+   "AUPRC": 0.7791100867624656,
+   "AUROC": 0.7195497028875153,
+   "Recall@100": 0.4329655111913176,
+   "Precision@K": 0.20823543242898082,
+   "Avg Rank": 0.8613460745610567
+  },
+  "hard": {
+   "AUPRC": 0.738724382382143,
+   "AUROC": 0.6779575382961569,
+   "Recall@100": 0.3614339879735774,
+   "Precision@K": 0.15308295212987294,
+   "Avg Rank": 0.8526837881830737
+  },
+  "A_approved_only": {
+   "Recall@100": 0.7045401909918039,
+   "Precision@K": 0.3183513171416397,
+   "Avg Rank": 0.884913663137262,
+   "n_diseases": 31
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.4357845875398057,
+   "Precision@K": 0.20714491075022387,
+   "Avg Rank": 0.8752295968036591,
+   "n_diseases": 39
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.0749615975422427,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.749218884014059,
+   "n_diseases": 28
+  },
+  "n_test_diseases": 39,
+  "n_hard": 33,
+  "diseases_without_predictions": 0
+ },
+ "area_metabolic_disorder": {
+  "all": {
+   "AUPRC": 0.9222111389512441,
+   "AUROC": 0.8730536332179931,
+   "Recall@100": 0.6202380952380953,
+   "Precision@K": 0.3229591836734694,
+   "Avg Rank": 0.8369428492774513
+  },
+  "hard": {
+   "AUPRC": 0.8913580367255105,
+   "AUROC": 0.8293750000000001,
+   "Recall@100": 0.46491228070175433,
+   "Precision@K": 0.23558897243107765,
+   "Avg Rank": 0.7415039105870749
+  },
+  "A_approved_only": {
+   "Recall@100": 0.855889724310777,
+   "Precision@K": 0.44862155388471175,
+   "Avg Rank": 0.9314581095596134,
+   "n_diseases": 19
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.6139455782312925,
+   "Precision@K": 0.3218537414965987,
+   "Avg Rank": 0.8430293408307445,
+   "n_diseases": 28
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.2692307692307692,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.6665895279184963,
+   "n_diseases": 13
+  },
+  "n_test_diseases": 28,
+  "n_hard": 19,
+  "diseases_without_predictions": 0
+ },
+ "area_neurodigenerative": {
+  "all": {
+   "AUPRC": 0.9271618660718051,
+   "AUROC": 0.8964240861920815,
+   "Recall@100": 0.8557692307692308,
+   "Precision@K": 0.6182359307359307,
+   "Avg Rank": 0.9272736887180145
+  },
+  "hard": {
+   "AUPRC": 0.8665749782153062,
+   "AUROC": 0.7741020793950851,
+   "Recall@100": 0.7115384615384616,
+   "Precision@K": 0.43154761904761907,
+   "Avg Rank": 0.8557384384800496
+  },
+  "A_approved_only": {
+   "Recall@100": 0.875,
+   "Precision@K": 0.6182359307359307,
+   "Avg Rank": 0.9303631447215518,
+   "n_diseases": 12
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.7954545454545454,
+   "Precision@K": 0.6075187969924811,
+   "Avg Rank": 0.8940605677094505,
+   "n_diseases": 11
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.0,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.3789867957978785,
+   "n_diseases": 2
+  },
+  "n_test_diseases": 12,
+  "n_hard": 6,
+  "diseases_without_predictions": 0
+ },
+ "external_ot2606": {
+  "all": {
+   "Recall@100": 0.3637203286922058,
+   "Precision@K": 0.08275497535303043,
+   "Avg Rank": 0.796562085142398,
+   "n_diseases": 645
+  },
+  "recent": {
+   "Recall@100": 0.3166022974846504,
+   "Precision@K": 0.015151515151515152,
+   "Avg Rank": 0.8383505602484322,
+   "n_diseases": 99
+  },
+  "non_obvious": {
+   "Recall@100": 0.19332690014247797,
+   "Precision@K": 0.006591171945022742,
+   "Avg Rank": 0.7327956384991899,
+   "n_diseases": 563
+  },
+  "n_test_diseases": 645,
+  "diseases_without_predictions": 0
+ },
+ "zero_shot_1": {
+  "all": {
+   "AUPRC": 0.9538944472469122,
+   "AUROC": 0.9257061115169224,
+   "Recall@100": 0.8107100938967137,
+   "Precision@K": 0.5400628294424898,
+   "Avg Rank": 0.9093447544605378
+  },
+  "hard": {
+   "AUPRC": 0.8700723631510378,
+   "AUROC": 0.801555088268375,
+   "Recall@100": 0.5936781609195403,
+   "Precision@K": 0.31518883415435134,
+   "Avg Rank": 0.8141358219972583
+  },
+  "A_approved_only": {
+   "Recall@100": 0.8252678571428571,
+   "Precision@K": 0.5523761128298487,
+   "Avg Rank": 0.9110971049788864,
+   "n_diseases": 70
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.8052591391691738,
+   "Precision@K": 0.49520439831858515,
+   "Avg Rank": 0.9188444947324155,
+   "n_diseases": 51
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.28928571428571426,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.6064475255514481,
+   "n_diseases": 10
+  },
+  "n_test_diseases": 71,
+  "n_hard": 29,
+  "diseases_without_predictions": 0
+ },
+ "zero_shot_2": {
+  "all": {
+   "AUPRC": 0.9035157497608384,
+   "AUROC": 0.8530392549176533,
+   "Recall@100": 0.7055410388222889,
+   "Precision@K": 0.45303865629218454,
+   "Avg Rank": 0.8813348792075879
+  },
+  "hard": {
+   "AUPRC": 0.7055838315430534,
+   "AUROC": 0.6520226843100189,
+   "Recall@100": 0.35716135716135716,
+   "Precision@K": 0.006313131313131314,
+   "Avg Rank": 0.7490499292675573
+  },
+  "A_approved_only": {
+   "Recall@100": 0.7186333064299166,
+   "Precision@K": 0.4936543518446198,
+   "Avg Rank": 0.8851286992397056,
+   "n_diseases": 59
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.6882410106899902,
+   "Precision@K": 0.42995626822157434,
+   "Avg Rank": 0.9086956722710754,
+   "n_diseases": 49
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.4,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.7229260620152249,
+   "n_diseases": 10
+  },
+  "n_test_diseases": 64,
+  "n_hard": 27,
+  "diseases_without_predictions": 0
+ },
+ "zero_shot_3": {
+  "all": {
+   "AUPRC": 0.9378853825752325,
+   "AUROC": 0.905359404147547,
+   "Recall@100": 0.801261287464094,
+   "Precision@K": 0.5403707217327945,
+   "Avg Rank": 0.9214716404615036
+  },
+  "hard": {
+   "AUPRC": 0.8099437413880468,
+   "AUROC": 0.7158014595517831,
+   "Recall@100": 0.5305953654188948,
+   "Precision@K": 0.29399322416713725,
+   "Avg Rank": 0.8159276157953421
+  },
+  "A_approved_only": {
+   "Recall@100": 0.8258605550473779,
+   "Precision@K": 0.5468733261195786,
+   "Avg Rank": 0.9025054817015459,
+   "n_diseases": 64
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.6956833060556465,
+   "Precision@K": 0.47593136768668687,
+   "Avg Rank": 0.8619990994794064,
+   "n_diseases": 47
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.11666666666666667,
+   "Precision@K": 0.1,
+   "Avg Rank": 0.47388230102463796,
+   "n_diseases": 10
+  },
+  "n_test_diseases": 66,
+  "n_hard": 25,
+  "diseases_without_predictions": 0
+ },
+ "zero_shot_4": {
+  "all": {
+   "AUPRC": 0.9195523245580207,
+   "AUROC": 0.8888574820509921,
+   "Recall@100": 0.8055801267875572,
+   "Precision@K": 0.5031308640125134,
+   "Avg Rank": 0.9394861952368503
+  },
+  "hard": {
+   "AUPRC": 0.83702042201691,
+   "AUROC": 0.7934601809404034,
+   "Recall@100": 0.524481658692185,
+   "Precision@K": 0.24409793422951315,
+   "Avg Rank": 0.8317077493710283
+  },
+  "A_approved_only": {
+   "Recall@100": 0.8594872982087571,
+   "Precision@K": 0.5191327213700472,
+   "Avg Rank": 0.9440251986503798,
+   "n_diseases": 64
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.7053317053317053,
+   "Precision@K": 0.4636850803517471,
+   "Avg Rank": 0.9390945959449694,
+   "n_diseases": 45
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.0,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.8155031768191323,
+   "n_diseases": 8
+  },
+  "n_test_diseases": 66,
+  "n_hard": 22,
+  "diseases_without_predictions": 0
+ },
+ "zero_shot_5": {
+  "all": {
+   "AUPRC": 0.9115622156363403,
+   "AUROC": 0.8710314249652091,
+   "Recall@100": 0.781425616821438,
+   "Precision@K": 0.4388415654441339,
+   "Avg Rank": 0.9388193178688877
+  },
+  "hard": {
+   "AUPRC": 0.797013604026207,
+   "AUROC": 0.7243410195460946,
+   "Recall@100": 0.4967076618775016,
+   "Precision@K": 0.2700601389630103,
+   "Avg Rank": 0.8315735563773993
+  },
+  "A_approved_only": {
+   "Recall@100": 0.8498352633030052,
+   "Precision@K": 0.4637554542231962,
+   "Avg Rank": 0.9352401822824336,
+   "n_diseases": 65
+  },
+  "B_no_blockbusters": {
+   "Recall@100": 0.7084574370288655,
+   "Precision@K": 0.43144070601213463,
+   "Avg Rank": 0.8852774329898924,
+   "n_diseases": 50
+  },
+  "C_no_prior_use": {
+   "Recall@100": 0.1388888888888889,
+   "Precision@K": 0.0,
+   "Avg Rank": 0.5551468598928034,
+   "n_diseases": 9
+  },
+  "n_test_diseases": 68,
+  "n_hard": 26,
+  "diseases_without_predictions": 0
+ }
+}
