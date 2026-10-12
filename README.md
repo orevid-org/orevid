@@ -74,7 +74,11 @@ constant score removed, zero-shot Recall@100 is **0.809 vs 0.421** (hard 0.528 v
 Other documents: [`docs/TARGETS.md`](docs/TARGETS.md) (which gene to target),
 [`docs/NOVELTY.md`](docs/NOVELTY.md) and [`docs/EXTERNAL_EXAM.md`](docs/EXTERNAL_EXAM.md) (novelty tests),
 [`docs/TXGNN_EVALUATION.md`](docs/TXGNN_EVALUATION.md) (how TxGNN was reproduced),
-[`docs/PANEL.md`](docs/PANEL.md) (automatic quality panel over all diseases).
+[`docs/PANEL.md`](docs/PANEL.md) (automatic quality panel over all diseases),
+[`docs/XGBOOST.md`](docs/XGBOOST.md) (XGBoost, CatBoost and ensembles against the production LightGBM),
+[`docs/PROSPECTIVE_PLAN.md`](docs/PROSPECTIVE_PLAN.md) (prospective validation, snapshot of 12 October 2026),
+[`docs/OPEN_TARGETS_FEEDBACK.md`](docs/OPEN_TARGETS_FEEDBACK.md) (data errors reported to Open Targets),
+[`docs/preprint/`](docs/preprint/) (preprint draft) and [`docs/STATUS.md`](docs/STATUS.md) (status and next steps).
 
 ## Data sources
 

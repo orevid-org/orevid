@@ -7,3 +7,5 @@ lightgbm
 rdkit
 pytest
 anthropic  # optional: only for sources.pubmed (literature extraction with Claude)
+xgboost  # optional: only for evaluation.xgboost_compare (learner comparison, docs/XGBOOST.md)
+catboost  # optional: same
