@@ -124,7 +124,11 @@
     "load_error": "This page could not be loaded.",
     "retry": "Try again",
     "nav_legal": "Legal notice and terms of use",
-    "search_label": "Disease"
+    "search_label": "Disease",
+    "fb_ask": "Expert opinion on this candidate?",
+    "fb_github": "Send feedback on GitHub",
+    "fb_or": "or",
+    "fb_email": "by email"
   },
   "terms": {
     "PrimeKG gene-disease": "gene-disease association (PrimeKG)",

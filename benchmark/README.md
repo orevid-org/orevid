@@ -85,6 +85,10 @@ clinical-trial databases, drug labels, literature saying «drug treats disease»
 `disease` and `drug` (PrimeKG `node_index`) and `score` (higher = more likely to treat). Score every
 drug in `tasks/<task>.json` → `drugs` for every test disease; missing pairs get the lowest score.
 
+The prediction files of the four models in the leaderboard (~180 MB, not kept in git) are attached to
+the GitHub release as `orevid-bench-predictions-v1.0.zip`: unzip it here to re-evaluate them with
+`python bench.py evaluate --pred predictions/<model>`.
+
 ## Caveats
 
 - `area_*`: TxGNN's own disease-area splits cannot be reproduced (no seed); OREVID-bench's are an

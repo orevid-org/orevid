@@ -1,0 +1,22 @@
+name: Data error
+description: Something on the website or in the data is wrong (approval, status, target, gene association, translation…)
+title: "[Data] "
+labels: ["data-error"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page or item
+      description: Disease page link, drug, gene…
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Correct information and source

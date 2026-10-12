@@ -124,7 +124,11 @@
     "load_error": "No s'ha pogut carregar aquesta pàgina.",
     "retry": "Torna-ho a provar",
     "nav_legal": "Avís legal i condicions d'ús",
-    "search_label": "Malaltia"
+    "search_label": "Malaltia",
+    "fb_ask": "Opinió experta sobre aquest candidat?",
+    "fb_github": "Envia-la a GitHub",
+    "fb_or": "o",
+    "fb_email": "per correu"
   },
   "terms": {
     "approved": "aprovat",

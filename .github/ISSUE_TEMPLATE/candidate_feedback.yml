@@ -1,0 +1,50 @@
+name: Candidate feedback
+description: Expert opinion on a drug–disease candidate shown on orevid.org (supporting or contradicting evidence)
+title: "[Candidate] "
+labels: ["candidate-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Feedback from experts is used as new validation data and to correct errors.
+        Please do not include any patient-identifiable information.
+  - type: input
+    id: disease
+    attributes:
+      label: Disease
+    validations:
+      required: true
+  - type: input
+    id: drug
+    attributes:
+      label: Drug
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Link to the disease page on orevid.org
+  - type: dropdown
+    id: verdict
+    attributes:
+      label: Your assessment
+      options:
+        - Plausible / there is supporting evidence
+        - Implausible
+        - Potentially harmful
+        - Already used or approved for this disease (data error)
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and reasoning
+      description: Mechanism, clinical experience, trials, safety concerns…
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: PMIDs, DOIs, trial IDs (NCT…), labels

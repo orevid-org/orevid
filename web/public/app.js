@@ -194,7 +194,21 @@ function candidateDetail(c, disease) {
     ${cli.length ? `<h4>${t("h_clinical")}</h4>${ul(cli)}` : ""}
     ${c.risk ? `<h4>${t("h_risk")}</h4><ul>${r.contraindicated ? `<li>${t("r_contra").replace("{c}", r.contraindicated).replace("{i}", r.indicated || 0)}</li>` : ""}${r.checkpoint ? `<li>${t("r_checkpoint")}</li>` : ""}</ul>` : ""}
     ${ctx.length ? `<h4>${t("h_context")}</h4>${ul(ctx)}` : ""}
-    <p class="links">${drugLinks(c, disease)}</p></div>`;
+    <p class="links">${drugLinks(c, disease)}</p>
+    <p class="feedback small">${t("fb_ask")} ${feedbackLinks(c, disease)}</p></div>`;
+}
+
+// Expert feedback: a pre-filled GitHub issue (form .github/ISSUE_TEMPLATE/candidate_feedback.yml) or an email.
+// No server involved; the feedback becomes new validation data.
+const REPO = "https://github.com/orevid-org/orevid";
+function feedbackLinks(c, disease) {
+  const page = location.origin + location.pathname + location.hash;
+  const q = (o) => Object.entries(o).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
+  const issue = `${REPO}/issues/new?` + q({template: "candidate_feedback.yml", title: `[Candidate] ${c.name} for ${disease}`,
+    disease, drug: c.name, page});
+  const mail = `mailto:${CONTACT}?` + q({subject: `OREVID feedback: ${c.name} for ${disease}`, body: page + "\n\n"});
+  return ext(issue, t("fb_github")) + ` <span class="muted">${t("fb_or")}</span> ` +
+    `<a href="${mail}">${t("fb_email")}</a>`;
 }
 
 // Candidate table (the detail row expands)

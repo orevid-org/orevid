@@ -124,7 +124,11 @@
     "load_error": "No se ha podido cargar esta página.",
     "retry": "Volver a intentarlo",
     "nav_legal": "Aviso legal y condiciones de uso",
-    "search_label": "Enfermedad"
+    "search_label": "Enfermedad",
+    "fb_ask": "¿Opinión experta sobre este candidato?",
+    "fb_github": "Envíala en GitHub",
+    "fb_or": "o",
+    "fb_email": "por correo"
   },
   "terms": {
     "approved": "aprobado",

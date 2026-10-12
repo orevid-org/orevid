@@ -122,3 +122,4 @@ details.exploratory summary h3 { display: inline; }
   .table.targets { min-width: 760px; }
   .table td, .table th { padding: 6px 5px; }
 }
+.detail .feedback { margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--line); }
