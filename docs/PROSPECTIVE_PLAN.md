@@ -1,8 +1,8 @@
 # Prospective validation: analysis plan (written before any outcome is known)
 
 Snapshot date: **12 October 2026**. Code version: OREVID v1.1.0 (git tag `v1.1.0`, Zenodo concept DOI
-10.5281/zenodo.23323226). The snapshot itself is archived separately on Zenodo with its own DOI, and is
-never modified. Any deviation from this plan will be reported as such.
+10.5281/zenodo.23323226). The snapshot itself is archived separately on Zenodo, doi:10.5281/zenodo.23326593
+(https://doi.org/10.5281/zenodo.23326593), and is never modified. Any deviation from this plan will be reported as such.
 
 ## What was frozen
 
