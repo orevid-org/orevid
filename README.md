@@ -1,5 +1,7 @@
 # OREVID — Open Repurposing Evidence
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23323226.svg)](https://doi.org/10.5281/zenodo.23323226)
+
 OREVID ranks existing drugs for each disease using a biomedical knowledge graph (drugs, genes,
 diseases, phenotypes, trials, adverse effects) and shows **the evidence behind every candidate**.
 It only shows candidates backed by evidence that has been checked against held-out data, and it says
@@ -141,8 +143,9 @@ built data and are skipped without it). Publishing the website: [`docs/DEPLOY.md
 
 ## Citing
 
-If you use OREVID or OREVID-bench, please cite the repository (see [`CITATION.cff`](CITATION.cff)) and
-the original sources, in particular PrimeKG and TxGNN for the benchmark.
+If you use OREVID or OREVID-bench, please cite it (DOI [10.5281/zenodo.23323226](https://doi.org/10.5281/zenodo.23323226),
+all versions; see [`CITATION.cff`](CITATION.cff)) and the original sources, in particular PrimeKG and TxGNN for the
+benchmark.
 
 ## Reporting errors
 

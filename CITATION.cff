@@ -7,6 +7,7 @@ authors:
   - family-names: Quadrada
     given-names: Joaquim
 repository-code: "https://github.com/orevid-org/orevid"
+doi: "10.5281/zenodo.23323226"
 url: "https://orevid.org"
 license: MIT
 keywords:
