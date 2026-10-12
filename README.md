@@ -47,9 +47,10 @@ What the website shows, and how often it was right among each disease's top 25
 | Hidden (none of the above) | 2–4 % | 1.4 % |
 
 Chance would be below 0.1 %. The hidden-treatment test is the usual one (also TxGNN's) but rewards
-rediscovering what is known; the external exam is the more realistic one. Caveats that matter for the
-comparison (TxGNN outputs all-zero scores for some test diseases; OREVID trains on each split's
-validation labels, TxGNN uses them for early stopping) are in [`benchmark/README.md`](benchmark/README.md).
+rediscovering what is known; the external exam is the more realistic one. The two protocol differences
+with TxGNN are measured, not only stated, in [`benchmark/FAIR_COMPARISON.md`](benchmark/FAIR_COMPARISON.md):
+with OREVID trained on the training labels only (as TxGNN) and the diseases where TxGNN outputs a
+constant score removed, zero-shot Recall@100 is **0.809 vs 0.421** (hard 0.528 vs 0.275; areas 0.627 vs 0.238).
 
 ## How it works
 

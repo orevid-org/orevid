@@ -3,6 +3,7 @@ format (benchmark/predictions/<model>/<task>.parquet: disease, drug, score).
 
     py -3 -m evaluation.export_bench
     py -3 -m evaluation.export_bench external    # external_ot2606 task (data/eval/external_scores.npz)
+    py -3 -m evaluation.export_bench train-only  # OREVID trained without validation labels (…_rank_trainonly.npz)
 """
 import sys
 from pathlib import Path
@@ -18,14 +19,14 @@ MODELS = {"LambdaRank_+_masked": "orevid_lambdarank",
           "TxGNN_run_here": "txgnn"}
 
 
-def main():
+def main(suffix="", models=MODELS):
     sys.stdout.reconfigure(encoding="utf-8")
-    for f in sorted((CACHE / "scores").glob(f"*_{PRODUCTION}_r5_rank.npz")):
+    for f in sorted((CACHE / "scores").glob(f"*_{PRODUCTION}_r5_rank{suffix}.npz")):
         split = next(s for s in ["complex_disease"] + AREAS if f.name.startswith(s))
         seed = f.name[len(split) + 1:].split("_")[0]
         task = f"zero_shot_{seed}" if split == "complex_disease" else f"area_{split}"
         z = np.load(f, allow_pickle=True)
-        for key, name in MODELS.items():
+        for key, name in models.items():
             if key not in z:
                 continue
             S = z[key]
@@ -40,6 +41,8 @@ def main():
 
 if __name__ == "__main__" and len(sys.argv) == 1:
     main()
+if __name__ == "__main__" and sys.argv[1:] == ["train-only"]:
+    main("_trainonly", {"LambdaRank_+_masked": "orevid_lambdarank_train_only"})
 
 
 def external():

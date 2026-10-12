@@ -24,7 +24,7 @@ function termsRegex(map) {
 function prepareLocale(j) {
   const terms = j.terms || {}, targetTerms = {...terms, ...(j.target_terms || {})};
   return {strings: j.strings || {}, terms, targetTerms, termsRe: termsRegex(terms), targetRe: termsRegex(targetTerms),
-    method: j.method || "", legal: j.legal || ""};
+    method: j.method || "", legal: j.legal || "", about: j.about || ""};
 }
 function loadLocale(l) {
   return (LOCALES[l] ||= fetch(`i18n/${l}.json`, {cache: "no-cache"})
@@ -410,6 +410,12 @@ function showLegal() {
   document.title = `${t("nav_legal")} — OREVID`;
 }
 
+function showAbout() {
+  document.querySelector(".search").classList.add("compact");
+  document.getElementById("view").innerHTML = L.about;
+  document.title = `${t("nav_about")} — OREVID`;
+}
+
 function showMethod() {
   document.querySelector(".search").classList.add("compact");
   document.getElementById("view").innerHTML = L.method;
@@ -447,6 +453,7 @@ async function route() {
   try {
     if (m) { await showDisease(Number(m[1])); window.scrollTo(0, 0); }
     else if (h === "#/method") showMethod();
+    else if (h === "#/about") showAbout();
     else if (h === "#/legal") showLegal();
     else { document.querySelector(".search").classList.remove("compact"); document.getElementById("view").innerHTML = ""; document.title = "OREVID"; }
   } catch (e) {

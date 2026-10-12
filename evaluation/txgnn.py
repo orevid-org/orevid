@@ -499,7 +499,7 @@ def fit_ranker(X, y, groups, seed=0):
     return clf.predict
 
 
-def evaluate(kg, types, split, seed, n_train=1500, feature_set="base", rounds=0, rank=False):
+def evaluate(kg, types, split, seed, n_train=1500, feature_set="base", rounds=0, rank=False, train_only=False):
     t0 = time.time()
     paths = FEATURE_SETS[feature_set]
     label = split_edges(kg, split, seed)
@@ -519,8 +519,10 @@ def evaluate(kg, types, split, seed, n_train=1500, feature_set="base", rounds=0,
     degree = np.diff(g.M(INDICATION).indptr)[g.drugs].astype(np.float64)
     pool_neg = degree > 0
 
-    # Diseases to train the model: with known indications (training or validation).
-    known = ind & (label < 2) & ~np.isin(y, test_diseases)
+    # Diseases to train the model: with known indications (training or validation). With train_only,
+    # only the training edges are used as labels, as TxGNN does (it uses validation only for early
+    # stopping): a fairer comparison (docs/FAIR_COMPARISON.md).
+    known = ind & ((label == 0) if train_only else (label < 2)) & ~np.isin(y, test_diseases)
     train_diseases = pd.unique(y[known])
     train_diseases = np.random.default_rng(seed).choice(train_diseases, min(n_train, len(train_diseases)), replace=False)
     train_pos = {d: drug_pos[x[known & (y == d)]] for d in train_diseases}
@@ -578,7 +580,7 @@ def evaluate(kg, types, split, seed, n_train=1500, feature_set="base", rounds=0,
     results = {k: metrics(v, test_pos, pool_neg) for k, v in scores.items()}
     # Scores for later analyses (evaluation/novelty.py).
     (CACHE / "scores").mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(CACHE / "scores" / f"{split}_{seed}_{feature_set}_r{rounds}{'_rank' if rank else ''}.npz",
+    np.savez_compressed(CACHE / "scores" / f"{split}_{seed}_{feature_set}_r{rounds}{'_rank' if rank else ''}{'_trainonly' if train_only else ''}.npz",
                         diseases=test_diseases, drugs=g.drugs, degree=degree,
                         positives=np.array([np.asarray(p) for p in test_pos], dtype=object),
                         **{key: scores[k].astype(np.float32) for k, key in SCORE_KEYS.items() if k in scores})
@@ -639,6 +641,8 @@ def main():
     p.add_argument("--n-train", type=int, default=1500)
     p.add_argument("--rounds", type=int, default=0, help="training rounds with masked neighbourhoods")
     p.add_argument("--rank", action="store_true", help="also try LightGBM with a ranking objective")
+    p.add_argument("--train-only", action="store_true",
+                   help="use only the training edges as labels (not the validation ones), like TxGNN")
     p.add_argument("--paths", choices=list(FEATURE_SETS), default="base",
                    help="base: PrimeKG; new: + new metapaths; extra: + OREVID biological sources")
     a = p.parse_args()
@@ -649,7 +653,7 @@ def main():
     for split in splits:
         runs, coefs = [], []
         for s in [int(s) for s in a.seeds.split(",")]:
-            r, c = evaluate(kg, types, split, s, a.n_train, a.paths, a.rounds, a.rank)
+            r, c = evaluate(kg, types, split, s, a.n_train, a.paths, a.rounds, a.rank, a.train_only)
             runs.append(pd.DataFrame(r).T)
             coefs.append(c)
         mean = pd.concat(runs).groupby(level=0, sort=False).mean()

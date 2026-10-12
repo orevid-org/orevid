@@ -10,8 +10,9 @@ HERE = Path(__file__).resolve().parent
 NAMES = {"popularity": "Popularity (baseline, ignores the disease)",
          "txgnn": "TxGNN (Huang et al., Nat Med 2024; official code, trained on the same splits)",
          "orevid_no_popularity": "OREVID, graph only (logistic regression, no popularity)",
-         "orevid_lambdarank": "OREVID (LambdaRank over meta-paths)"}
-ORDER = ["popularity", "txgnn", "orevid_no_popularity", "orevid_lambdarank"]
+         "orevid_lambdarank": "OREVID (LambdaRank over meta-paths)",
+         "orevid_lambdarank_train_only": "OREVID, training labels only (as TxGNN; see FAIR_COMPARISON.md)"}
+ORDER = ["popularity", "txgnn", "orevid_no_popularity", "orevid_lambdarank", "orevid_lambdarank_train_only"]
 
 
 def fmt(x):
@@ -44,6 +45,8 @@ def main():
                 continue
             d = res[m]
             d = d[d.group == group]
+            if d.empty:
+                continue
             cells = []
             for s in subs:
                 r = d[d.subset == s]

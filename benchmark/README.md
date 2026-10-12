@@ -96,11 +96,14 @@ the GitHub release as `orevid-bench-predictions-v1.0.zip`: unzip it here to re-e
 - `external_ot2606` is out-of-sample but not prospective: most of those approvals are older than
   PrimeKG (median first trial 2008); they are simply missing from it.
 - Labels come from PrimeKG/DrugBank and Open Targets; they reward rediscovering known treatments.
-- TxGNN outputs all-zero scores for test diseases with no edge left in the training graph (1–4 per
-  split in zero-shot seeds 2–5, 1 in anaemia, 2 in cancer); its ranking is then random while a model
-  with a popularity prior is not. This explains about 0.02 of the Recall@100 gap.
-- OREVID uses the validation labels of each split as training examples; TxGNN uses them only
+- TxGNN outputs the same score for every drug in test diseases with no edge left in the training graph
+  (8 of 335 zero-shot diseases, 3 of 345 in the areas); its ranking there is random.
+- OREVID normally uses the validation labels of each split as training examples; TxGNN uses them only
   for early stopping. Both are allowed by the protocol, but it is an asymmetry.
+- Both differences are **measured** in [`FAIR_COMPARISON.md`](FAIR_COMPARISON.md) (`fair_comparison.py`):
+  with OREVID trained on the training labels only and the degenerate diseases removed, zero-shot
+  Recall@100 is 0.809 vs TxGNN 0.421 (hard subset 0.528 vs 0.275; areas 0.627 vs 0.238). The validation
+  labels add 0.01–0.02 to OREVID; removing the degenerate diseases helps both models similarly.
 
 ## Data and licences
 
