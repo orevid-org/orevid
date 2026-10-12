@@ -669,7 +669,7 @@ def main():
         print("  Weights of the full model (scaled features): " + ", ".join(
             f"{k} {np.mean([c[k] for c in coefs]):+.2f}" for k in coefs[0] if not k.startswith("_")))
         CACHE.mkdir(parents=True, exist_ok=True)
-        pd.concat({s: t for s, t in zip(a.seeds.split(","), runs)}).to_csv(CACHE / f"results_{split}_{a.paths}{'_r' + str(a.rounds) if a.rounds else ''}.csv")
+        pd.concat({s: t for s, t in zip(a.seeds.split(","), runs)}).to_csv(CACHE / f"results_{split}_{a.paths}{'_r' + str(a.rounds) if a.rounds else ''}{'_trainonly' if a.train_only else ''}.csv")
 
 
 if __name__ == "__main__":

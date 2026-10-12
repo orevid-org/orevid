@@ -55,7 +55,7 @@ constant score removed, zero-shot Recall@100 is **0.809 vs 0.421** (hard 0.528 v
 ## How it works
 
 1. **Graph.** PrimeKG plus Open Targets 26.06 (mechanisms with direction, clinical stages, stopped
-   trials, gene–disease evidence), STRING, PubTator3 and others: ~157,000 nodes and 9.4 million
+   trials, gene–disease evidence), STRING, PubTator3 and others: 157,822 nodes and 9,457,076
    relations (`prepare.py`, `sources/`).
 2. **Features.** For each disease–drug pair, degree-weighted path counts (DWPC, as in Hetionet) over
    «metapaths» such as *drug targets a disease gene* or *drug treats a disease sharing genes*
