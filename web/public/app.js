@@ -118,8 +118,9 @@ function explanation(e) {
 }
 const EVIDENCE_T = new Set(["neighbour", "similar", "target"]);
 const CLINICAL_T = new Set(["clinical", "stopped", "literature"]);
-// Shared genes: ≥ 3 and significant (hypergeometric, p < 1e-6; P28)
-const validSimilar = (m) => m[1] >= 3 && (m[3] == null || m[3] < 1e-6);
+// Shared genes: ≥ 3 and significant (hypergeometric over the genes with a disease, p < 1e-5; P28, P40).
+// Must match MAX_P_SHARED in web/build.py.
+const validSimilar = (m) => m[1] >= 3 && (m[3] == null || m[3] < 1e-5);
 const isEvidence = (e) => (e.t === "similar" ? e.m.some(validSimilar) : EVIDENCE_T.has(e.t));
 const pval = (p) => {
   if (p === 0) return "< 1e-300";

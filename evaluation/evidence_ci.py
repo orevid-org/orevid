@@ -5,7 +5,7 @@ permutation null, the split by gene-set size and the website's exact rules on th
 Same candidates and sections as evaluation/evidence.py: the 25 highest-ranked candidates per test
 disease; «neighbour» = indicated (training graph) for an ontology neighbour, «table» = indicated for a
 disease that shares genes under the rule, «hidden» = the rest. Computed with matrices, so that every rule
-variant and every permutation is cheap. The base rule (≥ 3 genes, p < 1e-6) must reproduce the published
+variant and every permutation is cheap. The base rule (≥ 3 genes, p < 1e-5, N = genes; P40) must reproduce the
 counts of evaluation/evidence.py (checked at the start of the report).
 
     py -3 -m evaluation.evidence_ci          # -> data/eval/evidence_ci.json and docs/EVIDENCE_CI.md
@@ -26,12 +26,13 @@ ROOT = Path(__file__).resolve().parent.parent
 TOP, B, PERMUTATIONS = 25, 10_000, 100
 SECTIONS = ("neighbour", "table", "hidden")
 # Rule variants (minimum shared genes, p threshold, extra condition). «base» is production.
-VARIANTS = {"base": (3, 1e-6, None)}
+# Since P40 the population N is the number of genes and the production threshold p < 1e-5 (docs/HYPERGEOMETRIC_N.md).
+VARIANTS = {"base": (3, 1e-5, None)}
 for k in (2, 3, 4, 5):
-    for p in (1e-4, 1e-6, 1e-8):
+    for p in (1e-3, 1e-5, 1e-7):
         VARIANTS.setdefault(f"k{k}_p{p:.0e}", (k, p, None))
-VARIANTS.update({"base+fold2": (3, 1e-6, "fold2"), "base+specific3": (3, 1e-6, "specific3"),
-                 "base, N=genes only": (3, 1e-6, "ngenes")})
+VARIANTS.update({"base+fold2": (3, 1e-5, "fold2"), "base+specific3": (3, 1e-5, "specific3"),
+                 "before P40 (N = all linked nodes, p < 1e-6)": (3, 1e-6, "nlinked")})
 SIZE_BINS = ((0, 100, "< 100 genes"), (100, 500, "100–499 genes"), (500, 10 ** 9, "≥ 500 genes"))
 _TYPES = None
 
@@ -55,8 +56,8 @@ class Genes:
         I = g.M(INDICATION).tocsr()
         self.ng = np.diff(G.indptr)
         deg = np.diff(G.tocsc().indptr)
-        self.N = int((deg > 0).sum())  # as evidence.py and the website (counts every linked node)
-        self.N_genes = int(((deg > 0) & (node_types_all() == "gene/protein")).sum())
+        self.N_linked = int((deg > 0).sum())  # before P40: every linked node (genes and diseases)
+        self.N_genes = self.N = int(((deg > 0) & (node_types_all() == "gene/protein")).sum())
         is_drug = np.zeros(g.N, bool)
         is_drug[g.drugs] = True
         self.M = np.flatnonzero((self.ng > 0) & (np.diff(I.indptr) > 0) & ~is_drug)
@@ -83,7 +84,7 @@ class Genes:
         k, pv, extra = VARIANTS[variant]
         if not hasattr(self, "_p"):
             self._p = {}
-        N = self.N_genes if extra == "ngenes" else self.N
+        N = self.N_linked if extra == "nlinked" else self.N
         if N not in self._p:
             self._p[N] = self.pvalues(N)
         sig = (self.K >= k) & (self._p[N] < pv)

@@ -37,10 +37,10 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
 - Production model: LightGBM LambdaRank on 22 metapaths + popularity + drug degrees, masked
   training (`predictor.py`; evaluation in `evaluation/txgnn.py`, feature set `extra_no_ctd`, 5 rounds).
 - Website shows only candidates with an evidence line (direct extension; ≥ 3 shared genes with
-  p < 1e-6) among the top 25; hit rates in `docs/EVIDENCE.md`.
+  hypergeometric p < 1e-5 over the genes with a disease, P40) among the top 25; hit rates in `docs/EVIDENCE.md`.
 - OREVID-bench: `benchmark/` (leaderboard, fair comparison with TxGNN in `benchmark/FAIR_COMPARISON.md`).
 - Key numbers (Recall@100): zero-shot 0.811 vs TxGNN 0.412; areas 0.617 vs 0.237; external exam
-  0.359 vs 0.121. Hit rate on unseen approvals: direct extensions 12.6 %, shared genes 4.2 %.
+  0.359 vs 0.121. Hit rate on unseen approvals: direct extensions 12.6 %, shared genes 4.3 %.
 
 ## Done on 12-10-2026
 
@@ -84,7 +84,7 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 2. **T2** — external exam over five training seeds, OREVID and TxGNN: `docs/EXTERNAL_SEEDS.md`.
 3. **T3, T5** — hit rates with disease-level intervals; the website's exact rules give the same figures
    (`evaluation/evidence_ci.py` → `docs/EVIDENCE_CI.md`). The model's ranking does most of the work (top 25 without
-   rules 4.2 %; rules without the model 0.8 %).
+   rules 4.2 %; rules without the model 1.0 % after P40).
 4. **T4, T8** — threshold grid: no sharp optimum; **permutation null failed**: random gene sets of the same size
    pick candidates that are right as often, also within gene-set-size bins and with specific genes (exploratory:
    `py -3 -m evaluation.evidence_ci null`). The shared genes are no longer presented as evidence of a shared
@@ -95,6 +95,13 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 7. Website pages updated with `py -3 -m web.build --patch` (navigation fields added, 10 biomarker pages rebuilt;
    checked to equal a full rebuild on 40 random pages) and deployed. Preprint updated in the Claude Doc and
    re-exported to `docs/preprint/`. Open Targets #4579: reply posted by the maintainer on 13-10.
+
+## Done on 14-10-2026, night (home PC)
+
+- **P40**: the shared-genes hypergeometric test now uses the genes with a disease as population (19,735 in the evaluation, 19,766 on the website; it counted diseases too)
+  with the threshold re-matched to p < 1e-5 (protocol and results: `docs/HYPERGEOMETRIC_N.md`). All evidence
+  figures recomputed (`docs/EVIDENCE.md`, `docs/EVIDENCE_CI.md`); the website rebuilt in full and deployed (Method
+  page and help texts in three languages); preprint, README and decision log updated. P38 still holds.
 
 ## Next steps
 
@@ -121,8 +128,6 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
    associations and comorbidities that read as shared biology (lupus–endocarditis, RA–Graves).
-9. Hypergeometric N counts every linked node instead of genes only (P38): kept because the corrected version
-   fails the P29 rule on the benchmark; revisit if the shared-genes rule is redesigned.
 
 ## Rebuild order (from scratch)
 

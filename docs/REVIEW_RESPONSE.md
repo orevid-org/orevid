@@ -355,3 +355,22 @@ ablation, null and threshold grid, specific genes), new Supplementary Table S5, 
 disease-level intervals, Discussion and Limitations. Website: navigation, broad-term notice, biomarker
 exclusions, and the shared genes described as context rather than evidence (candidates help and Method page,
 three languages), deployed with `web.build --patch`.
+
+### After P40 (14-10, night): corrected hypergeometric test, all evidence figures recomputed
+
+The shared-genes test used as population every node with a gene–disease link (36,769, genes and diseases);
+it now uses the 19,735 genes, with the threshold re-matched to p < 10⁻⁵ so that the validated selection is kept
+(`docs/HYPERGEOMETRIC_N.md`, DECISIONS P40). The figures in the sections above are from before this correction;
+the current ones (`docs/EVIDENCE_CI.md`, `docs/EVIDENCE.md`):
+
+- Shared genes: benchmark 23.0 % (17.4–28.7; 1,970), hard 27.4 %, areas 26.3 % (21.8–31.1; 2,608), hard 22.5 %,
+  external 4.3 % (3.1–5.6; 3,936); website rules on the external exam 4.3 % (3.1–5.7). Hidden: 4.2 / 2.9 / 1.7 / 1.6 /
+  1.5 %. Direct extensions unchanged (12.6 % external). Specific genes 4.8 % (3.3–6.5), generic 2.8 % (1.6–4.2).
+  Rules without the model 1.0 % (0.7–1.3); model without rules 4.2 %.
+- T4: grid (2–5 genes × p < 10⁻³, 10⁻⁵, 10⁻⁷) 3.9–4.7 % on the external exam, no sharp optimum. Null: 4.9 % on average
+  (99th percentile 5.3 %) against 4.3 % observed: still fails. Exploratory: below the null's 99th percentile in
+  every gene-set-size bin, on the external exam and now also on the benchmark (diseases with < 100 genes: 15.0 %
+  vs 15.6 %), and with ≥ 3 specific genes (4.8 % vs 5.7 %).
+- T8: broad diseases (≥ 500 genes) 4.6 % (2.4–7.5) on the external exam, above the hidden 1.5 %: kept. «≥ 3 specific
+  genes» as a filter still fails the P29 rule (the subset it removes hits 9.4 % on the benchmark and 10.5 % on the
+  areas).

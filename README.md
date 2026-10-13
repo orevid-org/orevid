@@ -43,8 +43,8 @@ What the website shows, and how often it was right among each disease's top 25
 | Section | Hidden-treatment tests | New approvals (external exam) |
 |---|---|---|
 | Direct extensions (indicated for a neighbouring disease) | 13–59 % | 12.6 % |
-| Candidates table (shares ≥ 3 genes, hypergeometric p < 10⁻⁶) | 21–27 % | 4.2 % |
-| Hidden (none of the above) | 2–4 % | 1.4 % |
+| Candidates table (≥ 3 shared genes, hypergeometric p < 10⁻⁵ over the 19,766 genes with a disease) | 22–27 % | 4.3 % |
+| Hidden (none of the above) | 2–4 % | 1.5 % |
 
 Chance would be below 0.1 %. Random gene sets of the same size select candidates that are right as often as the real shared genes, so the shared genes are not evidence of a shared mechanism: the table works as a selection of drugs already used in comparable diseases ([`docs/EVIDENCE_CI.md`](docs/EVIDENCE_CI.md), P38). The hidden-treatment test is the usual one (also TxGNN's) but rewards
 rediscovering what is known; the external exam is the more realistic one. The two protocol differences

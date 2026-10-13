@@ -26,14 +26,16 @@ First pass (S = ≥ 3 genes, without significance), hits among the top 25:
 of sample. Decision: the web shows no level letters; it shows only A and B (rule `has_evidence`:
 indicated in a neighbouring disease or in one with ≥ 3 genes in common). The lines are shown as facts.
 
-Final version (S, in addition, significant: p < 1e-6; P28), the one this script reproduces and saves
-in data/eval/log_evidence.txt: A 44.9/28.7/36.2/18.5 %; per web section, direct extensions
-(«neighbour») 49.9/13.3/59.4/24.7 %, table 22.7/27.0/25.2/21.3 %, hidden 4.2/2.9/1.7/1.6 %.
+Final version (S, in addition, significant: hypergeometric p < 1e-5 over the genes with at least one disease;
+P28, corrected in P40), the one this script reproduces and saves in data/eval/log_evidence.txt and
+docs/EVIDENCE.md: A 45.3/29.2/37.4/19.5 %; per web section, direct extensions («neighbour»)
+49.9/13.3/59.4/24.7 %, table 23.0/27.4/26.3/22.5 %, hidden 4.2/2.9/1.7/1.6 %.
 
 External exam (new approvals the graph did not know, the most realistic test; `external()`), among the
-top 25 not known: neighbour 12.6 %, table with specific genes 4.8 % and with generic genes 2.7 % (whole
-table 4.2 %), hidden 1.4 % (random < 0.1 %). The test of hiding treatments overestimates the ability to
-find new indications (DECISIONS.md P31).
+top 25 not known: neighbour 12.6 %, table with specific genes 4.8 % and with generic genes 2.8 % (whole
+table 4.3 %), hidden 1.5 % (random < 0.1 %). The test of hiding treatments overestimates the ability to
+find new indications (DECISIONS.md P31). A permutation null shows that the shared genes themselves carry no
+measurable signal (P38, evaluation/evidence_ci.py).
 
     py -3 -m evaluation.evidence            # table per level: complex_disease bench and areas
 """
@@ -44,6 +46,16 @@ import numpy as np
 from scipy.stats import hypergeom
 
 LEVELS = ["A", "B", "C", "-"]
+# Hypergeometric test of the shared genes: population N = genes with at least one disease, p < 1e-5 (P40,
+# docs/HYPERGEOMETRIC_N.md; before: N = every linked node, genes and diseases, p < 1e-6).
+MAX_P = 1e-5
+
+
+def n_genes(G):
+    """Number of gene nodes with at least one associated disease (G is symmetric: diseases excluded)."""
+    from evaluation.evidence_ci import node_types_all
+    deg = np.diff(G.tocsc().indptr)
+    return int(((deg > 0) & (node_types_all()[:len(deg)] == "gene/protein")).sum())
 SCREEN = ["neighbour", "table", "hidden"]
 
 
@@ -80,7 +92,7 @@ def evaluate(split, seed, top=25, significance=True):
     drug_pos[g.drugs] = np.arange(len(g.drugs))
     nd = near_duplicates(g, diseases, positives, drug_pos)
     ng = np.diff(G.indptr)
-    N = int((np.diff(G.tocsc().indptr) > 0).sum())
+    N = n_genes(G)
     res = defaultdict(lambda: [0, 0])
     for c, d in enumerate(diseases):
         pos = set(positives[c])
@@ -89,13 +101,13 @@ def evaluate(split, seed, top=25, significance=True):
             v = lambda n: F[f, c, ix[n]] > 0
             dr = g.drugs[f]
             dis = I.indices[I.indptr[dr]:I.indptr[dr + 1]]
-            # S: ≥ 3 genes in common with a disease where it is indicated, and significant (p < 1e-6; P28)
+            # S: ≥ 3 genes in common with a disease where it is indicated, and significant (p < MAX_P; P28, P40)
             shared = 0
             for m in dis:
                 if m == d:
                     continue
                 k = len(genes_d.intersection(G.indices[G.indptr[m]:G.indptr[m + 1]]))
-                if k >= 3 and (not significance or hypergeom.sf(k - 1, N, ng[m], len(genes_d)) < 1e-6):
+                if k >= 3 and (not significance or hypergeom.sf(k - 1, N, ng[m], len(genes_d)) < MAX_P):
                     shared = max(shared, k)
             V = v("ontology")
             n = level(V, v("ontology 2-step") and not V, v("target") or v("target (all)") or v("target+ all"),
@@ -138,7 +150,7 @@ def external(top=25):
     F = score_paths(g, diseases, paths)
     G, I = g.M(GENES_EXTRA).tocsr(), g.M(INDICATION).tocsr()
     ng, gene_degree = np.diff(G.indptr), np.diff(G.tocsc().indptr)
-    N = int((gene_degree > 0).sum())
+    N = n_genes(G)
     res = defaultdict(lambda: [0, 0])
     for c, d in enumerate(diseases):
         pos, known = set(all_pos[all_pos.disease == d].drug), set(z["known"][c])
@@ -148,7 +160,7 @@ def external(top=25):
             Sb = Se = False
             for m in I.indices[I.indptr[f]:I.indptr[f + 1]]:
                 com = genes_d.intersection(G.indices[G.indptr[m]:G.indptr[m + 1]]) if m != d else set()
-                if len(com) >= 3 and hypergeom.sf(len(com) - 1, N, ng[m], len(genes_d)) < 1e-6:
+                if len(com) >= 3 and hypergeom.sf(len(com) - 1, N, ng[m], len(genes_d)) < MAX_P:
                     Sb = True
                     Se |= sum(gene_degree[x] < 100 for x in com) >= 3
             k = "neighbour" if F[j, c, ix["ontology"]] > 0 else ("table, specific genes" if Se else

@@ -12,6 +12,8 @@ from pathlib import Path
 
 import numpy as np
 
+from web.build import MAX_P_SHARED
+
 ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "web" / "public" / "data"
 
@@ -29,7 +31,7 @@ def main():
     no_expl = np.mean([not c["expl"] for c in cand])
     expl_types = Counter(e["t"] for c in cand for e in c["expl"])
     # Which disease the «shared genes» line comes from: if one dominates, it is a hub (P28)
-    source_s = Counter(next(m[0] for m in e["m"] if m[1] >= 3 and (len(m) < 4 or m[3] < 1e-6))
+    source_s = Counter(next(m[0] for m in e["m"] if m[1] >= 3 and (len(m) < 4 or m[3] < MAX_P_SHARED))
                        for c in cand for e in c["expl"] if e["t"] == "similar" and "shared_genes" in c.get("lines", []))
     empty = np.mean([not d["candidates"] and not d["extensions"] for d in ds])
     with_atc = np.mean([bool(c.get("atc")) for c in cand])

@@ -38,9 +38,11 @@ TEST_DISEASES = ["multiple sclerosis", "Alzheimer disease", "Parkinson disease",
 # with ≥ 3 shared genes» (shared_genes) count: 18-33 % hits. «Acts on a disease gene» without either hits
 # 2-3 %, like having no path at all; «disease 2 steps away» alone, 1-11 %. They are shown as context.
 MIN_SHARED_GENES = 3
-# In addition, the overlap must be significant (hypergeometric, p < 1e-6): overlaps with «hub» diseases
-# (thousands of genes) hit 0-2.5 %, significant ones 23-25 % (DECISIONS.md P28).
-MAX_P_SHARED = 1e-6
+# In addition, the overlap must be significant (hypergeometric, p < 1e-5): overlaps with «hub» diseases
+# (thousands of genes) hit 0-2.5 %, significant ones 23-26 % (DECISIONS.md P28). Since P40 the population N is
+# the number of genes (before, every linked node, genes and diseases, with p < 1e-6; docs/HYPERGEOMETRIC_N.md).
+# The genes shared are context, not evidence of a shared mechanism (P38).
+MAX_P_SHARED = 1e-5
 
 
 # «Specific» gene: associated with fewer than 100 diseases. With ≥ 3 specific shared genes, candidates
@@ -150,7 +152,8 @@ class Explainer:
         self.genes_c = self.genes.tocsc()
         self.n_genes = np.diff(self.genes.indptr)
         self.gene_degree = np.diff(self.genes_c.indptr)  # diseases per gene
-        self.N_genes = int((self.gene_degree > 0).sum())  # genes with at least one disease
+        # genes with at least one disease (the matrix is symmetric: the diseases must not be counted; P40)
+        self.N_genes = int(((self.gene_degree > 0) & (g.types == "gene/protein")).sum())
         # Adverse effects (SIDER) specific enough (≤ 5 % of drugs with effects): not a validated warning
         # (they do not separate contraindications from indications, DECISIONS.md P27), but an expert wants to see them.
         self.effects = g.M(EFFECT)
