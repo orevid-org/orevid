@@ -123,6 +123,11 @@ METAPATHS.update({
                                     "chemically similar to drugs indicated in neighbouring diseases"),
 })
 PATHS_STRUCTURE = ["drug (structure) · similar", "drug (structure) · phenotype", "drug (structure) · ontology"]
+# Without any Open Targets input (REVIEW_RESPONSE.md T1): PrimeKG genes and targets, plus STRING.
+METAPATHS.update({
+    "interaction STRING pkg": ("ppi", "drug_protein", "disease_protein",
+                               "target ↔ (STRING ≥ 700) PrimeKG disease gene", "string"),
+})
 # Production feature set (predictor, web, external exam, OREVID-bench). Without CTD: it adds nothing
 # (ablation on the 14 splits and on the external exam) and it is the only source with a
 # non-commercial licence (DECISIONS.md, P20).
@@ -130,7 +135,9 @@ PRODUCTION = "extra_no_ctd"
 FEATURE_SETS = {"base": PATHS, "new": PATHS + NEW_PATHS, "extra": PATHS + NEW_PATHS + PATHS_EXTRA,
                 "structure": PATHS + NEW_PATHS + PATHS_EXTRA + PATHS_STRUCTURE,
                 # ablation: without CTD (drug-gene relations taken from the literature; docs/DECISIONS.md A14)
-                "extra_no_ctd": PATHS + NEW_PATHS + [c for c in PATHS_EXTRA if "CTD" not in c]}
+                "extra_no_ctd": PATHS + NEW_PATHS + [c for c in PATHS_EXTRA if "CTD" not in c],
+                # ablation: no Open Targets feature at all (T1); the name starts with «extra» so STRING is loaded
+                "extra_no_ot": PATHS + NEW_PATHS + ["interaction STRING pkg"]}
 
 # Model score names (display names in the results tables) -> keys in the score npz files
 # (data/eval/scores/), read by evaluation/novelty.py, evaluation/evidence.py and evaluation/export_bench.py.
@@ -503,7 +510,7 @@ def evaluate(kg, types, split, seed, n_train=1500, feature_set="base", rounds=0,
     t0 = time.time()
     paths = FEATURE_SETS[feature_set]
     label = split_edges(kg, split, seed)
-    g = TxGraph(kg, label == 0, types, extra=(feature_set in ("extra", "structure", "extra_no_ctd")))
+    g = TxGraph(kg, label == 0, types, extra=(feature_set in ("extra", "structure", "extra_no_ctd", "extra_no_ot")))
     drug_pos = np.full(g.N, -1)
     drug_pos[g.drugs] = np.arange(len(g.drugs))
 

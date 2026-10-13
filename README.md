@@ -46,7 +46,7 @@ What the website shows, and how often it was right among each disease's top 25
 | Candidates table (shares ≥ 3 genes, hypergeometric p < 10⁻⁶) | 21–27 % | 4.2 % |
 | Hidden (none of the above) | 2–4 % | 1.4 % |
 
-Chance would be below 0.1 %. The hidden-treatment test is the usual one (also TxGNN's) but rewards
+Chance would be below 0.1 %. Random gene sets of the same size select candidates that are right as often as the real shared genes, so the shared genes are not evidence of a shared mechanism: the table works as a selection of drugs already used in comparable diseases ([`docs/EVIDENCE_CI.md`](docs/EVIDENCE_CI.md), P38). The hidden-treatment test is the usual one (also TxGNN's) but rewards
 rediscovering what is known; the external exam is the more realistic one. The two protocol differences
 with TxGNN are measured, not only stated, in [`benchmark/FAIR_COMPARISON.md`](benchmark/FAIR_COMPARISON.md):
 with OREVID trained on the training labels only (as TxGNN) and the diseases where TxGNN outputs a
@@ -79,7 +79,8 @@ Other documents: [`docs/TARGETS.md`](docs/TARGETS.md) (which gene to target),
 [`docs/PANEL.md`](docs/PANEL.md) (automatic quality panel over all diseases),
 [`docs/XGBOOST.md`](docs/XGBOOST.md) (XGBoost, CatBoost and ensembles against the production LightGBM),
 [`docs/PROSPECTIVE_PLAN.md`](docs/PROSPECTIVE_PLAN.md) (prospective validation, snapshot of 12 October 2026),
-[`docs/OPEN_TARGETS_FEEDBACK.md`](docs/OPEN_TARGETS_FEEDBACK.md) (data errors reported to Open Targets),
+[`resources/opentargets/`](resources/opentargets/) and `sources/ot_suspect_approvals.py` (suspect Open Targets approvals, opentargets/issues#4579),
+[`docs/REVIEW_RESPONSE.md`](docs/REVIEW_RESPONSE.md) (answer to an external review, with [`docs/EVIDENCE_CI.md`](docs/EVIDENCE_CI.md), [`docs/BIOMARKERS.md`](docs/BIOMARKERS.md) and [`docs/EXTERNAL_SEEDS.md`](docs/EXTERNAL_SEEDS.md)),
 [`docs/preprint/`](docs/preprint/) (preprint draft) and [`docs/STATUS.md`](docs/STATUS.md) (status and next steps).
 
 ## Data sources

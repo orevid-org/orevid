@@ -1,0 +1,17 @@
+node,name,marker,status,drug_rule,source
+37655,triple-negative breast carcinoma,ESR1,absent,endocrine,"definition: oestrogen receptor, progesterone receptor and HER2 negative"
+37655,triple-negative breast carcinoma,PGR,absent,targets:PGR,"definition: oestrogen receptor, progesterone receptor and HER2 negative"
+37655,triple-negative breast carcinoma,ERBB2,absent,targets:ERBB2,"definition: oestrogen receptor, progesterone receptor and HER2 negative"
+37773,estrogen-receptor negative breast cancer,ESR1,absent,endocrine,definition: oestrogen receptor negative
+37774,progesterone-receptor negative breast cancer,PGR,absent,targets:PGR,definition: progesterone receptor negative
+37775,Her2-receptor negative breast cancer,ERBB2,absent,targets:ERBB2,definition: HER2 negative
+84130,HER2 positive breast carcinoma,ERBB2,present,,definition: HER2 positive
+97426,estrogen-receptor positive breast cancer,ESR1,present,,definition: oestrogen receptor positive
+95249,progesterone-receptor positive breast cancer,PGR,present,,definition: progesterone receptor positive
+30039,"chronic myelogenous leukemia, BCR-ABL1 positive",BCR-ABL1,present,,definition: BCR-ABL1 fusion present
+84261,"blast phase chronic myelogenous leukemia, BCR-ABL1 positive",BCR-ABL1,present,,definition: BCR-ABL1 fusion present
+94836,"atypical chronic myeloid leukemia, BCR-ABL1 negative",BCR-ABL1,absent,"targets:ABL1,BCR",definition: BCR-ABL1 fusion absent
+98341,ALK-negative anaplastic large cell lymphoma,ALK,absent,targets:ALK,definition: ALK rearrangement absent
+94694,ALK-positive anaplastic large cell lymphoma,ALK,present,,definition: ALK rearrangement present
+84159,ALK-positive large B-cell lymphoma,ALK,present,,definition: ALK rearrangement present
+99123,ALK+ histiocytosis,ALK,present,,definition: ALK rearrangement present

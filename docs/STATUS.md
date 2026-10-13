@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 13-10-2026)
+# Project status and how to continue (updated 14-10-2026)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -65,7 +65,7 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
    curation; the acronyms are the OnToma bug of #4573. He asked for a script or dataset to find more
    cases: `sources/ot_suspect_approvals.py` and `resources/opentargets/ot_suspect_approvals_26.06.csv`
    (14 acronym pairs, 13 wrong; 729 multi-molecule pairs, 355 high priority). Analysis, proposal and a
-   draft reply (not posted): `docs/OPEN_TARGETS_FEEDBACK.md`.
+   reply posted by the maintainer on 13-10 (the analysis note is kept locally, not in the public repository).
 
 ## Done on 13-10-2026 (from the work PC, clone at `C:\dev-quimqu\orevid`)
 
@@ -75,27 +75,46 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
    Limitations, abstract, new Supplementary Table S4) and re-exported to `docs/preprint/`. Point-by-point
    answer and what is left: `docs/REVIEW_RESPONSE.md`.
 
+## Done on 13–14 October 2026 (home PC): the eight review tasks T1–T8
+
+Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pending tasks») and DECISIONS P36–P39.
+
+1. **T1** — no material dependence on Open Targets: without any Open Targets feature, external Recall@100 0.348
+   (production 0.359; PrimeKG only 0.351), zero-shot 0.802, areas 0.628.
+2. **T2** — external exam over five training seeds, OREVID and TxGNN: `docs/EXTERNAL_SEEDS.md`.
+3. **T3, T5** — hit rates with disease-level intervals; the website's exact rules give the same figures
+   (`evaluation/evidence_ci.py` → `docs/EVIDENCE_CI.md`). The model's ranking does most of the work (top 25 without
+   rules 4.2 %; rules without the model 0.8 %).
+4. **T4, T8** — threshold grid: no sharp optimum; **permutation null failed**: random gene sets of the same size
+   pick candidates that are right as often, also within gene-set-size bins and with specific genes (exploratory:
+   `py -3 -m evaluation.evidence_ci null`). The shared genes are no longer presented as evidence of a shared
+   mechanism (website wording and preprint changed; candidates unchanged, P38). Broad diseases keep the section.
+5. **T6** — ontology navigation (`sources/hierarchy.py`), broad-term notice, near-synonym marker.
+6. **T7** — biomarker rule (`resources/biomarker_subtypes.csv`), validated by hand (`docs/BIOMARKERS.md`):
+   tamoxifen and other endocrine drugs no longer appear for triple-negative or ER-negative breast cancer.
+7. Website pages updated with `py -3 -m web.build --patch` (navigation fields added, 10 biomarker pages rebuilt;
+   checked to equal a full rebuild on 40 random pages) and deployed. Preprint updated in the Claude Doc and
+   re-exported to `docs/preprint/`. Open Targets #4579: reply posted by the maintainer on 13-10.
+
 ## Next steps
 
-00. **Home PC, first: the eight pending tasks (T1–T8) in `docs/REVIEW_RESPONSE.md`**, each with the files
-    to change, the commands, a decision rule fixed in advance and the preprint text to update. T1–T5 answer
-    the external review; T6–T8 fix website problems found on 13-10 (breast cancer page: no navigation to
-    subtypes, tamoxifen #1 for triple-negative, broad terms with pan-cancer candidates). Order: T6 (ontology
-    navigation, presentation only) → T1 (external exam without Open Targets) → T7 (biomarker rule for
-    subtypes) → T3 (hit-rate CIs) → T5 (exact website rules) → T4 + T8 (thresholds, broad diseases) → T2
-    (5 seeds). All need `data/`; T6–T8 need a website rebuild and deploy.
-0. Post the reply to opentargets/issues#4579 (draft in `docs/OPEN_TARGETS_FEEDBACK.md`), after a look at the CSV.
 1. Read the preprint draft end to end; add ORCID; post to bioRxiv (category Bioinformatics or
    Pharmacology and Toxicology). Then add the bioRxiv DOI to the README and the website.
-2. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic
-   ensemble on new uses (it gained on non-obvious external approvals); one sentence on P33 could be
-   added to the preprint's Methods as a robustness check.
-3. GitHub release v1.1.0 with `orevid-bench-predictions-v1.1.zip` (the prospective plan cites v1.1.0).
-4. Pending account tasks: ORCID; Resend domain verification and Gmail «send as» for contact@orevid.org;
+2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
+   exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
+   pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
+   null on the benchmark.
+3. Biomarker table: extend `resources/biomarker_subtypes.csv` beyond breast cancer, CML and ALCL (e.g. EGFR- or
+   ALK-mutant lung cancer if the graph has those nodes), with the same manual check (`evaluation/biomarker_check.py`).
+4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
+5. GitHub release v1.1.0 with `orevid-bench-predictions-v1.1.zip` (the prospective plan cites v1.1.0).
+6. Pending account tasks: ORCID; Resend domain verification and Gmail «send as» for contact@orevid.org;
    verify the domain in the GitHub organisation's Pages settings (TXT record).
-5. Collect expert feedback from the website (GitHub issues) as new validation labels.
-6. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
+7. Collect expert feedback from the website (GitHub issues) as new validation labels.
+8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
    associations and comorbidities that read as shared biology (lupus–endocarditis, RA–Graves).
+9. Hypergeometric N counts every linked node instead of genes only (P38): kept because the corrected version
+   fails the P29 rule on the benchmark; revisit if the shared-genes rule is redesigned.
 
 ## Rebuild order (from scratch)
 

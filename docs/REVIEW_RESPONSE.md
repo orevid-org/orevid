@@ -248,3 +248,110 @@ split by gene-set size; the «broad terms» sentence in Limitations.
    `![](figures/figureN.png)` in order, keep the first comment line.
 2. DECISIONS.md: close P34 (or add P35) with the results and decisions.
 3. If T5 changes the website figures: update the Method page and redeploy (`web/deploy.sh`, see STATUS).
+
+## Results of the pending tasks (home PC, 13–14 October 2026)
+
+All decision rules above were applied as written. Raw outputs: `data/eval/` (not in git); generated reports:
+`docs/EVIDENCE_CI.md` (T3, T4, T5, T8), `docs/BIOMARKERS.md` (T7), `docs/EXTERNAL_SEEDS.md` (T2).
+
+### T6. Navigation and broad-term notice — done
+
+`sources/hierarchy.py` builds `data/prep/disease_hierarchy.parquet` from the Open Targets disease table
+(26,998 parent → child pairs between 17,615 disease nodes; edges inside cycles, created when several terms map
+to one node, are dropped). Pages carry `broader`, `narrower` (children by number of genes) and
+`n_descendants`; the frontend shows them as links, collapses beyond 12 children and shows the broad-term notice
+when there are ≥ 5 descendants or ≥ 500 genes. Direct extensions indicated for a near-synonym (same name without
+generic words, or gene-set Jaccard ≥ 0.8) are marked «approved for an equivalent term» (breast cancer:
+epirubicin and cyclophosphamide, approved for «breast neoplasm»). Tests: `tests/test_hierarchy.py`.
+
+### T1. External exam without Open Targets features — no material dependence
+
+| Feature set | External Recall@100 | Zero-shot (5 seeds) | Zero-shot, hard | Areas |
+|---|---|---|---|---|
+| Production (`extra_no_ctd`) | 0.359 | 0.811 ± 0.042 | 0.539 | 0.617 |
+| No Open Targets (`extra_no_ot`: PrimeKG + STRING) | 0.348 | 0.802 ± 0.048 | 0.522 | 0.628 |
+| No external source (`new`: PrimeKG only) | 0.351 | — | — | — |
+| TxGNN | 0.121 | 0.412 | 0.258 | 0.237 |
+
+Rule: drop < 0.05 and margin over TxGNN > 0.10 → met (drop 0.011, margin 0.227).
+
+### T3. Hit rates with disease-level intervals — done
+
+The production rule reproduces the published counts exactly. Intervals from resampling whole diseases are two
+to three times wider than Wilson's: external exam, direct extensions 12.6 % (9.8–15.6), shared genes 4.2 %
+(3.1–5.5), hidden 1.4 % (1.1–1.8); benchmark shared genes 22.7 % (17.2–28.4); areas 25.2 % (20.8–29.8).
+Full table: `docs/EVIDENCE_CI.md`.
+
+### T5. Website rules applied exactly on the external exam — figures confirmed
+
+With the website's specificity (2,000 reference diseases of the seed-1 training graph, model checked to
+reproduce the published scores) and its exclusions (same active moiety, contraindicated, diagnostic and
+veterinary drugs; Open Targets approvals are not excluded here because they are the answer): direct extensions
+12.4 % (9.7–15.6), shared genes 4.3 % (3.1–5.6), hidden 1.5 % (1.1–1.9), all within the intervals of the
+approximation, so the published figures stand. Check C, measured apart on the external exam: the model's top 25
+without any rule hit 4.2 % (3.5–5.0); the rules without the model (every candidate with a line, any rank)
+0.8 % (0.6–1.0); every candidate 0.1 %. Most of the enrichment comes from the model's ranking.
+
+### T7. Biomarker rule — adopted after the manual check
+
+`resources/biomarker_subtypes.csv` (16 rows: breast ER/PR/HER2 subtypes, CML BCR-ABL1, ALCL ALK); an absent
+marker also applies to the descendants. Drug rule for an absent oestrogen receptor: ATC «endocrine therapy»
+(L02) except anti-androgens, or targets ESR1, ESR2 or CYP19A1 unless it is a cytotoxic antineoplastic (L01).
+The two exceptions were found by the pre-specified manual check (criterion a): enzalutamide (an anti-androgen,
+studied in androgen-receptor-positive triple-negative breast cancer) and estramustine (a cytotoxic that acts on
+microtubules) were flagged by the first version and are not endocrine therapy in this sense. Criterion (b): 0 of
+the flagged pairs is an approved indication; the three with a phase 3 trial (lapatinib in triple-negative,
+tamoxifen and letrozole in ER-negative breast cancer) are correct exclusions (no benefit without the receptor).
+Criterion (c): 9 candidates and 0 direct extensions removed (tamoxifen from triple-negative; formestane,
+tamoxifen and testolactone from ER-negative breast cancer; five BCR-ABL inhibitors from atypical CML,
+BCR-ABL1 negative). Every pair: `docs/BIOMARKERS.md`. Tests: `tests/test_biomarkers.py`.
+
+### T4. Shared-genes thresholds and permutation null — (a) met, (b) failed
+
+(a) No sharp optimum: on the external exam the 12 cells of the grid (2–5 genes × p < 1e-4, 1e-6, 1e-8) give
+3.9–4.6 % against 4.2 % for the production rule; on the benchmark 20.7–24.3 % (22.7 %), on the areas 22.5–27.8 %
+(25.2 %). (b) With degree-preserving random gene sets (every disease keeps its size; genes drawn in proportion to
+their number of diseases; ranking and indications unchanged; 100 permutations) the shared-genes section hits
+4.5 % on average (99th percentile 4.8 %) against 4.2 % observed. **By the rule fixed in advance, the shared-genes
+line cannot be presented as biological evidence.** Exploratory analyses added afterwards (not pre-specified,
+`py -3 -m evaluation.evidence_ci null`) confirm it within every gene-set-size bin on the external exam (2.7 vs
+2.2 %, 5.7 vs 5.5 %, 4.6 vs 4.5 %, all below the null's 99th percentile) and with ≥ 3 specific genes (4.8 vs
+5.1 %); on the benchmark only diseases with < 100 genes are above the null (14.8 % vs 99th percentile 14.0 %).
+The line selects drugs already used in diseases of similar size and research intensity; the specific genes it
+lists add nothing measurable. Consequence (P38): candidates and rule unchanged (the hit rate is measured), but the
+website and the preprint no longer describe the shared genes as evidence of a shared mechanism.
+
+### T8. Shared genes in broad diseases — broad pages keep the section
+
+External exam, shared-genes section by the disease's gene-set size: < 100 genes 2.7 % (1.7–3.9), 100–499 5.7 %
+(3.3–8.4), ≥ 500 4.6 % (2.4–7.4). The ≥ 500 bin is above the hidden section's 1.4 % by more than its interval, so
+by the rule broad pages keep shared-genes candidates (with the T6 notice). Fold enrichment ≥ 2 removes nothing
+(p < 1e-6 already implies it). «≥ 3 specific genes» as a filter fails the P29 rule (the subset it removes hits
+9.0 % on the benchmark and 9.8 % on the areas) and stays a display-only annotation.
+
+### T2. External exam over five training seeds — done, OREVID and TxGNN
+
+`py -3 -m evaluation.external_exam evaluate --seed N` (OREVID, seeds 2–5) and `evaluation/txgnn_external_seeds.sh`
+(TxGNN inference with the models already trained on each zero-shot split, ~10 min per seed in WSL);
+summary with `py -3 -m evaluation.external_exam seeds` → `docs/EXTERNAL_SEEDS.md`. Recall@100, mean ± SD over
+the five training splits:
+
+| Model | All | Non-obvious | Recent |
+|---|---|---|---|
+| Popularity | 0.130 ± 0.010 | 0.076 ± 0.006 | 0.098 ± 0.012 |
+| TxGNN | 0.126 ± 0.004 | 0.086 ± 0.004 | 0.138 ± 0.024 |
+| OREVID | 0.367 ± 0.008 | 0.184 ± 0.007 | 0.365 ± 0.021 |
+| Logistic regression without popularity | 0.363 ± 0.010 | 0.183 ± 0.013 | 0.339 ± 0.016 |
+
+Seed 1 (the published exam) is representative. Preprint: Table 1 external columns as mean ± SD, abstract and
+Figure 2 caption with the five-split values, «one training split» removed from Statistical analysis and
+Limitations.
+
+### Preprint and website after T1–T8 (14-10)
+
+Preprint (Claude Doc, re-exported to `docs/preprint/`): abstract (Open Targets ablation, disease-level CIs, the
+null), Conclusions, Methods (biomarker rule, exact website rules, permutation test), Results (Open Targets
+ablation, null and threshold grid, specific genes), new Supplementary Table S5, Table S3 and Figure 4 with
+disease-level intervals, Discussion and Limitations. Website: navigation, broad-term notice, biomarker
+exclusions, and the shared genes described as context rather than evidence (candidates help and Method page,
+three languages), deployed with `web.build --patch`.

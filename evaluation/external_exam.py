@@ -52,12 +52,12 @@ def prepare():
     print(f"{len(p)} new indications in {len(m)} diseases -> {CACHE / 'external_diseases.csv'}")
 
 
-def score_ours(kg, types, diseases, feature_set=None, rounds=5, n_train=1500):
+def score_ours(kg, types, diseases, feature_set=None, rounds=5, n_train=1500, seed=SEED):
     feature_set = feature_set or PRODUCTION
     """Trains our model as evaluate() does (same split) and scores the given diseases."""
     t0 = time.time()
     paths = FEATURE_SETS[feature_set]
-    label = split_edges(kg, SPLIT, SEED)
+    label = split_edges(kg, SPLIT, seed)
     g = TxGraph(kg, label == 0, types, extra=feature_set.startswith("extra"))
     drug_pos = np.full(g.N, -1)
     drug_pos[g.drugs] = np.arange(len(g.drugs))
@@ -67,10 +67,10 @@ def score_ours(kg, types, diseases, feature_set=None, rounds=5, n_train=1500):
     degree = np.diff(g.M(INDICATION).indptr)[g.drugs].astype(np.float64)
     known = ind & (label < 2) & ~np.isin(y, test_diseases)
     train_diseases = pd.unique(y[known])
-    train_diseases = np.random.default_rng(SEED).choice(train_diseases, min(n_train, len(train_diseases)), replace=False)
+    train_diseases = np.random.default_rng(seed).choice(train_diseases, min(n_train, len(train_diseases)), replace=False)
     is_train = ind & (label == 0)
     gf = drug_degrees(g)
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed)
     rows_X, rows_y = [], []
     for i in range(0, len(train_diseases), 256):
         block = train_diseases[i:i + 256]
@@ -86,9 +86,9 @@ def score_ours(kg, types, diseases, feature_set=None, rounds=5, n_train=1500):
     X, Y = np.concatenate(rows_X), np.concatenate(rows_y)
     nc = len(paths)
     graph_only, _ = fit_model(X[:, :nc], Y)
-    Xm, Ym, Gm = masked_rows(g, test_diseases, known, x, y, drug_pos, paths, rounds, SEED)
-    gbm = fit_gbm(np.concatenate([X, Xm]), np.concatenate([Y, Ym]), SEED)
-    rank = fit_ranker(np.concatenate([X, Xm]), np.concatenate([Y, Ym]), np.r_[[len(v) for v in rows_y], Gm], SEED)
+    Xm, Ym, Gm = masked_rows(g, test_diseases, known, x, y, drug_pos, paths, rounds, seed)
+    gbm = fit_gbm(np.concatenate([X, Xm]), np.concatenate([Y, Ym]), seed)
+    rank = fit_ranker(np.concatenate([X, Xm]), np.concatenate([Y, Ym]), np.r_[[len(v) for v in rows_y], Gm], seed)
     res = {"Popularity": np.repeat(degree[:, None], len(diseases), axis=1),
            "Ours without popularity": np.zeros((len(g.drugs), len(diseases)), np.float32),
            "Ours": np.zeros((len(g.drugs), len(diseases)), np.float32),
@@ -105,8 +105,8 @@ def score_ours(kg, types, diseases, feature_set=None, rounds=5, n_train=1500):
     return g, res
 
 
-def txgnn(diseases, drugs):
-    f = CACHE / "txgnn_predictions" / f"TxGNN_{SEED}_{SPLIT}_external.parquet"
+def txgnn(diseases, drugs, seed=SEED):
+    f = CACHE / "txgnn_predictions" / f"TxGNN_{seed}_{SPLIT}_external.parquet"
     if not f.exists():
         print("(there are no TxGNN predictions for the external exam)")
         return None
@@ -134,9 +134,12 @@ def evaluate():
     types = node_types(kg)
     p = new_positives(kg)
     diseases = np.array(sorted(p.disease.unique()))
-    feature_set = sys.argv[2] if len(sys.argv) > 2 else PRODUCTION
-    g, scores = score_ours(kg, types, diseases, feature_set=feature_set)
-    tx = txgnn(diseases, g.drugs)
+    args = sys.argv[2:]
+    seed = int(args[args.index("--seed") + 1]) if "--seed" in args else SEED
+    args = [x for i, x in enumerate(args) if x != "--seed" and (i == 0 or args[i - 1] != "--seed")]
+    feature_set = args[0] if args else PRODUCTION
+    g, scores = score_ours(kg, types, diseases, feature_set=feature_set, seed=seed)
+    tx = txgnn(diseases, g.drugs, seed)
     if tx is not None:
         scores["TxGNN"] = tx
     pos_f = np.full(N_PKG, -1)
@@ -180,12 +183,16 @@ def evaluate():
         print(d[d.subset == "all"].groupby("model")[["Recall@100", "Precision@K", "Avg Rank"]].mean().round(3))
         return
     ob = pd.DataFrame(obvious, columns=["drug", "disease", "obvious"])
-    p.merge(ob, on=["drug", "disease"]).to_parquet(CACHE / "external_positives.parquet", index=False)
-    np.savez_compressed(CACHE / "external_scores.npz", diseases=diseases, drugs=g.drugs,
+    suffix = "" if seed == SEED else f"_s{seed}"  # other training seeds (REVIEW_RESPONSE.md T2): separate files
+    p.merge(ob, on=["drug", "disease"]).to_parquet(CACHE / f"external_positives{suffix}.parquet", index=False)
+    np.savez_compressed(CACHE / f"external_scores{suffix}.npz", diseases=diseases, drugs=g.drugs,
                         degree=np.diff(g.M(INDICATION).indptr)[g.drugs],
                         known=np.array([g.drugs[known.get(d, np.array([], int))] for d in diseases], dtype=object),
                         **{k.replace(" ", "_").replace("(", "").replace(")", ""): v.astype(np.float32) for k, v in scores.items()})
     d = pd.DataFrame(rows)
+    if seed != SEED:
+        print(d.groupby(["subset", "model"])["Recall@100"].mean().round(3).to_string())
+        return
     order = [m for m in ["Popularity", "TxGNN", "Ours without popularity", "Ours", "Ours (ranking)"]
              if m in d.model.unique()]
     L = ["# External exam: Open Targets indications that are not in PrimeKG\n",
@@ -209,5 +216,60 @@ def evaluate():
     print("\n".join(L))
 
 
+def seeds():
+    """External exam over the five zero-shot training seeds (REVIEW_RESPONSE.md T2): mean ± SD of the
+    per-seed Recall@100 (mean over diseases), from external_scores[_s<seed>].npz."""
+    sys.stdout.reconfigure(encoding="utf-8")
+    rows = []
+    for seed in (1, 2, 3, 4, 5):
+        suffix = "" if seed == SEED else f"_s{seed}"
+        f = CACHE / f"external_scores{suffix}.npz"
+        if not f.exists():
+            print(f"(seed {seed} missing: py -3 -m evaluation.external_exam evaluate --seed {seed})")
+            continue
+        z = dict(np.load(f, allow_pickle=True))
+        if "TxGNN" not in z:  # TxGNN's predictions may have been made after OREVID's run
+            tx = txgnn(z["diseases"], z["drugs"], seed)
+            if tx is not None:
+                z["TxGNN"] = tx
+        p = pd.read_parquet(CACHE / f"external_positives{suffix}.parquet")
+        drugs = z["drugs"]
+        pos_f = {int(x): j for j, x in enumerate(drugs)}
+        rng = np.random.default_rng(0)
+        models = {"Popularity": "Popularity", "TxGNN": "TxGNN", "Ours_without_popularity": "Logistic regression without popularity",
+                  "Ours_ranking": "OREVID"}
+        for c, (d, known) in enumerate(zip(z["diseases"], z["known"])):
+            cand = np.ones(len(drugs), bool)
+            cand[[pos_f[int(x)] for x in known if int(x) in pos_f]] = False
+            e = p[p.disease == d]
+            for sub, s_ in {"all": e, "recent": e[e["year"] >= 2018], "non-obvious": e[~e.obvious]}.items():
+                pos = np.array([pos_f[int(x)] for x in s_.drug if int(x) in pos_f], int)
+                if not len(pos):
+                    continue
+                for key, name in models.items():
+                    if key not in z:
+                        continue
+                    col = z[key][:, c].astype(np.float64)
+                    if np.isnan(col).all():
+                        continue
+                    m = measure(np.nan_to_num(col, nan=np.nanmin(col) - 1), pos, cand, rng=rng)
+                    if m:
+                        rows.append({"seed": seed, "subset": sub, "model": name, **m})
+    d = pd.DataFrame(rows)
+    per_seed = d.groupby(["subset", "model", "seed"])["Recall@100"].mean().unstack("seed")
+    L = ["# External exam over five training seeds\n",
+         "Generated by `py -3 -m evaluation.external_exam seeds` (REVIEW_RESPONSE.md T2). Recall@100 (mean over "
+         "diseases) per training seed (the zero-shot splits 1–5), and mean ± SD over seeds. Seed 1 is the published "
+         "exam. TxGNN: inference with the models trained on each zero-shot split.\n",
+         "| Subset | Model | " + " | ".join(f"seed {s}" for s in per_seed.columns) + " | mean ± SD |",
+         "|---|---|" + "---|" * (len(per_seed.columns) + 1)]
+    for (sub, model), r in per_seed.iterrows():
+        v = r.dropna()
+        L.append(f"| {sub} | {model} | " + " | ".join("—" if x != x else f"{x:.3f}" for x in r)
+                 + f" | {v.mean():.3f} ± {v.std(ddof=1) if len(v) > 1 else 0:.3f} |")
+    (ROOT / "docs" / "EXTERNAL_SEEDS.md").write_text("\n".join(L) + "\n", "utf-8")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    {"prepare": prepare, "evaluate": evaluate}[sys.argv[1]]()
+    {"prepare": prepare, "evaluate": evaluate, "seeds": seeds}[sys.argv[1]]()

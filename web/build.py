@@ -308,6 +308,17 @@ class DiseasePages:
         self.ot_confirmed = set(zip(ot.x_index.astype(int), ot.y_index.astype(int)))
         self.targets_f = gc.M(TARGET)
         self.ind_f = gc.M(INDICATION)
+        # Ontology with direction, for navigation only (sources/hierarchy.py; REVIEW_RESPONSE.md T6)
+        from sources.hierarchy import load as load_hierarchy
+        h = load_hierarchy()
+        self.parents, self.children = defaultdict(list), defaultdict(list)
+        for a_, b_ in zip(h.parent.astype(int), h.child.astype(int)):
+            self.parents[b_].append(a_)
+            self.children[a_].append(b_)
+        self.n_genes = np.diff(self.g.M(GENES_ALL).indptr)
+        self.markers = marker_rules(gc, self.children, self.targets_f)
+        pkg = (self.g.types == "disease") & (self.g.origin == "PrimeKG")
+        self.has_page = pkg & ((self.n_genes > 0) | (np.diff(self.g.M("disease_phenotype_positive").indptr) > 0))
         print(f"models loaded ({time.time() - t0:.0f} s)", flush=True)
 
     def disease(self, d):
@@ -333,6 +344,8 @@ class DiseasePages:
         # Risk warning: a transparent rule (docs/DIRECTION.md), not a model; no probability.
         risk_f, n_contra, n_ind, checkpoint = risk_flags(self.D, d, drugs, self.blocked, self.autoimmune)
         extensions = twin_neighbors(gc, dt, "disease_disease") - dt
+        broader, narrower = self.parents.get(d, []), self.children.get(d, [])
+        equivalent = {m for m in set(broader) | set(narrower) | extensions if self.equivalent(d, m)}
 
         def candidate(j, score):
             f = int(drugs[j])
@@ -348,11 +361,23 @@ class DiseasePages:
                     "lines": sorted(evidence_lines(expl)),
                     "risk": bool(risk_f[j]), "risk_reasons": reasons, "contra": f in contra, "expl": expl}
 
-        def excluded(f):
+        # Subtypes defined by an absent biomarker (resources/biomarker_subtypes.csv, REVIEW_RESPONSE.md T7):
+        # drugs acting on that marker cannot work here (tamoxifen in triple-negative breast cancer).
+        marker_block = {}
+        for marker, status_, drugs_ in self.markers.get(d, []):
+            if status_ == "absent":
+                for f in drugs_:
+                    marker_block.setdefault(f, marker)
+        removed_marker = {}
+
+        def known_or_unfit(f):
             # already approved (also by name: twins), diagnostic, contraindicated here, veterinary only
             fam = drug_family(g.name(f))
             return (f in indicated or f in offlabel or bool(fam & names_ind) or f in self.diagnostic
                     or f in contra or bool(fam & names_contra) or status.get(f) == "veterinary only")
+
+        def excluded(f):
+            return known_or_unfit(f) or f in marker_block
 
         # Abstention rule (validated, DECISIONS.md P27-P28, P31): of the top 25 non-excluded candidates
         # (direct extensions included, as in evaluation/evidence.py), only those with evidence.
@@ -362,6 +387,8 @@ class DiseasePages:
                 break
             f = int(drugs[j])
             if excluded(f):
+                if f in marker_block and not known_or_unfit(f):
+                    removed_marker.setdefault(g.name(f), marker_block[f])
                 continue
             seen += 1
             in_ext = [m for m in g.neighbors(f, INDICATION) if m in extensions]
@@ -369,6 +396,9 @@ class DiseasePages:
                 # direct extension: already indicated for a neighbouring disease (the best hit rate; P27)
                 c = candidate(j, total[j])
                 c["neighbour_diseases"] = [g.name(m) for m in in_ext[:3]]
+                same = [m for m in in_ext if m in equivalent]
+                if same:  # indicated for a near-synonym (breast cancer / carcinoma): display only (T6)
+                    c["equivalent"] = g.name(same[0])
                 ext_cands.append(c)
                 continue
             c = candidate(j, total[j])
@@ -412,7 +442,37 @@ class DiseasePages:
             "genes": sorted(g.name(x) for x in g.neighbors(d, GENES_ALL))[:60],
             "candidates": group_salts(cand), "hidden": hidden, "little_info": len(cand) < 5,
             "no_use": no_use, "excluded": excluded_names, "extensions": group_by_class(group_salts(ext_cands)),
-            "targets": targets}
+            "targets": targets,
+            "broader": [self.link(m) for m in broader],
+            "narrower": [self.link(m) for m in sorted(narrower, key=lambda m: -self.n_genes[m])],
+            "n_descendants": self.descendants(d),
+            "markers": sorted({(m, st) for m, st, _ in self.markers.get(d, [])}),
+            "excluded_marker": [[n, m] for n, m in removed_marker.items()]}
+
+    def link(self, m):
+        return [int(m), self.g.name(m), bool(self.has_page[m])]
+
+    def descendants(self, d):
+        seen, stack = set(), list(self.children.get(d, []))
+        while stack:
+            m = stack.pop()
+            if m not in seen:
+                seen.add(m)
+                stack.extend(self.children.get(m, []))
+        return len(seen)
+
+    _GENERIC = {"cancer", "carcinoma", "neoplasm", "neoplasms", "tumor", "tumour", "malignant", "disease",
+                "disorder", "syndrome", "(disease)"}
+
+    def equivalent(self, d, m):
+        """Near-synonym nodes (breast cancer / breast carcinoma / breast neoplasm): same name once the
+        generic words are removed, or associated genes almost identical (Jaccard ≥ 0.8). Display only."""
+        a = set(self.g.name(d).lower().split()) - self._GENERIC
+        b = set(self.g.name(m).lower().split()) - self._GENERIC
+        if a and a == b:
+            return True
+        ga, gb = set(self.g.neighbors(d, GENES_ALL)), set(self.g.neighbors(m, GENES_ALL))
+        return len(ga) >= 10 and len(gb) >= 10 and len(ga & gb) / len(ga | gb) >= 0.8
 
     def mechanism(self, f):
         """Drug targets with the action (ChEMBL) first; if there are none, those from DrugBank."""
@@ -427,6 +487,53 @@ class DiseasePages:
         """Current approved indications of the drug (to place it: «what it is used for today»)."""
         ms = sorted({self.g.name(m) for m in self.ind_f.indices[self.ind_f.indptr[f]:self.ind_f.indptr[f + 1]]})
         return ms[:4] + ([f"+{len(ms) - 4}"] if len(ms) > 4 else [])
+
+
+def marker_rules(g, children, targets):
+    """{disease node: [(marker, «absent»|«present», drug nodes acting on the marker)]} from
+    resources/biomarker_subtypes.csv. An absent marker is also absent in the more specific forms
+    (descendants). Drug rules: «endocrine» = ATC therapeutic group «endocrine therapy» (L02) except
+    anti-androgens, or targets ESR1, ESR2 or CYP19A1 unless it is a cytotoxic antineoplastic (L01);
+    «targets:G1,G2» = acts on one of those genes (DrugBank or ChEMBL)."""
+    f = ROOT / "resources" / "biomarker_subtypes.csv"
+    if not f.exists():
+        return {}
+    t = pd.read_csv(f, dtype={"drug_rule": str}).fillna("")
+    drugs = np.flatnonzero(g.types == "drug")
+    gene_of = {}
+    for x in drugs:
+        gene_of[int(x)] = {g.name(y) for y in targets.indices[targets.indptr[x]:targets.indptr[x + 1]]}
+    desc = g.descriptions if g.descriptions is not None else pd.DataFrame()
+    atc = lambda col: desc[col].fillna("").astype(str).str.lower() if col in desc else pd.Series(dtype=str)
+    atc2, atc4 = atc("atc_2"), atc("atc_4")
+    # L02 except anti-androgens (enzalutamide acts on AR, studied in AR-positive triple-negative breast
+    # cancer); found by the manual check of T7.
+    endocrine_atc = {int(i) for i, v in atc2.items() if "endocrine therapy" in v and "anti-androgens" not in atc4.get(i, "")}
+    # Cytotoxic antineoplastic agents (L01) that also list ESR1 act through another mechanism
+    # (estramustine: microtubules); found by the same check.
+    cytotoxic = {int(i) for i, v in atc2.items() if "antineoplastic agents" in v}
+
+    def acting(rule):
+        if rule == "endocrine":
+            genes = {"ESR1", "ESR2", "CYP19A1"}
+            return {x for x, gs in gene_of.items() if gs & genes and x not in cytotoxic} | endocrine_atc
+        if rule.startswith("targets:"):
+            genes = set(rule.split(":", 1)[1].split(","))
+            return {x for x, gs in gene_of.items() if gs & genes}
+        return set()
+
+    res = defaultdict(list)
+    for node, marker, status, rule in zip(t.node, t.marker, t.status, t.drug_rule):
+        node, ds = int(node), acting(rule) if status == "absent" else set()
+        below, stack = set(), [node]
+        while stack and status == "absent":  # an absent marker stays absent in the subtypes
+            for c in children.get(stack.pop(), []):
+                if c not in below:
+                    below.add(c)
+                    stack.append(c)
+        for m in {node} | below:
+            res[m].append((marker, status, ds))
+    return dict(res)
 
 
 # Where the associated genes come from (for the header; an expert wants to know whether it is genetics or literature)
@@ -513,6 +620,40 @@ def clean(x):
     return x
 
 
+def patch():
+    """Adds the navigation fields (REVIEW_RESPONSE.md T6) to the pages already built, and rebuilds in full the
+    pages with a biomarker rule (T7), instead of rebuilding the 10,042 pages (4-5 h). It uses the same
+    functions as DiseasePages.disease(), so the result is the same as a full rebuild with this version."""
+    from evaluation.twins import twin_neighbors
+    P = DiseasePages()
+    g, gc = P.g, P.gc
+    t0 = time.time()
+    n = rebuilt = 0
+    for f in sorted((DEST / "d").glob("*.json")):
+        pages = json.loads(f.read_text("utf-8"))
+        for k, page in pages.items():
+            d = int(k)
+            n += 1
+            if d in P.markers:
+                pages[k] = clean(P.disease(d))
+                rebuilt += 1
+                continue
+            dt = P.twins.get(d, {d})
+            extensions = twin_neighbors(gc, dt, "disease_disease") - dt
+            broader, narrower = P.parents.get(d, []), P.children.get(d, [])
+            equivalent = {m for m in set(broader) | set(narrower) | extensions if P.equivalent(d, m)}
+            for c in page["extensions"]:
+                c.pop("equivalent", None)
+                same = [m for m in g.neighbors(c["node"], INDICATION) if m in extensions and m in equivalent]
+                if same:
+                    c["equivalent"] = g.name(same[0])
+            page.update(clean({"broader": [P.link(m) for m in broader],
+                               "narrower": [P.link(m) for m in sorted(narrower, key=lambda m: -P.n_genes[m])],
+                               "n_descendants": P.descendants(d), "markers": [], "excluded_marker": []}))
+        f.write_text(json.dumps(pages, ensure_ascii=False, separators=(",", ":"), allow_nan=False), "utf-8")
+    print(f"patched {n} pages ({rebuilt} rebuilt in full for the biomarker rule) in {time.time() - t0:.0f} s")
+
+
 def save(fragments, g, all_diseases):
     (DEST / "d").mkdir(parents=True, exist_ok=True)
     for fr, data in fragments.items():
@@ -536,7 +677,11 @@ def main():
     p.add_argument("--test", action="store_true", help="only a handful of well-known diseases (prototype)")
     p.add_argument("--limit", type=int, help="only the first N diseases with data")
     p.add_argument("--sample", type=int, help="random sample (seed 0) of N diseases with data, for the panel")
+    p.add_argument("--patch", action="store_true", help="add the navigation fields to the built pages and rebuild "
+                                                         "the biomarker pages (instead of a full rebuild)")
     a = p.parse_args()
+    if a.patch:
+        return patch()
     from graph import Graph
     g = Graph()
     pkg = np.flatnonzero((g.types == "disease") & (g.origin == "PrimeKG"))

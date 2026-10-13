@@ -223,7 +223,7 @@ function candidateTable(id, xs, disease, opts = {}) {
       <td>${statusTag(c)}</td>
       <td>${mechanism(c)}</td>
       <td class="small">${c.indications && c.indications.length ? indications(c.indications) : `<span class="muted">${t("none")}</span>`}</td>
-      <td>${opts.extensions ? `<span class="small">${(c.neighbour_diseases || []).map(esc).join("; ")}</span>` : evidenceChips(c)}</td>
+      <td>${opts.extensions ? `<span class="small">${(c.neighbour_diseases || []).map(esc).join("; ")}</span>${c.equivalent ? `<div class="tag equivalent" title="${esc(c.equivalent)}">${t("equivalent")}</div>` : ""}` : evidenceChips(c)}</td>
       <td>${safetyChips(c)}</td>
       <td class="toggle" aria-hidden="true">▸</td></tr>
     <tr class="detail-row" hidden><td></td><td colspan="7">${candidateDetail(c, disease)}</td></tr>`).join("");
@@ -370,11 +370,21 @@ async function showDisease(id) {
   const gs = d.gene_sources || {};
   const sources = ["genetic", "primekg", "animal", "expression"].filter((k) => gs[k]).map((k) => `${t("gs_" + k)} ${gs[k]}`).join(", ");
   const genes = d.genes || [];
+  const nav = (xs) => xs.map(([id, n, page]) => page ? `<a href="#/d/${id}">${esc(n)}</a>` : `<span class="muted">${esc(n)}</span>`).join(", ");
+  const broader = d.broader || [], narrower = d.narrower || [];
+  const hierarchy = broader.length || narrower.length ? `<div class="hierarchy">
+      ${broader.length ? `<p><b>${t("broader")}:</b> ${nav(broader)}</p>` : ""}
+      ${narrower.length ? `<p><b>${t("narrower")}:</b> ${nav(narrower.slice(0, 12))}${narrower.length > 12 ? ` <details class="more"><summary>${t("more_forms").replace("{n}", narrower.length - 12)}</summary>${nav(narrower.slice(12))}</details>` : ""}</p>` : ""}
+    </div>` : "";
+  const broad = (d.n_descendants || 0) >= 5 || d.n_genes >= 500;
   view.innerHTML = `<div class="disease-page">
     <h2>${esc(d.name)}</h2>
     <div class="meta">${mondo(d.mondo, d.name)} · ${d.n_genes} ${t("genes")}${sources ? ` <span class="muted">(${sources})</span>` : ""} ·
       ${ext(`https://platform.opentargets.org/search?q=${name}`, "Open Targets")} ·
       ${ext(`https://clinicaltrials.gov/search?cond=${name}`, "ClinicalTrials.gov")}</div>
+    ${hierarchy}
+    ${broad ? `<p class="warning broad">${t("broad_term")}</p>` : ""}
+    ${(d.markers || []).length ? `<p class="markers"><b>${t("markers")}:</b> ${d.markers.map(([m, st]) => `${esc(m)} ${t("marker_" + st)}`).join(", ")}</p>` : ""}
     ${genes.length ? `<details class="genes"><summary>${t("genes_list")} (${d.n_genes})</summary><p>${genes.map((g) => `<span class="gen">${esc(g)}</span>`).join(" ")}${d.n_genes > genes.length ? " …" : ""}</p></details>` : ""}
     <div class="card known"><h3>${t("known")}</h3><dl>
       <dt>${t("approved")}</dt><dd>${list(d.approved)}</dd>
@@ -390,7 +400,8 @@ async function showDisease(id) {
     <div class="card"><h3>${t("candidates")}</h3><p class="help">${t("candidates_help")}</p>
       ${d.little_info ? `<p class="warning">${t("little_info")}</p>` : ""}
       ${candidateTable("candidates", d.candidates, d.name)}
-      ${d.hidden ? `<p class="muted">${t("hidden").replace("{n}", d.hidden)}</p>` : ""}</div>
+      ${d.hidden ? `<p class="muted">${t("hidden").replace("{n}", d.hidden)}</p>` : ""}
+      ${(d.excluded_marker || []).length ? `<p class="muted">${t("excluded_marker")} ${d.excluded_marker.map(([n, m]) => `${esc(n)} (${esc(m)})`).join(", ")}</p>` : ""}</div>
     <div class="card"><h3>${t("targets")}</h3><p class="help">${t("targets_help")}</p>${targets(d.targets)}</div>
     ${d.no_use.length || d.excluded.length ? `<details class="card exploratory"><summary><h3>${t("no_use")}</h3></summary>
       <p class="help">${t("no_use_help")}</p>
