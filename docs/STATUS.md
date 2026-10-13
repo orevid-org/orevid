@@ -98,6 +98,14 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 
 ## Next steps
 
+**On a computer without `data/`** (the work PC): reading and posting the preprint (step 1), ORCID and the
+account tasks (6), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and
+anything that only reads the benchmark prediction files (`benchmark/`, release zip). **Needs the home PC**
+(`data/`, ~5 GB, and WSL for TxGNN): new evaluations, `evaluation/evidence_ci.py`, `web.build` (also `--patch`)
+and the website deploy. The Claude Doc of the preprint is the source of truth for its text; re-export to
+`docs/preprint/` after editing it (`docs/REVIEW_RESPONSE.md`, «After the pending tasks»).
+
+
 1. Read the preprint draft end to end; add ORCID; post to bioRxiv (category Bioinformatics or
    Pharmacology and Toxicology). Then add the bioRxiv DOI to the README and the website.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
