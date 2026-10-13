@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 12-10-2026, night)
+# Project status and how to continue (updated 13-10-2026)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -67,8 +67,21 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
    (14 acronym pairs, 13 wrong; 729 multi-molecule pairs, 355 high priority). Analysis, proposal and a
    draft reply (not posted): `docs/OPEN_TARGETS_FEEDBACK.md`.
 
+## Done on 13-10-2026 (from the work PC, clone at `C:\dev-quimqu\orevid`)
+
+1. **Reply to an external (AI) review of the preprint** (P34): `benchmark/cluster_ci.py` → `benchmark/CLUSTER_CI.md`,
+   disease-level bootstrap intervals, paired differences, Wilcoxon + Holm, tie-breaking sensitivity. Needs only the
+   release prediction files. The Claude Docs preprint was updated (Statistical analysis, Results, Discussion,
+   Limitations, abstract, new Supplementary Table S4) and re-exported to `docs/preprint/`. Point-by-point
+   answer and what is left: `docs/REVIEW_RESPONSE.md`.
+
 ## Next steps
 
+00. **Home PC, first: the five pending review tasks (T1–T5) in `docs/REVIEW_RESPONSE.md`**, each with the
+    files to change, the commands, a decision rule fixed in advance and the preprint text to update.
+    Order: T1 (external exam without Open Targets features, ~30 min) → T3 (hit rates with disease-level
+    bootstrap) → T5 (website rules exactly on the external exam) → T4 (threshold grid + permutation null)
+    → T2 (external exam on 5 seeds). All need `data/`.
 0. Post the reply to opentargets/issues#4579 (draft in `docs/OPEN_TARGETS_FEEDBACK.md`), after a look at the CSV.
 1. Read the preprint draft end to end; add ORCID; post to bioRxiv (category Bioinformatics or
    Pharmacology and Toxicology). Then add the bioRxiv DOI to the README and the website.

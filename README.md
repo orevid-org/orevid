@@ -51,6 +51,8 @@ rediscovering what is known; the external exam is the more realistic one. The tw
 with TxGNN are measured, not only stated, in [`benchmark/FAIR_COMPARISON.md`](benchmark/FAIR_COMPARISON.md):
 with OREVID trained on the training labels only (as TxGNN) and the diseases where TxGNN outputs a
 constant score removed, zero-shot Recall@100 is **0.809 vs 0.421** (hard 0.528 vs 0.275; areas 0.627 vs 0.238).
+Intervals that resample whole diseases are in [`benchmark/CLUSTER_CI.md`](benchmark/CLUSTER_CI.md): the
+paired difference with TxGNN is +0.40 (95% CI 0.35–0.44) on zero-shot and +0.24 (0.21–0.27) on the external exam.
 
 ## How it works
 

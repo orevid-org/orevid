@@ -104,6 +104,9 @@ the GitHub release as `orevid-bench-predictions-v1.0.zip`: unzip it here to re-e
   with OREVID trained on the training labels only and the degenerate diseases removed, zero-shot
   Recall@100 is 0.809 vs TxGNN 0.421 (hard subset 0.528 vs 0.275; areas 0.627 vs 0.238). The validation
   labels add 0.01–0.02 to OREVID; removing the degenerate diseases helps both models similarly.
+- Uncertainty: [`CLUSTER_CI.md`](CLUSTER_CI.md) (`cluster_ci.py`) gives Recall@100 intervals from a bootstrap
+  that resamples whole diseases, paired differences per disease (Wilcoxon, Holm-adjusted) and the effect of
+  the random tie-breaking (at most 0.014 over 20 seeds; none for OREVID).
 
 ## Data and licences
 
