@@ -77,11 +77,13 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
 
 ## Next steps
 
-00. **Home PC, first: the five pending review tasks (T1–T5) in `docs/REVIEW_RESPONSE.md`**, each with the
-    files to change, the commands, a decision rule fixed in advance and the preprint text to update.
-    Order: T1 (external exam without Open Targets features, ~30 min) → T3 (hit rates with disease-level
-    bootstrap) → T5 (website rules exactly on the external exam) → T4 (threshold grid + permutation null)
-    → T2 (external exam on 5 seeds). All need `data/`.
+00. **Home PC, first: the eight pending tasks (T1–T8) in `docs/REVIEW_RESPONSE.md`**, each with the files
+    to change, the commands, a decision rule fixed in advance and the preprint text to update. T1–T5 answer
+    the external review; T6–T8 fix website problems found on 13-10 (breast cancer page: no navigation to
+    subtypes, tamoxifen #1 for triple-negative, broad terms with pan-cancer candidates). Order: T6 (ontology
+    navigation, presentation only) → T1 (external exam without Open Targets) → T7 (biomarker rule for
+    subtypes) → T3 (hit-rate CIs) → T5 (exact website rules) → T4 + T8 (thresholds, broad diseases) → T2
+    (5 seeds). All need `data/`; T6–T8 need a website rebuild and deploy.
 0. Post the reply to opentargets/issues#4579 (draft in `docs/OPEN_TARGETS_FEEDBACK.md`), after a look at the CSV.
 1. Read the preprint draft end to end; add ORCID; post to bioRxiv (category Bioinformatics or
    Pharmacology and Toxicology). Then add the bioRxiv DOI to the README and the website.

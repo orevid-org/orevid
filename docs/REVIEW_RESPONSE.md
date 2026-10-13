@@ -48,7 +48,8 @@ the 13-10 commit (`benchmark/cluster_ci.py`, `benchmark/CLUSTER_CI.md`, `benchma
 clone only. Check that `data/eval/external_scores.npz` and `data/eval/external_positives.parquet` exist
 (else `py -3 -m evaluation.external_exam evaluate`, a few minutes).
 
-Order by value for the preprint: **T1 → T3 → T5 → T4 → T2**. Every decision rule below is fixed now,
+Order: **T6 → T1 → T7 → T3 → T5 → T4 + T8 → T2** (T6–T8, website problems found on 13-10, are
+described after T2). Every decision rule below is fixed now,
 before running; record the outcome whatever it is (P34 follow-up in DECISIONS.md).
 
 ### T1. External exam without Open Targets features (answers 2.6) — ~30 min
@@ -143,6 +144,102 @@ if those checkpoints were kept, otherwise skip TxGNN and report OREVID's spread 
 
 **Preprint.** Table 1 external columns as mean ± SD over seeds (or the seed-1 value plus the range);
 drop «it also uses one training split» from Limitations.
+
+## Problems found on the website (13-10): disease subtypes and broad terms
+
+Found by looking at the breast cancer page (https://orevid.org/#/d/36691). The graph has the subtypes
+(MONDO: triple-negative #37655, HER2 positive #84130, oestrogen-receptor negative #37773, HER2 negative
+#37775, invasive lobular #94666, inflammatory #94693, male #94716…), each with its own page, but:
+
+1. **No navigation.** Nothing on a page links to its more specific forms or to its broader term; the
+   ontology is used by the model and the direct extensions, never shown.
+2. **Subtypes defined by a biomarker inherit drugs that cannot work.** The graph does not encode receptor
+   status, and these pages have few genes (29–35, from GWAS), so the model copies the parent's drugs:
+   tamoxifen is candidate #1 for triple-negative breast cancer; tamoxifen, formestane and testolactone
+   (endocrine therapies) are candidates for ER-negative; for HER2-negative, four corticosteroids arrive
+   through «non-Hodgkin lymphoma» and «allergic rhinitis» with 3–4 shared genes.
+3. **Broad terms pass the shared-genes test with any cancer.** Breast cancer has 1,253 associated genes;
+   it shares 1,085 with hereditary breast–ovarian cancer syndrome and 257 with non-small cell lung cancer,
+   so p < 1e-6 is trivial. Its candidates (platinum drugs, alkylating agents, PARP inhibitors,
+   pembrolizumab) are plausible only for subtypes (pembrolizumab is approved for triple-negative breast
+   cancer since 2021; PARP inhibitors for BRCA-mutated). Also, «Approved (DrugBank)» lists only 2 drugs
+   because PrimeKG spreads the indications over near-synonym nodes (breast cancer / breast carcinoma /
+   breast neoplasm), and epirubicin and cyclophosphamide, approved for «breast carcinoma», are shown as
+   direct extensions, i.e. as hypotheses.
+
+Stated in the preprint's Limitations on 13-10 (two sentences after «comorbidities that read as shared
+biology»). Remove or update them when T7 and T8 are done.
+
+### T6. Ontology navigation and a «broad term» notice (presentation only) — ~2 h
+
+No validation needed (display; DECISIONS rule 3 is met).
+
+1. **Hierarchy with direction.** PrimeKG's `disease_disease` edges are undirected. Take parent → child
+   from the Open Targets disease table (`parents`, already read in `sources/ids.py`, MONDO ids) mapped to
+   graph nodes through each node's MONDO ids; keep only pairs where both ends are nodes. If PrimeKG
+   groups several MONDO ids in one node, a parent inside the same node is ignored. Save it once in
+   `data/prep/` (e.g. `disease_hierarchy.parquet`, columns parent, child) from `prepare.py`, or compute it
+   in `web/build.py` if it is cheap.
+2. **Page data.** In `web/build.py` `DiseasePages.disease()` add `broader` (direct parents) and
+   `narrower` (direct children), each as `[node, name, has_page]`, children sorted by number of associated
+   genes, plus `n_descendants`. Same output in `explore.py disease` (it uses the same class).
+3. **Frontend** (`web/public/app.js`): under the header, «Broader term: …» and «More specific forms: …»
+   as links (collapsed beyond ~12 children). A notice when `n_descendants ≥ 5` or `n_genes ≥ 500`:
+   «This is a broad term. Candidates may apply only to one of its forms; see the more specific forms
+   below.» All strings in `web/public/i18n/{en,es,ca}.json`; bump `?v=N` of `app.js` in `index.html`.
+4. **Near-synonyms.** On the extensions table, mark a drug as «approved for an equivalent term» when it
+   is indicated for a parent or child that has (almost) the same name tokens or a gene-set Jaccard
+   ≥ 0.8 with this disease (breast cancer / breast carcinoma / breast neoplasm). Display only: it does not
+   change the ranking or the evaluation.
+5. **Tests** (`tests/`): breast cancer (36691) lists 37655 and 84130 among its descendants; every child
+   lists its parent as broader; no cycles.
+
+### T7. Biomarker-defined subtypes: marker rule (needs validation) — ~3 h
+
+1. **Curated table** `resources/biomarker_subtypes.csv`, short and reviewed by hand: `node, name, marker,
+   status (absent|present), drug_rule, source`. Start with breast cancer:
+   - triple-negative (37655): ESR1, PGR, ERBB2 absent
+   - oestrogen-receptor negative (37773): ESR1 absent; progesterone-receptor negative (37774): PGR absent
+   - HER2 negative (37775): ERBB2 absent; HER2 positive (84130): ERBB2 present
+   
+   Then search the index for other marker-defined subtypes (names with «positive», «negative»,
+   «-mutant», «ALK», «EGFR», «BRAF», «KRAS», «BCR-ABL1», «receptor») and add the clear ones.
+2. **Drug rule per absent marker.** ESR1 absent → endocrine therapy: the drug targets ESR1, ESR2 or
+   CYP19A1 (aromatase), or its ATC class starts with L02 (hormone antagonists and related agents; covers
+   testolactone and androgens used in breast cancer). PGR absent → targets PGR. ERBB2 absent → targets
+   ERBB2. For «present» markers no exclusion, only an annotation.
+3. **Apply it** in `DiseasePages.disease()` as an exclusion with a reason, like the contraindicated
+   drugs (P24): the drug goes to `excluded` with «the marker this drug acts on is absent in this subtype».
+4. **Validation, fixed before running** (too few diseases for a hit-rate test):
+   (a) list every flagged (drug, disease) pair over all 10,042 pages and check them by hand;
+   (b) none of the flagged pairs may be an approved indication (DrugBank or confirmed Open Targets) for
+   that subtype; if any is, the rule or the table is wrong. Flagged pairs with a phase 3 trial in that
+   subtype are listed for the manual check;
+   (c) report how many candidates and extensions it removes. Record as a new DECISIONS entry.
+5. **Tests:** tamoxifen, formestane and testolactone are not candidates for 37655 or 37773; trastuzumab
+   stays approved on 84130.
+
+**Preprint.** Add the rule to Methods (Evidence rules, the paragraph on exclusions) and replace the
+tamoxifen sentence in Limitations by what remains (markers not in the table; subtypes defined by
+mutations the graph does not encode).
+
+### T8. Shared genes in broad diseases (with T4) — ~1 h on top of T4
+
+1. In the T4 grid, add an **effect-size** variant: fold enrichment (observed shared genes / expected
+   under the hypergeometric) ≥ 2, besides p < 1e-6; and the existing «≥ 3 specific genes» annotation
+   (P29) as a filter variant.
+2. Split the hit rates of the shared-genes section by the disease's gene-set size
+   (< 100, 100–499, ≥ 500 genes) on the benchmark, the areas and the external exam, with the T3
+   disease-level bootstrap.
+
+**Decision rule.** If, for diseases with ≥ 500 genes, the shared-genes hit rate on the external exam is
+not above the hidden section (1.4 %) by more than its CI, broad pages stop showing shared-genes
+candidates and point to the more specific forms (T6 notice) instead. A filter variant (fold enrichment or
+specific genes) is adopted only under the P29 rule: the subset it removes hits < 5 % on both the benchmark
+and the areas, and the external hit rate of what is kept does not fall.
+
+**Preprint.** Methods (Evidence rules) if a rule changes; Results (Hit rates by evidence line) with the
+split by gene-set size; the «broad terms» sentence in Limitations.
 
 ## After the pending tasks
 
