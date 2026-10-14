@@ -157,6 +157,18 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - **I3 practical information (P44)**: `sources/practical.py` (Orange Book, Purple Book, EMA; `download`, `build`) →
   `data/ext/practical.parquet`; columns «Generic» and «Studied», filters and CSV fields on the website;
   `docs/PRACTICAL.md` (match rates, manual check of 50 drugs, two matching errors fixed before release).
+  Website rebuilt in full and deployed (15-10, early morning).
+- **I4 expression-signature reversal (P45)**: `evaluation/lincs_reversal.py` → `docs/LINCS.md` (Enrichr libraries
+  `LINCS_L1000_Chem_Pert_Consensus_Sigs`, `Disease_Perturbations_from_GEO_up/down` in `data/raw/lincs/`). 2,410 drugs,
+  239 diseases; at chance for drugs with no prior use (temporal 2015: 0.055 vs random 0.055; OREVID 0.210).
+  Negative result; the LambdaRank-feature test (b) was not run, by the rule written before running.
+- **I6 shared-biology line (P46)**: `evaluation/biology_lines.py` → `docs/BIOLOGY_LINES.md`. Pathway overlap chosen
+  on the benchmark (29.8 % vs 23.0 %, half the candidates) but 5.0 % on the external exam, not above the null's
+  99th percentile (5.32 %): not adopted. Pathways are the best lead for a future, separately pre-registered test.
+- **I5 embedding baselines (in progress)**: WSL env `~/pykeen-env` (uv, torch 2.6 cu124, PyKEEN);
+  `py -3 -m evaluation.kge_bench prepare` done (`data/eval/kge/kg.npz`, 4,050,249 directed edges). The grid on
+  zero_shot_1 ran overnight (`bash evaluation/kge_bench.sh grid` in WSL; resumable, skips finished runs; logs in
+  `data/eval/kge/log_<model>.txt`). TransE ≈ 18 min per run, RotatE d256 ≈ 47 min.
 
 ## Next steps
 
@@ -182,14 +194,17 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    script, number the lines (Word: Layout → Line Numbers → Continuous) and use PCI's conflict sentence («The authors
    declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
    on Preprints.org (same server) before submitting to PCI.
-1b. **Improvement plan (home PC)**, `docs/IMPROVEMENT_PLAN.md` (rules fixed 14-10). Done: I1 (P42, claim
-   adopted), I2 (P43, not adopted), I3 (P44). **Next: I5** embedding baselines (PyKEEN TransE/ComplEx/RotatE on the
-   OREVID-bench splits, GPU), then **I4** LINCS signature reversal and **I6** a shared-biology line that beats the
-   null (uncertain research). Optional: TxGNN on the temporal cutoffs.
-2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
-   exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
-   pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
-   null on the benchmark.
+1b. **Improvement plan (home PC)**, `docs/IMPROVEMENT_PLAN.md`. Done: I1 (P42), I2 (P43), I3 (P44), I4 (P45,
+   negative), I6 (P46, not adopted). **Next: finish I5**: in WSL `bash evaluation/kge_bench.sh grid` (completes any
+   missing grid run), then on Windows `py -3 -m evaluation.kge_bench select` (→ `data/eval/kge/selected.json`), then in
+   WSL `bash evaluation/kge_bench.sh final` (seeds 2–5 and nine areas for the three models: 39 runs, roughly 15–25 h of
+   GPU), then `py -3 benchmark/bench.py evaluate --pred benchmark/predictions/kge_<model>` for each model,
+   `benchmark/cluster_ci.py`, the leaderboard, a `docs/KGE.md` report, DECISIONS P47, the preprint (Table 1 and the
+   paragraph «No knowledge-graph embedding baseline … was run», which must change) and an OREVID-bench release.
+   The ensemble test (P33 rule) comes after. Optional: TxGNN on the temporal cutoffs.
+2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
+   three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
+   (permuting pathway sets) in a new pre-registered test.
 3. Biomarker table: applied on 14-10 (P41); Gram-stain and class rules rejected (`docs/BIOMARKERS.md`). New rows
    go through `py -3 -m evaluation.biomarker_check` and `py -3 -m web.build --patch` as before.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.

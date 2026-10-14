@@ -62,6 +62,9 @@ and 80 % of PrimeKG indications are undated, so some leakage remains. A calibrat
 tested and not adopted ([`docs/CALIBRATION.md`](docs/CALIBRATION.md)). Each candidate on the website also shows
 whether a generic or biosimilar exists and how much the pair has been studied, as information only
 ([`docs/PRACTICAL.md`](docs/PRACTICAL.md)).
+Two pre-registered attempts gave negative results: expression-signature reversal (LINCS L1000) ranks drugs
+with no prior use at chance ([`docs/LINCS.md`](docs/LINCS.md)), and no replacement for the shared-genes line beat
+the permutation null on the external exam ([`docs/BIOLOGY_LINES.md`](docs/BIOLOGY_LINES.md)).
 
 ## How it works
 
