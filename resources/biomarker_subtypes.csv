@@ -15,3 +15,11 @@ node,name,marker,status,drug_rule,source
 94694,ALK-positive anaplastic large cell lymphoma,ALK,present,,definition: ALK rearrangement present
 84159,ALK-positive large B-cell lymphoma,ALK,present,,definition: ALK rearrangement present
 99123,ALK+ histiocytosis,ALK,present,,definition: ALK rearrangement present
+99930,acute myeloid leukemia with mutated NPM1,BCR-ABL1,absent,"targets:ABL1,BCR","classification (WHO 2022, ICC 2022): AML with BCR::ABL1 is a separate entity, so AML with mutated NPM1 has no BCR::ABL1 fusion"
+99930,acute myeloid leukemia with mutated NPM1,NPM1,present,,definition: NPM1 mutation present
+99572,Philadelphia-positive myelogenous leukemia,BCR-ABL1,present,,definition: Philadelphia chromosome (BCR-ABL1 fusion) present
+94740,myeloid neoplasm associated with PDGFRA rearrangement,PDGFRA,present,,definition: PDGFRA rearrangement present
+95306,myeloid and lymphoid neoplasms associated with PDGFRA rearrangement,PDGFRA,present,,definition: PDGFRA rearrangement present
+99703,myeloid/lymphoid neoplasm associated with JAK2 rearrangement,JAK2,present,,definition: JAK2 rearrangement present
+39403,primary cutaneous CD30+ T-cell lymphoproliferative disease,TNFRSF8,present,,definition: CD30 (TNFRSF8) positive
+99682,RELA fusion-positive ependymoma,RELA,present,,definition: RELA fusion present

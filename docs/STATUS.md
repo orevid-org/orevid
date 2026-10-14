@@ -117,6 +117,20 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   `docs/preprint/OREVID_preprint_biorxiv_v1.pdf` (US letter, 24 pages, exported from the Claude Doc; bioRxiv's
   converted PDF was checked to have identical text and the 4 figures). Once posted it cannot be removed; changes go
   as a new version (Author Area → Submit a Revision), which keeps the DOI.
+- **GitHub release v1.1.0** (https://github.com/orevid-org/orevid/releases/tag/v1.1.0): the tag points to `7965ccf`,
+  the commit that produced the prospective snapshot (as `docs/PROSPECTIVE_PLAN.md` requires), not to the current code.
+  Zenodo version DOI **10.5281/zenodo.23362377** (concept 10.5281/zenodo.23323226). Asset
+  `orevid-bench-predictions-v1.1.zip` = the v1.0 predictions of the four leaderboard models (the ranking model did
+  not change) + the `results.json` of all five; the prediction files of the train-only variant are only on the home
+  PC (add them in the next release). Zenodo took the author name from `CITATION.cff` at that commit
+  («Quadrada, Joaquim»): fix the creators by hand on Zenodo (Edit → Creators: Quadrada Jané, Joaquim, with ORCID) in
+  the three records: 23362377 (v1.1.0), the v1.0.0 version and the snapshot 23326593.
+- Biomarker table extended (8 rows, `resources/biomarker_subtypes.csv`); the graph has no molecular subtypes of lung,
+  melanoma or colorectal cancer (EGFR, ALK, BRAF, KRAS…). New exclusion: acute myeloid leukaemia with mutated NPM1
+  (99930) has no BCR::ABL1 (separate entity in WHO 2022 / ICC 2022) — its page proposed imatinib, ponatinib,
+  nilotinib, dasatinib and radotinib through genes shared with CML. New annotations (marker present): Philadelphia-
+  positive myelogenous leukaemia, PDGFRA- and JAK2-rearranged myeloid/lymphoid neoplasms, primary cutaneous CD30+
+  T-cell lymphoproliferative disease, RELA fusion-positive ependymoma, NPM1. Not yet applied to the website.
 - bioRxiv account: primary e-mail contact@orevid.org (Gmail as the institutional e-mail), ORCID linked. bioRxiv's
   fields reject accents, en dashes and ±: the author record reads «Joaquim Quadrada Jane» (the PDF has «Jané») and
   the abstract was entered as plain ASCII («-», «+/-»). If «Approve Manuscript» stays inactive after changing the
@@ -140,10 +154,20 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
    null on the benchmark.
-3. Biomarker table: extend `resources/biomarker_subtypes.csv` beyond breast cancer, CML and ALCL (e.g. EGFR- or
-   ALK-mutant lung cancer if the graph has those nodes), with the same manual check (`evaluation/biomarker_check.py`).
+3. **Biomarker table (home PC):** the 8 rows added on 14-10 are not applied yet. Run
+   `py -3 -m evaluation.biomarker_check` (→ `docs/BIOMARKERS.md`) and check by hand the pairs it removes for AML with
+   mutated NPM1 (expected: the five BCR-ABL1 inhibitors; criterion (b): none may be an approved indication), then
+   `py -3 -m web.build --patch`, `py -3 -m pytest tests` and deploy. Two problems seen on 14-10 that the table cannot
+   express (proposals, not done): (i) **Gram stain**: «gram-negative bacterial infections» (36327) and «gram-positive
+   bacterial infections» (38057) are like marker-defined subtypes, but the rule would be a drug list (e.g.
+   vancomycin, daptomycin, linezolid have no gram-negative activity; aztreonam and polymyxins no gram-positive
+   activity) — careful: penicillin G does treat some gram-negatives (Neisseria), so it must not be excluded; needs a
+   new `drugs:` rule type in `web/build.py` `marker_rules` and the same manual check. (ii) **Antifungal as an
+   extension of a bacterial infection**: amphotericin B is a direct extension on the gram-positive page; find which
+   ontology neighbour brings it and whether other bacterial/fungal pages mix the same way.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
-5. GitHub release v1.1.0 with `orevid-bench-predictions-v1.1.zip` (the prospective plan cites v1.1.0).
+5. Zenodo: fix the creators' name in the three records (see «Done on 14-10-2026»). Next release (v1.2.0, current
+   code): include the train-only prediction files and update `CITATION.cff` `version`/`date-released` first.
 6. ORCID record (optional): add the two Zenodo DOIs as Works, website and keywords.
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease

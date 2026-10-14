@@ -86,7 +86,8 @@ clinical-trial databases, drug labels, literature saying «drug treats disease»
 drug in `tasks/<task>.json` → `drugs` for every test disease; missing pairs get the lowest score.
 
 The prediction files of the four models in the leaderboard (~180 MB, not kept in git) are attached to
-the GitHub release as `orevid-bench-predictions-v1.0.zip`: unzip it here to re-evaluate them with
+the GitHub release as `orevid-bench-predictions-v1.1.zip` (same predictions as v1.0, plus the `results.json`
+of OREVID trained with training labels only): unzip it here to re-evaluate them with
 `python bench.py evaluate --pred predictions/<model>`.
 
 ## Caveats
