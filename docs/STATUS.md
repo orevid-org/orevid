@@ -138,6 +138,10 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   keywords on the first page, AI use also in Methods (end of «Statistical analysis and software»), «Conflicts of
   Interest» as its own paragraph just before the references. Word file and form values prepared (not in git).
   Preprints.org advises against posting the same paper on several servers: do not post it on bioRxiv later.
+- **Submitted to Preprints.org on 14-10-2026: manuscript ID preprints-238326** (MDPI account; subject Medicine and
+  Pharmacology › Pharmacology and Toxicology; no MDPI Topic and no «friendly journal» chosen; author marked as
+  independent researcher, Spain, ORCID; Word + PDF + graphical abstract (Figure 1); related websites: GitHub, both
+  Zenodo concept DOIs, orevid.org). The files Preprints.org generated were checked: identical to the ones uploaded.
 
 ## Next steps
 
@@ -148,7 +152,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 `docs/preprint/` after editing it (`docs/REVIEW_RESPONSE.md`, «After the pending tasks»).
 
 
-1. **Preprints.org**: submit (Word file exported from the Claude Doc), wait for screening (~24 h), then add the DOI
+1. **Preprints.org** (preprints-238326, submitted 14-10): wait for screening (~24 h), then add the DOI
    (10.20944/preprints2026…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
    (`preferred-citation`) and ORCID (Works → Add DOI). New versions go through «My Preprints» (keep the same server).
    Then choose a journal (independent authors are accepted by journals).
