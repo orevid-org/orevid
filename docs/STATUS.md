@@ -156,6 +156,17 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    (10.20944/preprints2026…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
    (`preferred-citation`) and ORCID (Works → Add DOI). New versions go through «My Preprints» (keep the same server).
    Then choose a journal (independent authors are accepted by journals).
+   **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
+   Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
+   (repository public for 6 months). In parallel, write to the TxGNN authors (Zitnik lab), Every Cure and David Ochoa.
+   **Before PCI:** PCI does not accept AI-generated illustrations, and figures 1–4 were drawn by the AI assistant in
+   the Claude Doc. `evaluation/figures.py` (written with AI assistance, to be read and run by the author) draws the
+   four figures from the result files (`benchmark/predictions/*/results.json`, `docs/EVIDENCE_CI.md`): `py -3 -m pip
+   install matplotlib`, `py -3 -m evaluation.figures` → `docs/preprint/figures/figure{1..4}.png|.pdf`. Then replace the
+   four embedded charts of the Claude Doc by these images, add to Methods that the figures were produced by that
+   script, number the lines (Word: Layout → Line Numbers → Continuous) and use PCI's conflict sentence («The authors
+   declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
+   on Preprints.org (same server) before submitting to PCI.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
