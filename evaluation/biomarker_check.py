@@ -67,7 +67,10 @@ def main():
           "| Disease | Drug | Marker absent | Would have been |", "|---|---|---|---|"]
     L += [f"| {a} | {b} | {m} | {w} |" for a, b, m, w in removed_rows]
     out = ROOT / "docs" / "BIOMARKERS.md"
-    out.write_text("\n".join(L) + "\n", "utf-8")
+    old = out.read_text("utf-8") if out.exists() else ""
+    tail = "## Rules tried and rejected"  # hand-written section, kept across runs
+    kept = old[old.index(tail):] if tail in old else ""
+    out.write_text("\n".join(L) + "\n" + ("\n" + kept if kept else ""), "utf-8")
     print("\n".join(L[:12]))
     print(f"... {len(removed_rows)} removed pairs -> {out}")
 

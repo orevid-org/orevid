@@ -217,22 +217,43 @@ const TABLES = {};
 function candidateTable(id, xs, disease, opts = {}) {
   if (!xs || !xs.length) return `<p class="muted">${opts.empty || t("no_candidates")}</p>`;
   TABLES[id] = {xs, disease};
-  const rows = xs.map((c, i) => `<tr class="row" data-i="${i}" tabindex="0" aria-expanded="false">
+  const rows = xs.map((c, i) => `<tr class="row" data-i="${i}" tabindex="0" aria-expanded="false"
+      data-under="${c.underexplored ? 1 : 0}" data-generic="${hasGeneric(c) ? 1 : 0}">
       <td class="n">${i + 1}</td>
       <td><span class="drug-name">${esc(c.name)}</span>${c.also ? `<div class="muted small">${t("also")}: ${c.also.map(esc).join(", ")}</div>` : ""}
         <div class="muted small" title="${esc(c.atc || "")}">${esc(c.atc ? shortAtc(c.atc) : "")}</div></td>
       <td>${statusTag(c)}</td>
+      <td class="small">${genericCell(c)}</td>
       <td>${mechanism(c)}</td>
       <td class="small">${c.indications && c.indications.length ? indications(c.indications) : `<span class="muted">${t("none")}</span>`}</td>
       <td>${opts.extensions ? `<span class="small">${(c.neighbour_diseases || []).map(esc).join("; ")}</span>${c.equivalent ? `<div class="tag equivalent" title="${esc(c.equivalent)}">${t("equivalent")}</div>` : ""}` : evidenceChips(c)}</td>
+      <td class="small">${studiedCell(c)}</td>
       <td>${safetyChips(c)}</td>
       <td class="toggle" aria-hidden="true">▸</td></tr>
-    <tr class="detail-row" hidden><td></td><td colspan="7">${candidateDetail(c, disease)}</td></tr>`).join("");
-  return `<div class="tools"><button class="button" data-csv="${id}">${t("download_csv")}</button></div>
+    <tr class="detail-row" hidden><td></td><td colspan="9">${candidateDetail(c, disease)}</td></tr>`).join("");
+  return `<div class="tools"><button class="button" data-csv="${id}">${t("download_csv")}</button>
+      <label class="filter"><input type="checkbox" data-filter="under" data-table="${id}"> ${t("f_underexplored")}</label>
+      <label class="filter"><input type="checkbox" data-filter="generic" data-table="${id}"> ${t("f_generic")}</label></div>
     <div class="table-scroll"><table class="table" id="${id}"><thead><tr>
-      <th>#</th><th>${t("c_drug")}</th><th>${t("c_status")}</th><th>${t("c_mechanism")}</th><th>${t("c_indications")}</th>
-      <th>${opts.extensions ? t("c_neighbour") : t("c_evidence")}</th><th>${t("c_safety")}</th><th></th></tr></thead>
+      <th>#</th><th>${t("c_drug")}</th><th>${t("c_status")}</th><th title="${esc(t("generic_help"))}">${t("c_generic")}</th><th>${t("c_mechanism")}</th><th>${t("c_indications")}</th>
+      <th>${opts.extensions ? t("c_neighbour") : t("c_evidence")}</th><th title="${esc(t("studied_help"))}">${t("c_studied")}</th><th>${t("c_safety")}</th><th></th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
+}
+// Practical information (generic / biosimilar status, how much the pair has been studied; display only)
+const hasGeneric = (c) => { const g = c.generic || {}; return !!(g.generic_us || g.biosimilar_us || g.generic_eu || g.biosimilar_eu); };
+function genericCell(c) {
+  const g = c.generic || {};
+  const tags = [["generic_us", "g_generic_us"], ["biosimilar_us", "g_biosimilar_us"], ["generic_eu", "g_generic_eu"],
+    ["biosimilar_eu", "g_biosimilar_eu"]].filter(([k]) => g[k]).map(([, l]) => `<span class="tag generic">${t(l)}</span>`);
+  const routes = g.routes ? `<div class="muted">${esc(g.routes)}</div>` : "";
+  if (tags.length) return tags.join(" ") + routes;
+  if (g.exclusivity_until) return `<span class="muted">${t("protected_until")} ${esc(g.exclusivity_until.slice(0, 4))}</span>` + routes;
+  return `<span class="muted">${t("none")}</span>` + routes;
+}
+function studiedCell(c) {
+  if (c.n_trials == null) return "";
+  const s = `${t("trials_short")}: ${c.n_trials} · ${t("papers_short")}: ${c.n_papers}`;
+  return c.underexplored ? `${s}<div class="tag underexplored">${t("underexplored")}</div>` : s;
 }
 // Current indications: the first 3 and how many more
 function indications(xs) {
@@ -254,7 +275,9 @@ function csv(id) {
     target: "target_on_disease_gene"};
   const header = ["rank", "drug", "drugbank_id", "status", "atc_class", "targets", "current_indications", "evidence_lines",
     "shared_genes_disease", "shared_genes_n", "shared_genes_p", "shared_genes_specific_n", "shared_genes_examples",
-    "neighbour_disease", "risk_flag", "risk_reason", "tested_in_this_disease"];
+    "neighbour_disease", "risk_flag", "risk_reason", "tested_in_this_disease", "generic_us", "biosimilar_us",
+    "generic_eu_centralised", "biosimilar_eu_centralised", "us_protection_until", "routes", "trials_for_pair", "papers_for_pair",
+    "underexplored"];
   const lines = xs.map((c, i) => {
     const s = c.expl.find((e) => e.t === "similar"), v = c.expl.find((e) => e.t === "neighbour"), cl = c.expl.find((e) => e.t === "clinical");
     const m = s ? (s.m.find(validSimilar) || s.m[0]) : null;
@@ -265,7 +288,9 @@ function csv(id) {
       v ? v.m.join("; ") : (c.neighbour_diseases || []).join("; "),
       c.risk ? "yes" : "", [r.contraindicated ? `contraindicated in ${r.contraindicated} related diseases, indicated in ${r.indicated || 0}` : "",
         r.checkpoint ? "immune checkpoint blocker in immune-mediated disease" : ""].filter(Boolean).join("; "),
-      cl ? cl.phase || "" : ""].map(q).join(",");
+      cl ? cl.phase || "" : "", ...["generic_us", "biosimilar_us", "generic_eu", "biosimilar_eu"].map((k) => (c.generic || {})[k] ? "yes" : ""),
+      (c.generic || {}).exclusivity_until || "", (c.generic || {}).routes || "", c.n_trials ?? "", c.n_papers ?? "",
+      c.underexplored ? "yes" : ""].map(q).join(",");
   });
   const blob = new Blob(["﻿" + [header.join(","), ...lines].join("\n")], {type: "text/csv;charset=utf-8"});
   const a = document.createElement("a");
@@ -280,6 +305,17 @@ document.addEventListener("click", (e) => {
   if (b) { csv(b.dataset.csv); return; }
   const row = e.target.closest("tr.row");
   if (row && !e.target.closest("a")) toggleRow(row);
+});
+document.addEventListener("change", (e) => {
+  const f = e.target.closest("[data-filter]");
+  if (!f) return;
+  const table = document.getElementById(f.dataset.table);
+  const on = [...document.querySelectorAll(`[data-filter][data-table="${f.dataset.table}"]`)].filter((x) => x.checked).map((x) => x.dataset.filter);
+  for (const row of table.querySelectorAll("tr.row")) {
+    const show = on.every((k) => row.dataset[k] === "1");
+    row.hidden = !show;
+    if (!show) row.nextElementSibling.hidden = true;
+  }
 });
 document.addEventListener("keydown", (e) => {
   const row = e.target.closest && e.target.closest("tr.row");

@@ -129,3 +129,7 @@ details.exploratory summary h3 { display: inline; }
 .hierarchy details.more { display: inline; }
 .hierarchy details.more summary { display: inline; cursor: pointer; color: var(--muted, #666); }
 .tag.equivalent { display: inline-block; margin-top: 0.2em; font-size: 0.8em; color: var(--muted, #666); border: 1px solid currentColor; border-radius: 4px; padding: 0 0.35em; }
+.tag.generic { background: var(--ok-bg); color: var(--ok); margin: 0 0.2em 0.2em 0; }
+.tag.underexplored { display: inline-block; margin-top: 0.2em; background: var(--warn-bg); color: var(--warn); }
+.tools .filter { margin-left: 1em; font-size: 0.9em; white-space: nowrap; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4em; }

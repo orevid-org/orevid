@@ -54,6 +54,15 @@ constant score removed, zero-shot Recall@100 is **0.809 vs 0.421** (hard 0.528 v
 Intervals that resample whole diseases are in [`benchmark/CLUSTER_CI.md`](benchmark/CLUSTER_CI.md): the
 paired difference with TxGNN is +0.40 (95% CI 0.35–0.44) on zero-shot and +0.24 (0.21–0.27) on the external exam.
 
+**Test against the future** ([`docs/TEMPORAL.md`](docs/TEMPORAL.md), pre-registered in
+[`docs/IMPROVEMENT_PLAN.md`](docs/IMPROVEMENT_PLAN.md)): with the graph and the model as known in 2015, the uses
+that later reached phase 3 or approval are ranked well above popularity (Recall@100 0.322 vs 0.174, paired
++0.148, 95% CI 0.123–0.173; development cutoff 2012 agrees). The advantage on non-obvious uses is small (+0.043),
+and 80 % of PrimeKG indications are undated, so some leakage remains. A calibrated probability per candidate was
+tested and not adopted ([`docs/CALIBRATION.md`](docs/CALIBRATION.md)). Each candidate on the website also shows
+whether a generic or biosimilar exists and how much the pair has been studied, as information only
+([`docs/PRACTICAL.md`](docs/PRACTICAL.md)).
+
 ## How it works
 
 1. **Graph.** PrimeKG plus Open Targets 26.06 (mechanisms with direction, clinical stages, stopped
@@ -93,6 +102,8 @@ Other documents: [`docs/TARGETS.md`](docs/TARGETS.md) (which gene to target),
 | **PubTator3** (NCBI) | public domain | Relations mined from all of PubMed, shown only as context (never used for scoring or validation) |
 | **HGNC, MONDO, HPO** | CC0 / CC BY 4.0 / HPO licence | Identifier mapping and ontologies |
 | **CTD** | non-commercial | Used in analyses only (decision P20); nothing from CTD is in the published model or data |
+| **FDA Orange Book and Purple Book** | US public domain | Generic / biosimilar status, US patent or exclusivity date and routes, display only (P44) |
+| **EMA medicines table** | © European Medicines Agency, reuse with acknowledgement | EU generic / biosimilar status (centralised procedure only), display only (P44) |
 
 Pitfalls found in the data and how they are handled are recorded in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 Two were reported upstream to Open Targets: multiple sclerosis merged into a measurement term in 26.09

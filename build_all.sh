@@ -24,6 +24,7 @@ $PY -m sources.pubmed import resources/pubmed_pilot_ms.jsonl
 $PY prepare.py
 $PY -m sources.ot_approvals
 $PY -m sources.targets           # target annotations, indexed by graph node
+$PY -m sources.practical build   # generic / biosimilar status (download once: sources.practical download)
 step "models"
 $PY explore.py validate --strict --save
 $PY predictor.py
@@ -33,6 +34,10 @@ $PY -m evaluation.direction train
 step "evaluations"
 bash evaluation/rebuild_all.sh
 $PY -m evaluation.evidence > data/eval/log_evidence.txt
+$PY -m evaluation.temporal run 2012 extra_no_ctd && $PY -m evaluation.temporal run 2015 extra_no_ctd
+$PY -m evaluation.temporal run 2012 extra_no_ot && $PY -m evaluation.temporal run 2015 extra_no_ot
+$PY -m evaluation.temporal report
+$PY -m evaluation.calibration
 step "website"
 $PY -m web.build
 $PY -m web.panel

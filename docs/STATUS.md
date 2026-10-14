@@ -143,6 +143,21 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   independent researcher, Spain, ORCID; Word + PDF + graphical abstract (Figure 1); related websites: GitHub, both
   Zenodo concept DOIs, orevid.org). The files Preprints.org generated were checked: identical to the ones uploaded.
 
+## Done on 14-10-2026, evening (home PC)
+
+- **Biomarker table applied (P41)**: `evaluation.biomarker_check` passes (0 approved conflicts, 14 candidates
+  removed; the five BCR-ABL1 inhibitors leave the AML-with-mutated-NPM1 page). Gram-stain rule tried with a new
+  `drugs:` rule type and **rejected** (criterion b: 14 approved conflicts through the ontology); antifungal analysis
+  done (amphotericin B comes from a PrimeKG error; a class rule would remove TMP-SMX for pneumocystosis). Both in the
+  hand-written section of `docs/BIOMARKERS.md`, which the script now keeps.
+- **I1 temporal validation (P42)**: `evaluation/temporal.py` → `docs/TEMPORAL.md`. The pre-registered rule is met:
+  at 2015 OREVID 0.322 vs popularity 0.174 Recall@100, paired +0.148 (0.123–0.173); non-obvious +0.043. Method page
+  and preprint now claim it, with the undated-edge leakage (80 % of PrimeKG indications) as the limit.
+- **I2 calibration (P43)**: `evaluation/calibration.py` → `docs/CALIBRATION.md`. Not adopted (Brier gain 2.5 % < 5 %).
+- **I3 practical information (P44)**: `sources/practical.py` (Orange Book, Purple Book, EMA; `download`, `build`) →
+  `data/ext/practical.parquet`; columns «Generic» and «Studied», filters and CSV fields on the website;
+  `docs/PRACTICAL.md` (match rates, manual check of 50 drugs, two matching errors fixed before release).
+
 ## Next steps
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and
@@ -167,27 +182,16 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    script, number the lines (Word: Layout → Line Numbers → Continuous) and use PCI's conflict sentence («The authors
    declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
    on Preprints.org (same server) before submitting to PCI.
-1b. **Improvement plan (home PC), registered 14-10 in `docs/IMPROVEMENT_PLAN.md`** with decision rules fixed
-   before running: I1 temporal validation (cutoffs 2012 for development, 2015 for confirmation) → I2 calibrated
-   probability per candidate; I3 practical information, display only (generic / patent status from the Orange
-   Book, Purple Book and EMA; «already studied?» and an «underexplored» flag); then I5 embedding baselines
-   (PyKEEN), I4 LINCS signature reversal and I6 a shared-biology line that beats the null (these two are
-   uncertain research). Start with I1 and I3 (independent of each other).
+1b. **Improvement plan (home PC)**, `docs/IMPROVEMENT_PLAN.md` (rules fixed 14-10). Done: I1 (P42, claim
+   adopted), I2 (P43, not adopted), I3 (P44). **Next: I5** embedding baselines (PyKEEN TransE/ComplEx/RotatE on the
+   OREVID-bench splits, GPU), then **I4** LINCS signature reversal and **I6** a shared-biology line that beats the
+   null (uncertain research). Optional: TxGNN on the temporal cutoffs.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
    null on the benchmark.
-3. **Biomarker table (home PC):** the 8 rows added on 14-10 are not applied yet. Run
-   `py -3 -m evaluation.biomarker_check` (→ `docs/BIOMARKERS.md`) and check by hand the pairs it removes for AML with
-   mutated NPM1 (expected: the five BCR-ABL1 inhibitors; criterion (b): none may be an approved indication), then
-   `py -3 -m web.build --patch`, `py -3 -m pytest tests` and deploy. Two problems seen on 14-10 that the table cannot
-   express (proposals, not done): (i) **Gram stain**: «gram-negative bacterial infections» (36327) and «gram-positive
-   bacterial infections» (38057) are like marker-defined subtypes, but the rule would be a drug list (e.g.
-   vancomycin, daptomycin, linezolid have no gram-negative activity; aztreonam and polymyxins no gram-positive
-   activity) — careful: penicillin G does treat some gram-negatives (Neisseria), so it must not be excluded; needs a
-   new `drugs:` rule type in `web/build.py` `marker_rules` and the same manual check. (ii) **Antifungal as an
-   extension of a bacterial infection**: amphotericin B is a direct extension on the gram-positive page; find which
-   ontology neighbour brings it and whether other bacterial/fungal pages mix the same way.
+3. Biomarker table: applied on 14-10 (P41); Gram-stain and class rules rejected (`docs/BIOMARKERS.md`). New rows
+   go through `py -3 -m evaluation.biomarker_check` and `py -3 -m web.build --patch` as before.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
 5. Next release (v1.2.0, current code): include the train-only prediction files and update `CITATION.cff`
    `version`/`date-released` first (the name and ORCID are already right there).

@@ -320,6 +320,7 @@ class DiseasePages:
             self.children[a_].append(b_)
         self.n_genes = np.diff(self.g.M(GENES_ALL).indptr)
         self.markers = marker_rules(gc, self.children, self.targets_f)
+        self.practical, self.trials_pair, self.papers_pair = practical_tables()
         pkg = (self.g.types == "disease") & (self.g.origin == "PrimeKG")
         self.has_page = pkg & ((self.n_genes > 0) | (np.diff(self.g.M("disease_phenotype_positive").indptr) > 0))
         print(f"models loaded ({time.time() - t0:.0f} s)", flush=True)
@@ -362,7 +363,8 @@ class DiseasePages:
                     "status": status.get(f, "unknown"), "atc": self.atc.get(f, ""),
                     "mechanism": self.mechanism(f), "indications": self.indications(f),
                     "lines": sorted(evidence_lines(expl)),
-                    "risk": bool(risk_f[j]), "risk_reasons": reasons, "contra": f in contra, "expl": expl}
+                    "risk": bool(risk_f[j]), "risk_reasons": reasons, "contra": f in contra, "expl": expl,
+                    **self.practical_info(f, dt)}
 
         # Subtypes defined by an absent biomarker (resources/biomarker_subtypes.csv, REVIEW_RESPONSE.md T7):
         # drugs acting on that marker cannot work here (tamoxifen in triple-negative breast cancer).
@@ -452,6 +454,18 @@ class DiseasePages:
             "markers": sorted({(m, st) for m, st, _ in self.markers.get(d, [])}),
             "excluded_marker": [[n, m] for n, m in removed_marker.items()]}
 
+    def practical_info(self, f, dt):
+        """Generic / biosimilar status, routes, and how much the pair has been studied (I3; display only).
+        «Underexplored»: no trial for the pair and at most 2 papers co-mentioning drug and disease (thresholds fixed in
+        docs/IMPROVEMENT_PLAN.md)."""
+        p = self.practical.get(f, {})
+        n_trials = max((self.trials_pair.get((f, m), 0) for m in dt), default=0)
+        n_papers = max((self.papers_pair.get((f, m), 0) for m in dt), default=0)
+        return {"generic": {k: p[k] for k in ("generic_us", "biosimilar_us", "generic_eu", "biosimilar_eu",
+                                              "exclusivity_until", "routes") if p.get(k)},
+                "n_trials": int(n_trials), "n_papers": int(n_papers),
+                "underexplored": bool(n_trials == 0 and n_papers <= 2)}
+
     def link(self, m):
         return [int(m), self.g.name(m), bool(self.has_page[m])]
 
@@ -492,12 +506,32 @@ class DiseasePages:
         return ms[:4] + ([f"+{len(ms) - 4}"] if len(ms) > 4 else [])
 
 
+def practical_tables():
+    """Per drug: generic / biosimilar / exclusivity / routes (sources/practical.py). Per (drug, disease): number of
+    registered trials (Open Targets clinical records) and of papers co-mentioning both (PubTator3)."""
+    f = ROOT / "data" / "ext" / "practical.parquet"
+    practical = {}
+    if f.exists():
+        d = pd.read_parquet(f)
+        practical = {int(r.node): {k: getattr(r, k) for k in ("generic_us", "biosimilar_us", "generic_eu",
+                                                            "biosimilar_eu", "exclusivity_until", "routes")}
+                     for r in d.itertuples()}
+    a = pd.read_parquet(ROOT / "data" / "prep" / "attributes.parquet",
+                        columns=["relation", "x_index", "y_index", "n_trials", "n_articles"])
+    c = a[a.relation == "clinical"]
+    trials = {(int(x), int(y)): int(n) for x, y, n in zip(c.x_index, c.y_index, c.n_trials.fillna(0))}
+    p = a[a.relation == "pubtator_drug_disease"].groupby(["x_index", "y_index"]).n_articles.sum()
+    papers = {(int(x), int(y)): int(n) for (x, y), n in p.items()}
+    return practical, trials, papers
+
+
 def marker_rules(g, children, targets):
     """{disease node: [(marker, «absent»|«present», drug nodes acting on the marker)]} from
     resources/biomarker_subtypes.csv. An absent marker is also absent in the more specific forms
     (descendants). Drug rules: «endocrine» = ATC therapeutic group «endocrine therapy» (L02) except
     anti-androgens, or targets ESR1, ESR2 or CYP19A1 unless it is a cytotoxic antineoplastic (L01);
-    «targets:G1,G2» = acts on one of those genes (DrugBank or ChEMBL)."""
+    «targets:G1,G2» = acts on one of those genes (DrugBank or ChEMBL); «drugs:A;B» = a closed list of drugs
+    (e.g. antibacterials active only against gram-positive bacteria, on gram-negative infections)."""
     f = ROOT / "resources" / "biomarker_subtypes.csv"
     if not f.exists():
         return {}
@@ -523,6 +557,10 @@ def marker_rules(g, children, targets):
         if rule.startswith("targets:"):
             genes = set(rule.split(":", 1)[1].split(","))
             return {x for x, gs in gene_of.items() if gs & genes}
+        if rule.startswith("drugs:"):  # a closed list of drug names (salts and esters included through drug_family)
+            from evaluation.twins import drug_family
+            listed = {k for n in rule.split(":", 1)[1].split(";") if n.strip() for k in drug_family(n.strip())}
+            return {int(x) for x in drugs if drug_family(g.name(int(x))) & listed}
         return set()
 
     res = defaultdict(list)

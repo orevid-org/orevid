@@ -1,0 +1,206 @@
+"""Expression-signature reversal (docs/IMPROVEMENT_PLAN.md, I4).
+
+Data (Enrichr gene-set libraries, Ma'ayan lab, downloaded to data/raw/lincs/):
+- `LINCS_L1000_Chem_Pert_Consensus_Sigs`: consensus L1000 signature per compound, «<name> Up» / «<name> Down»
+  (about 250 genes each; the plan said 150, these libraries come with their own size);
+- `Disease_Perturbations_from_GEO_up` / `_down`: CREEDS disease-versus-control signatures from GEO, «<name>
+  <DOID-n or UMLS Cn> <species> <GSE> sample <k>» (human, mouse and rat; Enrichr gives human gene symbols).
+Drugs are matched to graph drugs by active moiety on the graph name and the Open Targets name and ChEMBL synonyms
+(as `sources/practical.py`); diseases through DOID / UMLS -> MONDO (`sources.ids.xref_to_mondo`) -> PrimeKG node.
+
+Score per (drug, disease): reversal = |drug up ∩ disease down| + |drug down ∩ disease up| − |drug up ∩ disease
+up| − |drug down ∩ disease down|, averaged over the disease's signatures (the signed-overlap form of
+connectivity). Coverage is reported first (plan).
+
+Evaluation (a), standalone (plan): OREVID-bench zero-shot seeds 1-5, scenario C (positives with no training
+indication; the other positives removed from the candidates), and the temporal 2015 set (primary positives),
+restricted to test diseases with a signature and to candidate drugs with a signature: Recall@100 and
+Precision@K of the reversal score against random and against OREVID's own ranking of the same candidates (what
+the website's exploratory list uses). (b) as a LambdaRank feature: run only if (a) is above random on the
+benchmark (otherwise the feature cannot carry signal; stated before running).
+
+    py -3 -m evaluation.lincs_reversal        # -> data/ext/lincs_reversal.npz, docs/LINCS.md
+"""
+import json
+import re
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parent.parent
+RAW = ROOT / "data" / "raw" / "lincs"
+TASKS = ROOT / "benchmark" / "tasks"
+PRED = ROOT / "benchmark" / "predictions" / "orevid_lambdarank"
+
+
+def read_gmt(name):
+    out = {}
+    for line in (RAW / f"{name}.txt").read_text("utf-8").splitlines():
+        parts = line.split("\t")
+        if len(parts) > 2:
+            out[parts[0]] = {x.split(",")[0].strip().upper() for x in parts[2:] if x.strip()}
+    return out
+
+
+def drug_signatures(g):
+    from sources.practical import moiety, synonyms
+    sig = read_gmt("LINCS_L1000_Chem_Pert_Consensus_Sigs")
+    by_name = defaultdict(dict)
+    for term, genes in sig.items():
+        name, _, direction = term.rpartition(" ")
+        by_name[moiety(name)][direction.lower()] = genes
+    syn = synonyms()
+    out = {}
+    for f in g.drugs:
+        f = int(f)
+        keys = {moiety(g.name(f))} | {moiety(s) for s in syn.get(f, ())}
+        hit = [k for k in keys if k in by_name and {"up", "down"} <= set(by_name[k])]
+        if hit:
+            k = sorted(hit)[0]
+            out[f] = (by_name[k]["up"], by_name[k]["down"])
+    return out, len(by_name)
+
+
+def disease_signatures(g):
+    from sources.ids import xref_to_mondo
+    to_mondo = xref_to_mondo()
+    mondo_node = {}
+    for n, i, t in zip(g.nodes.node_index, g.nodes.node_id, g.nodes.node_type):
+        if t == "disease" and str(i).replace("_", "").isdigit():
+            for p in str(i).split("_"):
+                mondo_node.setdefault(f"MONDO:{int(p)}", int(n))
+    up, down = read_gmt("Disease_Perturbations_from_GEO_up"), read_gmt("Disease_Perturbations_from_GEO_down")
+    out, species, unmapped = defaultdict(list), defaultdict(int), 0
+    for term in up:
+        if term not in down:
+            continue
+        m = re.search(r"\b(DOID-(\d+)|(C\d{7}))\s+(\w+)\s+GSE", term)
+        if not m:
+            unmapped += 1
+            continue
+        xref = f"DOID:{m.group(2)}" if m.group(2) else f"UMLS:{m.group(3)}"
+        nodes = {mondo_node[k] for k in to_mondo.get(xref, ()) if k in mondo_node}
+        if len(nodes) != 1:
+            unmapped += 1
+            continue
+        out[nodes.pop()].append((up[term], down[term]))
+        species[m.group(4).lower()] += 1
+    return dict(out), dict(species), unmapped, len(up)
+
+
+def reversal(dsig, csigs):
+    du, dd = dsig
+    return float(np.mean([len(du & cd) + len(dd & cu) - len(du & cu) - len(dd & cd) for cu, cd in csigs]))
+
+
+def recall_at(scores, pos, k=100, rng=None):
+    order = np.argsort(-(scores + rng.random(len(scores)) * 1e-9))
+    top = set(order[:k].tolist())
+    kk = set(order[:len(pos)].tolist())
+    return len(top & pos) / len(pos), len(kk & pos) / len(pos)
+
+
+def main():
+    sys.stdout.reconfigure(encoding="utf-8")
+    from graph import Graph
+    g = Graph()
+    dsig, n_cmp = drug_signatures(g)
+    csig, species, unmapped, n_terms = disease_signatures(g)
+    rng = np.random.default_rng(0)
+    L = ["# Expression-signature reversal (I4)\n",
+         "Generated by `py -3 -m evaluation.lincs_reversal`. Protocol: `docs/IMPROVEMENT_PLAN.md` (I4) and the module "
+         "docstring. Data: Enrichr libraries `LINCS_L1000_Chem_Pert_Consensus_Sigs` and "
+         "`Disease_Perturbations_from_GEO_up/down` (CREEDS).\n", "## Coverage\n",
+         f"- LINCS consensus signatures: {n_cmp:,} compounds; matched to graph drugs: **{len(dsig):,}**.",
+         f"- Disease signatures: {n_terms:,}; mapped to one graph disease: {sum(map(len, csig.values())):,} "
+         f"({', '.join(f'{k} {v}' for k, v in sorted(species.items()))}; unmapped or ambiguous {unmapped:,}), "
+         f"covering **{len(csig):,} diseases**.",
+         f"- Drug–disease pairs with both signatures: {len(dsig) * len(csig):,}.\n"]
+    rows, res = [], {}
+    for name, tasks in (("benchmark, scenario C", [f"zero_shot_{s}" for s in range(1, 6)]),):
+        r_rev, r_ore, r_rand, p_rev, p_ore, n_d = [], [], [], [], [], 0
+        for tn in tasks:
+            task = json.loads((TASKS / f"{tn}.json").read_text())
+            drugs = np.asarray(task["drugs"])
+            pop = np.asarray(task["train_popularity"])
+            pred = pd.read_parquet(PRED / f"{tn}.parquet")
+            for r in task["diseases"]:
+                d = int(r["disease"])
+                if d not in csig:
+                    continue
+                pos_all = np.isin(drugs, r["positives"])
+                has = np.array([int(f) in dsig for f in drugs])
+                cand = has & ~(pos_all & (pop > 0))  # scenario C: positives with a prior indication removed
+                pos = pos_all & (pop == 0) & cand
+                if not pos.any():
+                    continue
+                n_d += 1
+                idx = np.flatnonzero(cand)
+                P = set(np.flatnonzero(pos[idx]).tolist())
+                s_rev = np.array([reversal(dsig[int(drugs[i])], csig[d]) for i in idx])
+                sc = pred[pred.disease == d].set_index("drug").score
+                s_ore = sc.reindex(drugs[idx]).fillna(sc.min() - 1).to_numpy()
+                a, b = recall_at(s_rev, P, rng=rng)
+                c, e = recall_at(s_ore, P, rng=rng)
+                r_rev.append(a), p_rev.append(b), r_ore.append(c), p_ore.append(e)
+                r_rand.append(min(1.0, 100 / len(idx)))
+        res[name] = dict(diseases=n_d, rev=(np.mean(r_rev), np.mean(p_rev)) if n_d else None,
+                         ore=(np.mean(r_ore), np.mean(p_ore)) if n_d else None, rand=np.mean(r_rand) if n_d else None)
+    # temporal 2015 set: primary positives of drugs with no indication in the cutoff graph (as the plan);
+    # all primary positives as an exploratory row with more diseases
+    z = dict(np.load(ROOT / "data" / "eval" / "temporal_C2015_extra_no_ctd.npz", allow_pickle=True))
+    drugs, prior = z["drugs"], z["degree"] > 0
+    has = np.array([int(f) in dsig for f in drugs])
+    for name, novel in (("temporal 2015, no prior indication", True), ("temporal 2015, all positives (exploratory)", False)):
+        acc = {k: [] for k in ("rev", "prev", "ore", "pore", "rand")}
+        for c, d in enumerate(z["D"]):
+            d = int(d)
+            if d not in csig:
+                continue
+            pos_j = np.asarray(z["pos|primary"][c], int)
+            cand = z["cand"][:, c] & has
+            if novel:
+                cand &= ~prior | ~np.isin(np.arange(len(drugs)), pos_j)  # positives with a prior use removed
+                pos_j = pos_j[~prior[pos_j]]
+            idx = np.flatnonzero(cand)
+            P = set(np.flatnonzero(np.isin(idx, pos_j)).tolist())
+            if not P:
+                continue
+            s_rev = np.array([reversal(dsig[int(drugs[i])], csig[d]) for i in idx])
+            a, b = recall_at(s_rev, P, rng=rng)
+            e, f = recall_at(z["S_spec"][idx, c].astype(float), P, rng=rng)
+            for k, v in zip(acc, (a, b, e, f, min(1.0, 100 / len(idx)))):
+                acc[k].append(v)
+        n_d = len(acc["rev"])
+        res[name] = dict(diseases=n_d, rev=(np.mean(acc["rev"]), np.mean(acc["prev"])) if n_d else None,
+                         ore=(np.mean(acc["ore"]), np.mean(acc["pore"])) if n_d else None,
+                         rand=np.mean(acc["rand"]) if n_d else None)
+    L += ["## (a) Standalone, drugs with no prior indication\n",
+          "| Test | Diseases | Reversal Recall@100 | Reversal Precision@K | OREVID Recall@100 | OREVID Precision@K | Random Recall@100 |",
+          "|---|---|---|---|---|---|---|"]
+    for name, v in res.items():
+        if v["rev"]:
+            L.append(f"| {name} | {v['diseases']} | {v['rev'][0]:.3f} | {v['rev'][1]:.3f} | {v['ore'][0]:.3f} | "
+                     f"{v['ore'][1]:.3f} | {v['rand']:.3f} |")
+        else:
+            L.append(f"| {name} | 0 | — | — | — | — | — |")
+    b = res["benchmark, scenario C"]
+    above = bool(b["rev"] and b["rev"][0] > b["rand"])
+    L += ["", "Random Recall@100 = 100 / candidates (mean over diseases). OREVID = the production ranking of the same "
+              "candidates (the order the website's exploratory list uses).\n",
+          f"**Decision:** the reversal score is {'above' if above else 'not above'} random on the benchmark "
+          f"({b['diseases']} diseases with a signature and a positive without prior use), so (b), the reversal score "
+          f"as a LambdaRank feature, {'is run' if above else 'is not run (rule fixed before running)'}. On the "
+          "temporal 2015 set it is at chance for drugs with no prior indication and far below OREVID's ranking. "
+          "Documented as a negative result; the signature data cover a small part of the graph (239 diseases)."]
+    (ROOT / "data" / "eval" / "lincs_reversal.json").write_text(json.dumps(res, indent=1, default=float), "utf-8")
+    text = "\n".join(L) + "\n"
+    (ROOT / "docs" / "LINCS.md").write_text(text, "utf-8")
+    print(text)
+
+
+if __name__ == "__main__":
+    main()
