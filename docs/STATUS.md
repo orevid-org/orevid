@@ -122,9 +122,11 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   Zenodo version DOI **10.5281/zenodo.23362377** (concept 10.5281/zenodo.23323226). Asset
   `orevid-bench-predictions-v1.1.zip` = the v1.0 predictions of the four leaderboard models (the ranking model did
   not change) + the `results.json` of all five; the prediction files of the train-only variant are only on the home
-  PC (add them in the next release). Zenodo took the author name from `CITATION.cff` at that commit
-  («Quadrada, Joaquim»): fix the creators by hand on Zenodo (Edit → Creators: Quadrada Jané, Joaquim, with ORCID) in
-  the three records: 23362377 (v1.1.0), the v1.0.0 version and the snapshot 23326593.
+  PC (add them in the next release). Zenodo took the author name from `CITATION.cff` at that commit; the creators
+  were then corrected by hand to «Quadrada Jané, Joaquim» with ORCID in the three records (23323227 v1.0.0,
+  23362377 v1.1.0, 23326593 snapshot; checked through the Zenodo API). From the work PC, zenodo.org fails in Chrome
+  because the ESET SSL filter issues a `*.zenodo.org` certificate that does not cover the bare domain: do not bypass
+  the warning (use another network or device).
 - Biomarker table extended (8 rows, `resources/biomarker_subtypes.csv`); the graph has no molecular subtypes of lung,
   melanoma or colorectal cancer (EGFR, ALK, BRAF, KRAS…). New exclusion: acute myeloid leukaemia with mutated NPM1
   (99930) has no BCR::ABL1 (separate entity in WHO 2022 / ICC 2022) — its page proposed imatinib, ponatinib,
@@ -166,8 +168,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    extension of a bacterial infection**: amphotericin B is a direct extension on the gram-positive page; find which
    ontology neighbour brings it and whether other bacterial/fungal pages mix the same way.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
-5. Zenodo: fix the creators' name in the three records (see «Done on 14-10-2026»). Next release (v1.2.0, current
-   code): include the train-only prediction files and update `CITATION.cff` `version`/`date-released` first.
+5. Next release (v1.2.0, current code): include the train-only prediction files and update `CITATION.cff`
+   `version`/`date-released` first (the name and ORCID are already right there).
 6. ORCID record (optional): add the two Zenodo DOIs as Works, website and keywords.
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
