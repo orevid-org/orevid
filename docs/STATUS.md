@@ -167,6 +167,12 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    script, number the lines (Word: Layout → Line Numbers → Continuous) and use PCI's conflict sentence («The authors
    declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
    on Preprints.org (same server) before submitting to PCI.
+1b. **Improvement plan (home PC), registered 14-10 in `docs/IMPROVEMENT_PLAN.md`** with decision rules fixed
+   before running: I1 temporal validation (cutoffs 2012 for development, 2015 for confirmation) → I2 calibrated
+   probability per candidate; I3 practical information, display only (generic / patent status from the Orange
+   Book, Purple Book and EMA; «already studied?» and an «underexplored» flag); then I5 embedding baselines
+   (PyKEEN), I4 LINCS signature reversal and I6 a shared-biology line that beats the null (these two are
+   uncertain research). Start with I1 and I3 (independent of each other).
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the

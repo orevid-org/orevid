@@ -13,6 +13,8 @@ Rules (since 11-10):
 3. Nothing is published with a «not validated» item visible to the end user (or it is explained there as a limitation).
 4. Independent review (an agent with no context that looks for errors) before every publication.
 5. Automated tests (`py -3 -m pytest tests`) for the critical invariants.
+6. Planned work and its decision rules are registered before running: `docs/PROSPECTIVE_PLAN.md` (12-10-2026),
+   `docs/IMPROVEMENT_PLAN.md` (14-10-2026, items I1–I6; results will be logged as P41…).
 
 ## Evaluation (comparison with TxGNN and OREVID-bench)
 
