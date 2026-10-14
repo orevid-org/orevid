@@ -108,8 +108,19 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - Preprint read end to end by the author: correct. Author name is **Joaquim Quadrada Jané** everywhere
   (preprint, `CITATION.cff`, website legal notice and About page in three languages), with ORCID
   [0009-0000-9624-332X](https://orcid.org/0009-0000-9624-332X) on the preprint and in `CITATION.cff`.
-  PDF for bioRxiv exported from the Claude Doc (22 pages, A4).
+  The website change (legal notice, About page) was published by committing only those files on top of `gh-pages`
+  (`main`'s `web/public` matches the deployed site again; the next `web/deploy.sh` replaces that commit as usual).
 - Account tasks done: ORCID created; Gmail «send as» for contact@orevid.org and the GitHub Pages TXT record verified.
+- **Preprint submitted to bioRxiv on 14-10-2026: BIORXIV/2026/759044, version 1**, awaiting screening (usually
+  ≤ 72 h; bioRxiv e-mails contact@orevid.org, forwarded to Gmail). New Results · Bioinformatics · CC BY 4.0 ·
+  external data: the GitHub repository, both Zenodo DOIs and orevid.org. The exact file submitted is
+  `docs/preprint/OREVID_preprint_biorxiv_v1.pdf` (US letter, 24 pages, exported from the Claude Doc; bioRxiv's
+  converted PDF was checked to have identical text and the 4 figures). Once posted it cannot be removed; changes go
+  as a new version (Author Area → Submit a Revision), which keeps the DOI.
+- bioRxiv account: primary e-mail contact@orevid.org (Gmail as the institutional e-mail), ORCID linked. bioRxiv's
+  fields reject accents, en dashes and ±: the author record reads «Joaquim Quadrada Jane» (the PDF has «Jané») and
+  the abstract was entered as plain ASCII («-», «+/-»). If «Approve Manuscript» stays inactive after changing the
+  account e-mail: delete the author and add it again with «I AM THIS AUTHOR».
 
 ## Next steps
 
@@ -120,9 +131,11 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 `docs/preprint/` after editing it (`docs/REVIEW_RESPONSE.md`, «After the pending tasks»).
 
 
-1. Post the preprint to bioRxiv (submit.biorxiv.org, log in with ORCID; New Results, Bioinformatics, CC BY;
-   single PDF exported from the Claude Doc). Then add the bioRxiv DOI to the README, the website, `CITATION.cff`
-   (preferred-citation) and the ORCID record (Works).
+1. **bioRxiv** (BIORXIV/2026/759044, submitted 14-10): wait for the screening e-mail. When it is posted, add the
+   DOI (10.1101/…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
+   (`preferred-citation`) and the ORCID record (Works → Add DOI, if it does not appear by itself). If bioRxiv
+   returns it, it shows in the Author Area under «Papers Returned for Your Attention». Any later change to the
+   preprint text: edit the Claude Doc, re-export to `docs/preprint/` and submit it as a revision.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
