@@ -2,7 +2,7 @@
 
 # OREVID: open, evidence-based drug repurposing with a benchmark against TxGNN
 
-**Joaquim Quadrada**, independent researcher, Barcelona, Spain. Correspondence: contact@orevid.org
+**Joaquim Quadrada Jané** (ORCID [0009-0000-9624-332X](https://orcid.org/0009-0000-9624-332X)), independent researcher, Barcelona, Spain. Correspondence: contact@orevid.org
 
 ## Abstract
 

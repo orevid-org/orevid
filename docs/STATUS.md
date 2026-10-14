@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 14-10-2026)
+# Project status and how to continue (updated 14-10-2026, afternoon)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -103,18 +103,26 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   figures recomputed (`docs/EVIDENCE.md`, `docs/EVIDENCE_CI.md`); the website rebuilt in full and deployed (Method
   page and help texts in three languages); preprint, README and decision log updated. P38 still holds.
 
+## Done on 14-10-2026 (work PC)
+
+- Preprint read end to end by the author: correct. Author name is **Joaquim Quadrada Jané** everywhere
+  (preprint, `CITATION.cff`, website legal notice and About page in three languages), with ORCID
+  [0009-0000-9624-332X](https://orcid.org/0009-0000-9624-332X) on the preprint and in `CITATION.cff`.
+  PDF for bioRxiv exported from the Claude Doc (22 pages, A4).
+- Account tasks done: ORCID created; Gmail «send as» for contact@orevid.org and the GitHub Pages TXT record verified.
+
 ## Next steps
 
-**On a computer without `data/`** (the work PC): reading and posting the preprint (step 1), ORCID and the
-account tasks (6), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and
+**On a computer without `data/`** (the work PC): posting the preprint (step 1), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and
 anything that only reads the benchmark prediction files (`benchmark/`, release zip). **Needs the home PC**
 (`data/`, ~5 GB, and WSL for TxGNN): new evaluations, `evaluation/evidence_ci.py`, `web.build` (also `--patch`)
 and the website deploy. The Claude Doc of the preprint is the source of truth for its text; re-export to
 `docs/preprint/` after editing it (`docs/REVIEW_RESPONSE.md`, «After the pending tasks»).
 
 
-1. Read the preprint draft end to end; add ORCID; post to bioRxiv (category Bioinformatics or
-   Pharmacology and Toxicology). Then add the bioRxiv DOI to the README and the website.
+1. Post the preprint to bioRxiv (submit.biorxiv.org, log in with ORCID; New Results, Bioinformatics, CC BY;
+   single PDF exported from the Claude Doc). Then add the bioRxiv DOI to the README, the website, `CITATION.cff`
+   (preferred-citation) and the ORCID record (Works).
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the
@@ -123,8 +131,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    ALK-mutant lung cancer if the graph has those nodes), with the same manual check (`evaluation/biomarker_check.py`).
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
 5. GitHub release v1.1.0 with `orevid-bench-predictions-v1.1.zip` (the prospective plan cites v1.1.0).
-6. Pending account tasks: ORCID; Resend domain verification and Gmail «send as» for contact@orevid.org;
-   verify the domain in the GitHub organisation's Pages settings (TXT record).
+6. ORCID record (optional): add the two Zenodo DOIs as Works, website and keywords.
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
    associations and comorbidities that read as shared biology (lupus–endocarditis, RA–Graves).

@@ -4,8 +4,9 @@ title: "OREVID: Open Repurposing Evidence"
 abstract: "An open knowledge-graph tool that ranks existing drugs for each disease, shows the evidence behind every candidate, and an honest, reproducible drug-repurposing benchmark (OREVID-bench) with TxGNN run on the same splits."
 type: software
 authors:
-  - family-names: Quadrada
+  - family-names: Quadrada Jané
     given-names: Joaquim
+    orcid: "https://orcid.org/0009-0000-9624-332X"
 repository-code: "https://github.com/orevid-org/orevid"
 doi: "10.5281/zenodo.23323226"
 url: "https://orevid.org"

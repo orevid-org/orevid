@@ -413,7 +413,7 @@ async function showDisease(id) {
 
 // --- method and legal notice --------------------------------------------------------------
 // Owner and contact address shown in the legal notice
-const OWNER = "Joaquim Quadrada", CONTACT = "contact@orevid.org";
+const OWNER = "Joaquim Quadrada Jané", CONTACT = "contact@orevid.org";
 
 function showLegal() {
   document.querySelector(".search").classList.add("compact");
