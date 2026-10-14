@@ -111,12 +111,6 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   The website change (legal notice, About page) was published by committing only those files on top of `gh-pages`
   (`main`'s `web/public` matches the deployed site again; the next `web/deploy.sh` replaces that commit as usual).
 - Account tasks done: ORCID created; Gmail «send as» for contact@orevid.org and the GitHub Pages TXT record verified.
-- **Preprint submitted to bioRxiv on 14-10-2026: BIORXIV/2026/759044, version 1**, awaiting screening (usually
-  ≤ 72 h; bioRxiv e-mails contact@orevid.org, forwarded to Gmail). New Results · Bioinformatics · CC BY 4.0 ·
-  external data: the GitHub repository, both Zenodo DOIs and orevid.org. The exact file submitted is
-  `docs/preprint/OREVID_preprint_biorxiv_v1.pdf` (US letter, 24 pages, exported from the Claude Doc; bioRxiv's
-  converted PDF was checked to have identical text and the 4 figures). Once posted it cannot be removed; changes go
-  as a new version (Author Area → Submit a Revision), which keeps the DOI.
 - **GitHub release v1.1.0** (https://github.com/orevid-org/orevid/releases/tag/v1.1.0): the tag points to `7965ccf`,
   the commit that produced the prospective snapshot (as `docs/PROSPECTIVE_PLAN.md` requires), not to the current code.
   Zenodo version DOI **10.5281/zenodo.23362377** (concept 10.5281/zenodo.23323226). Asset
@@ -133,10 +127,17 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   nilotinib, dasatinib and radotinib through genes shared with CML. New annotations (marker present): Philadelphia-
   positive myelogenous leukaemia, PDGFRA- and JAK2-rearranged myeloid/lymphoid neoplasms, primary cutaneous CD30+
   T-cell lymphoproliferative disease, RELA fusion-positive ependymoma, NPM1. Not yet applied to the website.
-- bioRxiv account: primary e-mail contact@orevid.org (Gmail as the institutional e-mail), ORCID linked. bioRxiv's
-  fields reject accents, en dashes and ±: the author record reads «Joaquim Quadrada Jane» (the PDF has «Jané») and
-  the abstract was entered as plain ASCII («-», «+/-»). If «Approve Manuscript» stays inactive after changing the
-  account e-mail: delete the author and add it again with «I AM THIS AUTHOR».
+- **bioRxiv rejected the preprint on 14-10-2026** (BIORXIV/2026/759044): «bioRxiv requires authors to have an
+  organizational affiliation» that provides oversight of research; «Independent researcher» does not qualify (medRxiv
+  has the same owner and rules). The submitted file is kept as `docs/preprint/OREVID_preprint_biorxiv_v1.pdf`.
+  bioRxiv account notes, in case of a future submission with an affiliation: primary e-mail contact@orevid.org,
+  ORCID linked; its fields reject accents, en dashes and ±; if «Approve Manuscript» stays inactive after changing the
+  account e-mail, delete the author and add it again with «I AM THIS AUTHOR».
+- **Going to Preprints.org (MDPI) instead**: no affiliation required (screening checks «genuine scholars», English,
+  ethics, conflicts, AI disclosure; ~24 h; always CC BY 4.0; Word or LaTeX, not PDF). The Claude Doc was adapted:
+  keywords on the first page, AI use also in Methods (end of «Statistical analysis and software»), «Conflicts of
+  Interest» as its own paragraph just before the references. Word file and form values prepared (not in git).
+  Preprints.org advises against posting the same paper on several servers: do not post it on bioRxiv later.
 
 ## Next steps
 
@@ -147,11 +148,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 `docs/preprint/` after editing it (`docs/REVIEW_RESPONSE.md`, «After the pending tasks»).
 
 
-1. **bioRxiv** (BIORXIV/2026/759044, submitted 14-10): wait for the screening e-mail. When it is posted, add the
-   DOI (10.1101/…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
-   (`preferred-citation`) and the ORCID record (Works → Add DOI, if it does not appear by itself). If bioRxiv
-   returns it, it shows in the Author Area under «Papers Returned for Your Attention». Any later change to the
-   preprint text: edit the Claude Doc, re-export to `docs/preprint/` and submit it as a revision.
+1. **Preprints.org**: submit (Word file exported from the Claude Doc), wait for screening (~24 h), then add the DOI
+   (10.20944/preprints2026…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
+   (`preferred-citation`) and ORCID (Works → Add DOI). New versions go through «My Preprints» (keep the same server).
+   Then choose a journal (independent authors are accepted by journals).
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. Worth
    exploring a replacement that does beat the permutation null (e.g. shared genes weighted by specificity, or
    pathway-level overlap), pre-registered as before. Small diseases (< 100 genes) were the only ones above the

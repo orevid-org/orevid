@@ -1,8 +1,10 @@
-<!-- Draft preprint (bioRxiv), 12 October 2026. Source of truth: the Claude Docs document (see docs/STATUS.md); this file and OREVID_preprint_draft.docx are exports of it. -->
+<!-- Draft preprint (Preprints.org; bioRxiv declined it for lack of an institutional affiliation), 14 October 2026. Source of truth: the Claude Docs document (see docs/STATUS.md); this file and OREVID_preprint_draft.docx are exports of it. -->
 
 # OREVID: open, evidence-based drug repurposing with a benchmark against TxGNN
 
 **Joaquim Quadrada Jané** (ORCID [0009-0000-9624-332X](https://orcid.org/0009-0000-9624-332X)), independent researcher, Barcelona, Spain. Correspondence: contact@orevid.org
+
+**Keywords:** drug repurposing; knowledge graph; learning to rank; benchmark; evidence; TxGNN; PrimeKG
 
 ## Abstract
 
@@ -62,7 +64,7 @@ The external exam uses 3,718 drug–disease pairs in 645 diseases that are appro
 
 Zero-shot results are given as mean ± standard deviation over the five seeds, with the paired difference between models per seed. Disease-area results are means over the nine areas; because areas range from 2 to 180 test diseases, means weighted by disease are also given. Confidence intervals for Recall@100 and for differences between models come from a bootstrap that resamples whole diseases (10,000 resamples, within seeds for zero-shot and within areas for the disease areas), so the correct drugs of one disease are never counted as independent. Differences are paired by disease and were also tested with a Wilcoxon signed-rank test on the per-disease differences, Holm-adjusted over 28 comparisons (Supplementary Table S4). Hit rates have 95% intervals from the same disease-level bootstrap. To test whether the shared genes themselves carry information, a permutation test replaced the gene set of every disease with a random set of the same size, drawing genes in proportion to their number of associated diseases, and recomputed the shared-genes section 100 times with the ranking and the drugs' indications unchanged; the criterion fixed in advance required the observed hit rate on the external exam to exceed the 99th percentile of this null. The comparisons of OREVID with TxGNN and with the popularity baseline on Recall@100 are the primary analysis; subsets, novelty scenarios, single metapaths and hit rates by evidence line are exploratory and were not corrected for multiple comparisons. The external exam was repeated with the models trained on each of the five zero-shot splits to estimate its variability between training seeds.
 
-OREVID uses Python 3.12.4, LightGBM 4.7.0, scikit-learn 1.9.1, NumPy 2.4.6, SciPy 1.18.0 and pandas 3.0.3. TxGNN ran in its own environment (Python 3.10, PyTorch 1.13.1 with CUDA 11.6, DGL 0.9.1). Training OREVID's predictor takes about 1 minute on a CPU and all OREVID evaluations about 35 minutes; TxGNN took about 95 minutes per split on one RTX 3060 GPU, about 22 hours for the 14 splits.
+OREVID uses Python 3.12.4, LightGBM 4.7.0, scikit-learn 1.9.1, NumPy 2.4.6, SciPy 1.18.0 and pandas 3.0.3. TxGNN ran in its own environment (Python 3.10, PyTorch 1.13.1 with CUDA 11.6, DGL 0.9.1). Training OREVID's predictor takes about 1 minute on a CPU and all OREVID evaluations about 35 minutes; TxGNN took about 95 minutes per split on one RTX 3060 GPU, about 22 hours for the 14 splits. AI assistance (Claude, Anthropic) was used to write and review code, to support the data analysis and for language editing; the reviews by AI agents and how their suggestions were checked are described under Use of AI in the Declarations.
 
 ## Results
 
@@ -159,13 +161,13 @@ To address the prospective gap, the rankings and pages of this version were froz
 
 **Use of AI.** AI assistance (Claude, Anthropic) was used to write and review code, to support data analysis and for language editing of this manuscript. Several reviews by AI agents instructed to act as domain experts or independent reviewers led to rule changes and error corrections (entries P6, P8, P16, P21–P26 and P29–P31 of the decision log in the repository), and two rounds of review of this manuscript were also done by an AI agent; no human clinician or pharmacologist has yet reviewed the pages. The author directed the work, checked the results and references, and is responsible for the content; all results can be reproduced from the public code.
 
-**Competing interests.** None declared. The work was done in a personal capacity and is independent of the author's employer.
-
 **Funding.** None.
 
 **Acknowledgements.** I thank the authors of PrimeKG and TxGNN for making their data and code public, and the Open Targets team for their response to the reported data issues.
 
 **Reference check.** Journal articles were checked against PubMed, and conference papers and the technical report against their publishers' pages, on 12 October 2026.
+
+**Conflicts of Interest.** The author declares no conflicts of interest. The work was done in a personal capacity and is independent of the author's employer.
 
 ## References
 
