@@ -168,7 +168,10 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - **I5 embedding baselines (in progress)**: WSL env `~/pykeen-env` (uv, torch 2.6 cu124, PyKEEN);
   `py -3 -m evaluation.kge_bench prepare` done (`data/eval/kge/kg.npz`, 4,050,249 directed edges). The grid on
   zero_shot_1 ran overnight (`bash evaluation/kge_bench.sh grid` in WSL; resumable, skips finished runs; logs in
-  `data/eval/kge/log_<model>.txt`). TransE ≈ 18 min per run, RotatE d256 ≈ 47 min.
+  `data/eval/kge/log_<model>.txt`). **Grid finished 15-10 05:31** (`docs/KGE.md`): chosen TransE d128 lr 1e-3
+  (0.160), ComplEx d256 lr 1e-2 (0.202), RotatE d256 lr 1e-3 (0.272) on zero_shot_1, where popularity is 0.334,
+  TxGNN 0.373 and OREVID 0.843; external exam RotatE 0.156 (TxGNN 0.121). `data/eval/kge/selected.json` written;
+  the final runs are next.
 
 ## Next steps
 
@@ -195,8 +198,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
    on Preprints.org (same server) before submitting to PCI.
 1b. **Improvement plan (home PC)**, `docs/IMPROVEMENT_PLAN.md`. Done: I1 (P42), I2 (P43), I3 (P44), I4 (P45,
-   negative), I6 (P46, not adopted). **Next: finish I5**: in WSL `bash evaluation/kge_bench.sh grid` (completes any
-   missing grid run), then on Windows `py -3 -m evaluation.kge_bench select` (→ `data/eval/kge/selected.json`), then in
+   negative), I6 (P46, not adopted). **Next: finish I5** (grid and selection done): in
    WSL `bash evaluation/kge_bench.sh final` (seeds 2–5 and nine areas for the three models: 39 runs, roughly 15–25 h of
    GPU), then `py -3 benchmark/bench.py evaluate --pred benchmark/predictions/kge_<model>` for each model,
    `benchmark/cluster_ci.py`, the leaderboard, a `docs/KGE.md` report, DECISIONS P47, the preprint (Table 1 and the
