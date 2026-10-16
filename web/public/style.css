@@ -26,6 +26,11 @@ a:hover { text-decoration: underline; }
 .brand:hover { color: var(--logo-ink); }
 /* the E of the logo: three bars as tall as the capitals (0.72 em), on the baseline */
 .brand-e { height: .72em; width: .64em; margin-right: .14em; fill: var(--logo-teal); }
+/* what the name stands for, next to the logo (hidden on narrow screens) */
+.brand-meaning { align-self: center; margin-left: 14px; padding-left: 14px; border-left: 1px solid var(--line);
+  font-size: 13px; font-weight: 400; letter-spacing: .02em; color: var(--muted); white-space: nowrap; }
+.brand-meaning b { font-weight: 600; color: var(--logo-teal); }
+@media (max-width: 700px) { .brand-meaning { display: none; } }
 .header nav { display: flex; gap: 18px; align-items: center; }
 .langs { display: inline-flex; }
 .lang-button { border: 1px solid var(--line); background: transparent; color: var(--muted);
