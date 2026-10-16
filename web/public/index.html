@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OREVID — open, evidence-based drug repurposing</title>
 <meta name="description" content="Research tool: drug-repurposing candidates and targets for each disease, with explanations. Not medical advice.">
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
 <!-- Static texts are the English defaults; app.js replaces every [data-t] element from i18n/<lang>.json -->
 <header class="header">
-  <a class="brand" href="#/">OREVID</a>
+  <a class="brand" href="#/" aria-label="OREVID"><span aria-hidden="true">OR</span><svg class="brand-e" viewBox="0 0 130 147" aria-hidden="true"><rect width="130" height="16" rx="4"/><rect y="65.5" width="130" height="16" rx="4"/><rect y="131" width="130" height="16" rx="4"/></svg><span aria-hidden="true">VID</span></a>
   <nav>
     <a href="#/method" data-t="nav_method">Method and validation</a>
     <a href="#/about" data-t="nav_about">About</a>
@@ -52,6 +53,12 @@
   <a href="mailto:contact@orevid.org">contact@orevid.org</a>
   <div><span data-t="footer">OREVID</span></div>
 </footer>
+<script>
+  // Visit counter (GoatCounter: no cookies, no personal data; see the legal notice). Every #/ route counts as a page.
+  window.goatcounter = {path: () => location.pathname + location.hash};
+  window.addEventListener("hashchange", () => window.goatcounter.count && window.goatcounter.count({path: location.pathname + location.hash}));
+</script>
+<script data-goatcounter="https://orevid.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="app.js?v=35"></script>
 </body>
 </html>

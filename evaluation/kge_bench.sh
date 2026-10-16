@@ -1,5 +1,6 @@
 #!/bin/bash
-# Usage (WSL): bash evaluation/kge_bench.sh grid | final        (see evaluation/kge_bench.py)
+# Usage (WSL): bash evaluation/kge_bench.sh grid | final [Model ...]   (see evaluation/kge_bench.py)
+# final with one model per call lets the three models run in parallel (training is CPU-bound).
 # Resumable: a run whose zero_shot / area prediction file exists is skipped.
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 PY=~/pykeen-env/bin/python
@@ -22,15 +23,17 @@ if [ "$1" = "grid" ]; then
   done
 elif [ "$1" = "final" ]; then
   [ -f $OUT/selected.json ] || { echo "run: py -3 -m evaluation.kge_bench select"; exit 1; }
-  for m in TransE ComplEx RotatE; do
+  shift
+  MODELS="${@:-TransE ComplEx RotatE}"
+  for m in $MODELS; do
     read d lr < <($PY -c "import json; s=json.load(open('$OUT/selected.json'))['$m']; print(s['dim'], s['lr'])")
     dest=benchmark/predictions/kge_$(echo $m | tr A-Z a-z)
     mkdir -p $dest
     src=$OUT/grid/$($PY -c "print(f'${m}_d${d}_lr{float(\"$lr\"):g}')")
     cp -n $src/zero_shot_1.parquet $src/external_ot2606.parquet $dest/  # same training split as the grid
-    for s in 2 3 4 5; do run zero_shot_$s $m $d $lr $dest; done
-    for a in cell_proliferation mental_health cardiovascular anemia adrenal_gland autoimmune metabolic_disorder diabetes neurodigenerative; do
-      run area_$a $m $d $lr $dest
+    # SPLITS="zero_shot_2 area_anemia ..." restricts the runs (to split one model over two processes)
+    for t in ${SPLITS:-zero_shot_2 zero_shot_3 zero_shot_4 zero_shot_5 area_cell_proliferation area_mental_health area_cardiovascular area_anemia area_adrenal_gland area_autoimmune area_metabolic_disorder area_diabetes area_neurodigenerative}; do
+      run $t $m $d $lr $dest
     done
   done
 fi

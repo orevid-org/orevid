@@ -1,5 +1,6 @@
 :root {
   --bg: #f7f7f5; --paper: #ffffff; --text: #1d1f23; --muted: #5d636e; --line: #e3e4e8;
+  --logo-ink: #17395f; --logo-teal: #168b91;
   --accent: #2557a7; --accent-bg: #e8eefb; --risk: #b42318; --risk-bg: #fdecea;
   --ok: #1e7a46; --ok-bg: #e7f5ec; --warn: #8a6100; --warn-bg: #fff4dc;
   --bar: #2557a7; --shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
@@ -7,6 +8,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #121417; --paper: #1b1e22; --text: #e8e9eb; --muted: #9aa1ab; --line: #2c3036;
+    --logo-ink: #e8e9eb; --logo-teal: #4fc1c6;
     --accent: #7aa7ff; --accent-bg: #1d2a44; --risk: #ff8a80; --risk-bg: #3a1d1b;
     --ok: #6fd39a; --ok-bg: #17301f; --warn: #f2c46b; --warn-bg: #33290f; --bar: #7aa7ff;
     --shadow: none;
@@ -19,7 +21,11 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px;
   border-bottom: 1px solid var(--line); background: var(--paper); }
-.brand { font-weight: 700; font-size: 20px; color: var(--text); letter-spacing: -.01em; }
+.brand { display: inline-flex; align-items: baseline; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300; font-size: 26px; line-height: 1; letter-spacing: .14em; color: var(--logo-ink); }
+.brand:hover { color: var(--logo-ink); }
+/* the E of the logo: three bars as tall as the capitals (0.72 em), on the baseline */
+.brand-e { height: .72em; width: .64em; margin-right: .14em; fill: var(--logo-teal); }
 .header nav { display: flex; gap: 18px; align-items: center; }
 .langs { display: inline-flex; }
 .lang-button { border: 1px solid var(--line); background: transparent; color: var(--muted);
