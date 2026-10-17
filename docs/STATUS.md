@@ -165,13 +165,12 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - **I6 shared-biology line (P46)**: `evaluation/biology_lines.py` → `docs/BIOLOGY_LINES.md`. Pathway overlap chosen
   on the benchmark (29.8 % vs 23.0 %, half the candidates) but 5.0 % on the external exam, not above the null's
   99th percentile (5.32 %): not adopted. Pathways are the best lead for a future, separately pre-registered test.
-- **I5 embedding baselines (in progress)**: WSL env `~/pykeen-env` (uv, torch 2.6 cu124, PyKEEN);
-  `py -3 -m evaluation.kge_bench prepare` done (`data/eval/kge/kg.npz`, 4,050,249 directed edges). The grid on
-  zero_shot_1 ran overnight (`bash evaluation/kge_bench.sh grid` in WSL; resumable, skips finished runs; logs in
-  `data/eval/kge/log_<model>.txt`). **Grid finished 15-10 05:31** (`docs/KGE.md`): chosen TransE d128 lr 1e-3
-  (0.160), ComplEx d256 lr 1e-2 (0.202), RotatE d256 lr 1e-3 (0.272) on zero_shot_1, where popularity is 0.334,
-  TxGNN 0.373 and OREVID 0.843; external exam RotatE 0.156 (TxGNN 0.121). `data/eval/kge/selected.json` written;
-  the final runs are next.
+- **I5 embedding baselines (P47)**: `evaluation/kge_bench.py` (+ `.sh`, WSL env `~/pykeen-env`) → `docs/KGE.md`,
+  `benchmark/predictions/kge_rotate/`. Grid on zero_shot_1, then RotatE only on every task (16–17 October; TransE and
+  ComplEx dropped as dominated, documented). RotatE is below popularity on zero-shot (0.289 vs 0.358), level with
+  TxGNN on the areas and above TxGNN on the external exam (0.156 vs 0.121; non-obvious 0.127 vs 0.085). The
+  OREVID + RotatE ensemble fails the P33 rule (`evaluation/kge_ensemble.py`). Leaderboard and `CLUSTER_CI.md`
+  include RotatE (intervals only; the Holm family is unchanged). The prediction files go in the next release.
 
 ## Next steps
 
@@ -197,13 +196,9 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    script, number the lines (Word: Layout → Line Numbers → Continuous) and use PCI's conflict sentence («The authors
    declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
    on Preprints.org (same server) before submitting to PCI.
-1b. **Improvement plan (home PC)**, `docs/IMPROVEMENT_PLAN.md`. Done: I1 (P42), I2 (P43), I3 (P44), I4 (P45,
-   negative), I6 (P46, not adopted). **Next: finish I5** (grid and selection done): in
-   WSL `bash evaluation/kge_bench.sh final` (seeds 2–5 and nine areas for the three models: 39 runs, roughly 15–25 h of
-   GPU), then `py -3 benchmark/bench.py evaluate --pred benchmark/predictions/kge_<model>` for each model,
-   `benchmark/cluster_ci.py`, the leaderboard, a `docs/KGE.md` report, DECISIONS P47, the preprint (Table 1 and the
-   paragraph «No knowledge-graph embedding baseline … was run», which must change) and an OREVID-bench release.
-   The ensemble test (P33 rule) comes after. Optional: TxGNN on the temporal cutoffs.
+1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: the next OREVID-bench release must include
+   `benchmark/predictions/kge_rotate/` (and the train-only files, item 5); optional TxGNN on the temporal cutoffs;
+   pathway overlap with its own null (P46) as a new pre-registered test.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
    (permuting pathway sets) in a new pre-registered test.

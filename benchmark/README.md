@@ -24,6 +24,7 @@ See [LEADERBOARD.md](LEADERBOARD.md). Summary (Recall@100, mean over diseases):
 |---|---|---|---|---|
 | Popularity (ignores the disease) | 0.358 | 0.203 | 0.185 | 0.130 |
 | TxGNN (official code, trained on the same splits) | 0.412 | 0.258 | 0.237 | 0.121 |
+| RotatE (knowledge-graph embedding, PyKEEN, tuned on seed 1) | 0.289 | 0.162 | 0.219 | 0.156 |
 | OREVID (LambdaRank over meta-paths) | **0.811** | **0.539** | **0.617** | **0.359** |
 
 TxGNN was retrained here with its official code and hyper-parameters; on the zero-shot split it
@@ -85,7 +86,7 @@ clinical-trial databases, drug labels, literature saying «drug treats disease»
 `disease` and `drug` (PrimeKG `node_index`) and `score` (higher = more likely to treat). Score every
 drug in `tasks/<task>.json` → `drugs` for every test disease; missing pairs get the lowest score.
 
-The prediction files of the four models in the leaderboard (~180 MB, not kept in git) are attached to
+The prediction files of the four models in the leaderboard (RotatE's, `predictions/kge_rotate/`, from the next release) (~180 MB, not kept in git) are attached to
 the GitHub release as `orevid-bench-predictions-v1.1.zip` (same predictions as v1.0, plus the `results.json`
 of OREVID trained with training labels only): unzip it here to re-evaluate them with
 `python bench.py evaluate --pred predictions/<model>`.

@@ -30,12 +30,14 @@ data, it recovers about twice as many known treatments; for genuinely new indica
 Recall@100 = fraction of a disease's correct drugs found among the top 100 of 7,957 candidates
 (mean over diseases). Full tables: [`benchmark/LEADERBOARD.md`](benchmark/LEADERBOARD.md).
 
-| Test | Popularity baseline | TxGNN | OREVID |
-|---|---|---|---|
-| Zero-shot diseases (5 seeds) | 0.358 | 0.412 | **0.811** |
-| Same, without near-identical diseases («hard») | 0.203 | 0.258 | **0.539** |
-| Whole disease areas hidden (9) | 0.185 | 0.237 | **0.617** |
-| External: Open Targets approvals not in PrimeKG | 0.130 | 0.121 | **0.359** |
+| Test | Popularity baseline | TxGNN | RotatE (embedding) | OREVID |
+|---|---|---|---|---|
+| Zero-shot diseases (5 seeds) | 0.358 | 0.412 | 0.289 | **0.811** |
+| Same, without near-identical diseases («hard») | 0.203 | 0.258 | 0.162 | **0.539** |
+| Whole disease areas hidden (9) | 0.185 | 0.237 | 0.219 | **0.617** |
+| External: Open Targets approvals not in PrimeKG | 0.130 | 0.121 | 0.156 | **0.359** |
+
+RotatE: knowledge-graph embedding (PyKEEN), settings chosen on zero-shot seed 1 ([`docs/KGE.md`](docs/KGE.md)).
 
 What the website shows, and how often it was right among each disease's top 25
 ([`docs/EVIDENCE.md`](docs/EVIDENCE.md)):

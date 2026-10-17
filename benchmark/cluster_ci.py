@@ -25,7 +25,8 @@ from bench import _jitter, load_predictions
 
 HERE = Path(__file__).resolve().parent
 MODELS = {"popularity": "Popularity", "txgnn": "TxGNN", "orevid_lambdarank": "OREVID",
-          "orevid_no_popularity": "Logistic regression without popularity"}
+          "orevid_no_popularity": "Logistic regression without popularity", "kge_rotate": "RotatE"}
+# RotatE (I5, added 17-10-2026) gets intervals but no paired tests, so the Holm family of the published table is unchanged
 PAIRS = [("orevid_lambdarank", "txgnn"), ("orevid_lambdarank", "popularity"), ("txgnn", "popularity"),
          ("orevid_no_popularity", "txgnn")]
 B = 10_000
