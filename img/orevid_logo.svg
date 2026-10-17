@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">OREVID</title>
+  <desc id="desc">(E bars aligned with the capitals for the website) OREVID wordmark with a teal three-bar E and the tagline Open, evidence-based drug repurposing.</desc>
+  <rect width="1200" height="600" fill="#FFFFFF"/>
+  <g fill="#17395F" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="205" font-weight="300">
+    <text x="70" y="260">O</text>
+    <text x="280" y="260">R</text>
+    <text x="660" y="260">V</text>
+    <text x="835" y="260">I</text>
+    <text x="930" y="260">D</text>
+  </g>
+  <g fill="#168B91">
+    <rect x="495" y="113" width="130" height="13" rx="4"/>
+    <rect x="495" y="180" width="130" height="13" rx="4"/>
+    <rect x="495" y="247" width="130" height="13" rx="4"/>
+  </g>
+  <g fill="#17395F" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="43" font-weight="400" text-anchor="middle" letter-spacing="7">
+    <text x="600" y="360">OPEN, EVIDENCE-BASED</text>
+    <text x="600" y="425">DRUG REPURPOSING</text>
+  </g>
+</svg>
