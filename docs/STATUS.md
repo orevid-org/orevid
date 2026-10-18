@@ -30,17 +30,24 @@ orevid-org/orevid**; when back on the home PC, pull there and copy the changes b
 TxGNN runs only on the home PC (WSL: `~/txgnn-env`, `~/TxGNN`, `~/txgnn_data`; RTX 3060, ~95 min
 per split). Its predictions are in `data/eval/txgnn_predictions/` and in the benchmark release.
 
-## Current state (12-10-2026)
+## Current state (18-10-2026)
 
 - Graph: 157,822 nodes, 9,457,076 relations (PrimeKG + Open Targets 26.06 + STRING 12.5;
   PubTator3 only as displayed context).
 - Production model: LightGBM LambdaRank on 22 metapaths + popularity + drug degrees, masked
-  training (`predictor.py`; evaluation in `evaluation/txgnn.py`, feature set `extra_no_ctd`, 5 rounds).
+  training (`predictor.py`; evaluation in `evaluation/txgnn.py`, feature set `extra_no_ctd`, 5 rounds). Unchanged
+  since 12-10: every alternative tested since (P33, P43, P45–P47) failed its pre-registered rule.
 - Website shows only candidates with an evidence line (direct extension; ≥ 3 shared genes with
   hypergeometric p < 1e-5 over the genes with a disease, P40) among the top 25; hit rates in `docs/EVIDENCE.md`.
-- OREVID-bench: `benchmark/` (leaderboard, fair comparison with TxGNN in `benchmark/FAIR_COMPARISON.md`).
-- Key numbers (Recall@100): zero-shot 0.811 vs TxGNN 0.412; areas 0.617 vs 0.237; external exam
-  0.359 vs 0.121. Hit rate on unseen approvals: direct extensions 12.6 %, shared genes 4.3 %.
+  Each candidate also shows generic / biosimilar status and how much it was studied (P44). Logo, favicon and a
+  GoatCounter visit counter (no cookies; dashboard https://orevid.goatcounter.com, account contact@orevid.org).
+- OREVID-bench: `benchmark/` (leaderboard with popularity, TxGNN, RotatE and OREVID; fair comparison with TxGNN in
+  `benchmark/FAIR_COMPARISON.md`; disease-level intervals in `benchmark/CLUSTER_CI.md`).
+- Key numbers (Recall@100): zero-shot 0.811 vs TxGNN 0.412 (RotatE 0.289); areas 0.617 vs 0.237; external exam
+  0.359 vs 0.121 (RotatE 0.156); temporal test at 2015 0.322 vs popularity 0.174 (`docs/TEMPORAL.md`). Hit rate on
+  unseen approvals: direct extensions 12.6 %, shared genes 4.3 %.
+- Preprint: v1 submitted to Preprints.org on 14-10 (preprints-238326), under screening. The Claude Doc and
+  `docs/preprint/` already hold the v2 text (see «Done on 16–18 October»).
 
 ## Done on 12-10-2026
 
@@ -172,6 +179,24 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   OREVID + RotatE ensemble fails the P33 rule (`evaluation/kge_ensemble.py`). Leaderboard and `CLUSTER_CI.md`
   include RotatE (intervals only; the Holm family is unchanged). The prediction files go in the next release.
 
+## Done on 16–18 October 2026 (home PC)
+
+- **I5 finished (P47)**: RotatE run on seeds 2–5 and the nine areas (two WSL processes; RotatE at dimension 256
+  saturates the GPU, so parallel runs gain nothing: ~45 min per run). Leaderboard, `CLUSTER_CI.md`, README, Method
+  page (three languages) and preprint updated; the OREVID + RotatE ensemble was tested and not adopted.
+- **Website**: OREVID logo in the header (letters as web text and the E as three bars the height of the capitals,
+  so it aligns with any font and works in dark mode; the original SVG had the bars too high, a corrected copy is in
+  `web/public/img/orevid_logo.svg`), «Open REpurposing EVIDence» next to it (hidden on narrow screens), favicon,
+  and the GoatCounter counter: every `#/` route counts as a page, sent once the page has its title; privacy section
+  of the legal notice updated in three languages.
+- **Preprint v2 text ready, not yet posted** (changes against the submitted v1, commit `6d36551`): temporal
+  validation (Methods paragraph, Results subsection, one sentence in the abstract, Limitations and Discussion);
+  RotatE row in Table 1, a Results sentence and the Discussion paragraph that said no embedding baseline was run;
+  the LINCS and shared-biology negative results in Limitations; practical information in «Website». No earlier
+  number or figure changes.
+- **Open Targets #4573**: David Ochoa answered (18-10) that they will keep multiple sclerosis as a disease and the
+  severity scores as measurements, fix due in 26.12; see «Data pitfalls» for what to check before upgrading.
+
 ## Next steps
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and
@@ -184,6 +209,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 1. **Preprints.org** (preprints-238326, submitted 14-10): wait for screening (~24 h), then add the DOI
    (10.20944/preprints2026…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
    (`preferred-citation`) and ORCID (Works → Add DOI). New versions go through «My Preprints» (keep the same server).
+   **Post v2 once v1 is online**: export Word from the Claude Doc (`docs/preprint/OREVID_preprint_draft.docx` is
+   the current export) with the changes listed in «Done on 16–18 October».
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
    Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
@@ -205,7 +232,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 3. Biomarker table: applied on 14-10 (P41); Gram-stain and class rules rejected (`docs/BIOMARKERS.md`). New rows
    go through `py -3 -m evaluation.biomarker_check` and `py -3 -m web.build --patch` as before.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
-5. Next release (v1.2.0, current code): include the train-only prediction files and update `CITATION.cff`
+5. Next release (v1.2.0, current code): include the train-only and RotatE (`benchmark/predictions/kge_rotate/`) prediction files and update `CITATION.cff`
    `version`/`date-released` first (the name and ORCID are already right there).
 6. ORCID record (optional): add the two Zenodo DOIs as Works, website and keywords.
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
