@@ -245,7 +245,13 @@ Details and individual steps: README. Any change in `sources/*` requires `prepar
 ### Data pitfalls
 
 - Open Targets 26.09 merges multiple sclerosis (MONDO_0005301) into a measurement term
-  (EFO_0803536): use 26.06. Always check `obsoleteTerms` before saying a term is missing.
+  (EFO_0803536): use 26.06. Always check `obsoleteTerms` before saying a term is missing. On 18-10-2026 David
+  Ochoa answered #4573 that they will keep the disease and the measurement apart, prototype the fix and roll it
+  out in **26.12**. Another user (madaraviv) listed in that issue 92 MONDO ids merged into an EFO id in 26.09
+  (e.g. MASLD into «non-alcoholic fatty liver», aortic valve stenosis, influenza, Chagas disease, peripheral
+  neuropathy, Castleman disease). Before moving to 26.12: check that MONDO_0005301 is back as a disease, and that
+  those 92 ids map to the same graph diseases as in 26.06 (`sources.ids.diseases()` resolves merges through
+  `obsoleteTerms`; compare the mapping and the number of positives of the external exam).
 - Open Targets approvals: some come from multi-drug labels (lincomycin–MS) or abbreviations
   («ad» = ADHD read as Alzheimer's); `sources/ot_approvals.py` classifies them.
 - In 26.06, `clinical_report` has no `origin` (the `type` field gives the source).
