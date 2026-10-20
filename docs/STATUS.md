@@ -228,7 +228,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
    Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
-   (repository public for 6 months). In parallel, write to the TxGNN authors (Zitnik lab), Every Cure and David Ochoa.
+   (repository public for 6 months). **Outreach, 20-10:** e-mails sent to the TxGNN authors (Marinka Zitnik,
+   marinka@hms.harvard.edu, cc Kexin Huang) and to Every Cure (info@everycure.org), with the v1 link; both say OREVID
+   is non-profit and open. David Ochoa: a reply on opentargets/issues#4573 (preprint link + the 26.12 check) was
+   drafted. Answer any reply mentioning that v2 adds the temporal validation and RotatE.
    **PCI preparation: done on 20-10.** PCI does not accept AI-generated illustrations («Authors must not generate
    illustrations using AI», PCI code of conduct): the author read and ran `evaluation/figures.py` on the work PC
    (with the Spyder venv's Python, `~/.venvs/spyder`, which has matplotlib) → `docs/preprint/figures/figure{1..4}.png|.pdf`;
