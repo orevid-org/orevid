@@ -219,10 +219,12 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 1. **Preprints.org** (preprints-238326, online 20-10, DOI 10.20944/preprints202610.1918.v1): DOI added to README,
    website and `CITATION.cff`, and to ORCID (20-10; the Zenodo records were already there through DataCite). New versions go through the
    User Dashboard («My Preprints»; keep the same server; each version gets its own DOI, `.v2`).
-   **v2 ready, not yet posted** (20-10): `docs/preprint/OREVID_preprint_v2.docx` (A4, continuous line numbers) and
-   `OREVID_preprint_v2.pdf` (made from it with Word) hold the changes of «Done on 16–18 October» plus the PCI items
-   below (figures from `evaluation/figures.py`, PCI conflict sentence). Upload both through the User Dashboard
-   (new version of preprints-238326) with a short list of changes against v1.
+   **v2 submitted on 20-10 at 12:24 (follow-up version, new ID preprints-239415), «Pending Check»**: files
+   `docs/preprint/OREVID_preprint_v2.docx` (A4, continuous line numbers) and `OREVID_preprint_v2.pdf` (made from it
+   with Word), graphical abstract = the new `figures/figure1.png`; abstract updated (temporal-validation sentence);
+   the `supplementary.docx` Preprints.org had carried over from v1 was removed (the Word holds Tables S1–S5).
+   When it is online (DOI `…1918.v2`), decide whether README, website and `CITATION.cff` should point to v2 (the
+   `.v1` DOI keeps working), then add v2 to ORCID if it does not appear by itself.
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
    Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
