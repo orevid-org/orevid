@@ -19,3 +19,17 @@ keywords:
   - TxGNN
 date-released: "2026-10-12"
 version: "1.0.0"
+preferred-citation:
+  type: article
+  title: "OREVID: Open, Evidence-Based Drug Repurposing with a Benchmark Against TxGNN"
+  authors:
+    - family-names: Quadrada Jané
+      given-names: Joaquim
+      orcid: "https://orcid.org/0009-0000-9624-332X"
+  journal: "Preprints.org"
+  publisher:
+    name: "MDPI"
+  doi: "10.20944/preprints202610.1918.v1"
+  url: "https://www.preprints.org/manuscript/202610.1918/v1"
+  year: 2026
+  month: 10

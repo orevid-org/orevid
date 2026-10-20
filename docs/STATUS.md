@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 14-10-2026, afternoon)
+# Project status and how to continue (updated 20-10-2026)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -17,7 +17,7 @@ clinical tool. Non-commercial use of some sources (data under CC BY-NC-SA 4.0; c
 | Website | https://orevid.org (GitHub Pages, branch `gh-pages`; deploy: `DOMAIN=orevid.org REMOTE=https://github.com/orevid-org/orevid.git bash web/deploy.sh`) |
 | Code archive | Zenodo concept DOI 10.5281/zenodo.23323226 (GitHub release integration) |
 | Prospective snapshot (12-10-2026) | Zenodo DOI 10.5281/zenodo.23326593; plan in `docs/PROSPECTIVE_PLAN.md` |
-| Preprint draft | `docs/preprint/` (Word, Markdown, figures). The editable source is a Claude Docs document in the maintainer's account |
+| Preprint | Preprints.org, DOI 10.20944/preprints202610.1918.v1 (https://www.preprints.org/manuscript/202610.1918/v1). Source and exports in `docs/preprint/` (Word, Markdown, figures); the editable source is a Claude Docs document in the maintainer's account |
 | Contact | contact@orevid.org (forwarded by the registrar) |
 | Data (`data/`, ~5 GB) | Not in git. Rebuild with `build_all.sh` (see README); several hours |
 | Benchmark prediction files | GitHub release assets (`orevid-bench-predictions-v1.1.zip`) |
@@ -46,8 +46,8 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
 - Key numbers (Recall@100): zero-shot 0.811 vs TxGNN 0.412 (RotatE 0.289); areas 0.617 vs 0.237; external exam
   0.359 vs 0.121 (RotatE 0.156); temporal test at 2015 0.322 vs popularity 0.174 (`docs/TEMPORAL.md`). Hit rate on
   unseen approvals: direct extensions 12.6 %, shared genes 4.3 %.
-- Preprint: v1 submitted to Preprints.org on 14-10 (preprints-238326), under screening. The Claude Doc and
-  `docs/preprint/` already hold the v2 text (see «Done on 16–18 October»).
+- Preprint: v1 online on Preprints.org since 20-10 (preprints-238326, DOI 10.20944/preprints202610.1918.v1,
+  registered with Crossref). The Claude Doc and `docs/preprint/` already hold the v2 text (see «Done on 16–18 October»).
 
 ## Done on 12-10-2026
 
@@ -197,6 +197,16 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - **Open Targets #4573**: David Ochoa answered (18-10) that they will keep multiple sclerosis as a disease and the
   severity scores as measurements, fix due in 26.12; see «Data pitfalls» for what to check before upgrading.
 
+## Done on 20-10-2026 (work PC)
+
+- **Preprint v1 online** on Preprints.org: DOI **10.20944/preprints202610.1918.v1**, registered with Crossref.
+  The DOI is now in the README (badge and «Citing»), `CITATION.cff` (`preferred-citation`, so GitHub's «Cite this
+  repository» gives the preprint) and the website: About page (how to cite) and a line at the top of the Method page,
+  in three languages. The website change was published by committing only the three `i18n/*.json` on top of
+  `gh-pages` (as on 14-10; `main`'s `web/public` matches the deployed site).
+- At the next GitHub release, check that Zenodo still takes the software's title and type from the top-level fields of
+  `CITATION.cff` and not from `preferred-citation`; if it does not, fix the record by hand.
+
 ## Next steps
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and
@@ -206,10 +216,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 `docs/preprint/` after editing it (`docs/REVIEW_RESPONSE.md`, «After the pending tasks»).
 
 
-1. **Preprints.org** (preprints-238326, submitted 14-10): wait for screening (~24 h), then add the DOI
-   (10.20944/preprints2026…) to the README, the website (About and Method pages, three languages), `CITATION.cff`
-   (`preferred-citation`) and ORCID (Works → Add DOI). New versions go through «My Preprints» (keep the same server).
-   **Post v2 once v1 is online**: export Word from the Claude Doc (`docs/preprint/OREVID_preprint_draft.docx` is
+1. **Preprints.org** (preprints-238326, online 20-10, DOI 10.20944/preprints202610.1918.v1): DOI added to README,
+   website and `CITATION.cff`; **left: ORCID** (Works → Add → Search & link / Add DOI). New versions go through the
+   User Dashboard («My Preprints»; keep the same server; each version gets its own DOI, `.v2`).
+   **Post v2 now that v1 is online**: export Word from the Claude Doc (`docs/preprint/OREVID_preprint_draft.docx` is
    the current export) with the changes listed in «Done on 16–18 October».
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
