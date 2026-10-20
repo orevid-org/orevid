@@ -207,6 +207,19 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - At the next GitHub release, check that Zenodo still takes the software's title and type from the top-level fields of
   `CITATION.cff` and not from `preferred-citation`; if it does not, fix the record by hand.
 
+## Done on 20-10-2026, afternoon (work PC)
+
+- **Google Search Console**: domain property orevid.org verified with a TXT record at Namecheap (Advanced DNS, host
+  `@`, next to the SPF record of the e-mail forwarding: never delete either). Indexing of the home page requested.
+  Decision: be findable for researchers (home, About, Method), but **do not make the disease pages indexable**: today
+  they live under `#/` routes, which search engines treat as one page; if static per-disease pages are ever built,
+  mark them `noindex`. The risk is a patient landing on a page and self-medicating, not only a legal one.
+- **First-visit notice** (`index.html` `#notice`, `app.js` `showNotice`, strings `notice_*` in the three locales): a
+  modal on the first visit, whatever page it starts on, saying the candidates are hypotheses for researchers and must
+  not be used to start, stop or change a treatment. Only «I understand» dismisses it (remembered in localStorage,
+  key `notice_ok_v1`; bump the key to show it again after a wording change); Escape does not; the legal-notice link
+  closes it for that visit. Deployed by committing the changed files on top of `gh-pages`.
+
 ## Next steps
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the GitHub release (5), the biomarker table (3: editing the CSV; checking it needs `data/`) and

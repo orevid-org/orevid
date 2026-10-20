@@ -1,5 +1,9 @@
 {
   "strings": {
+    "notice_title": "Una eina de recerca, no un consell mèdic",
+    "notice_body": "<p>OREVID genera hipòtesis per a investigadors: quins fàrmacs existents podria valer la pena estudiar per a una malaltia. Els candidats no s'han provat en pacients amb aquesta malaltia, molts seran erronis i alguns podrien ser perjudicials.</p><p><strong>No els feu servir per començar, deixar o canviar cap tractament.</strong> Si teniu dubtes sobre el vostre tractament, pregunteu al vostre metge.</p>",
+    "notice_ok": "Ho entenc",
+    "notice_legal": "Avís legal i condicions d'ús",
     "nav_method": "Mètode i validació",
     "title": "Quins fàrmacs existents podrien servir per a una malaltia?",
     "subtitle": "Busca una malaltia per veure els candidats a reposicionar, per què, i quines dianes es podrien atacar.",

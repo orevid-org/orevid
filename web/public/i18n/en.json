@@ -1,5 +1,9 @@
 {
   "strings": {
+    "notice_title": "A research tool, not medical advice",
+    "notice_body": "<p>OREVID generates hypotheses for researchers: which existing drugs might be worth studying for a disease. The candidates have not been tested in patients for that disease, many will be wrong, and some could be harmful.</p><p><strong>Do not use them to start, stop or change any treatment.</strong> If you have questions about your own treatment, ask your doctor.</p>",
+    "notice_ok": "I understand",
+    "notice_legal": "Legal notice and terms of use",
     "nav_method": "Method and validation",
     "title": "Which existing drugs could work for a disease?",
     "subtitle": "Search a disease to see repurposing candidates, why they were proposed, and which targets could be hit.",

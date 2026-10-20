@@ -477,7 +477,7 @@ function applyLang() {
   q.setAttribute("aria-label", t("search_label"));
   document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
 }
-document.getElementById("langs").addEventListener("click", async (e) => {
+async function switchLang(e) {
   const b = e.target.closest("[data-lang]");
   if (!b || b.dataset.lang === lang) return;
   lang = b.dataset.lang;
@@ -485,7 +485,28 @@ document.getElementById("langs").addEventListener("click", async (e) => {
   try { L = await loadLocale(lang); } catch (e) { showError(e); return; }
   applyLang();
   route();
-});
+}
+document.getElementById("langs").addEventListener("click", switchLang);
+document.querySelector(".notice-langs").addEventListener("click", switchLang);
+
+// --- first-visit notice -------------------------------------------------------------------
+// A modal on the first visit, whatever page it starts on (search engines and shared links land on any page): the
+// candidates are hypotheses, not treatments. Only «I understand» dismisses it and is remembered in this browser;
+// Escape does not, and the legal-notice link closes it for this visit only. Without storage it shows on every visit.
+const NOTICE_KEY = "notice_ok_v1";
+function showNotice() {
+  const dlg = document.getElementById("notice");
+  let seen = false;
+  try { seen = localStorage.getItem(NOTICE_KEY) === "1"; } catch (e) { /* no storage */ }
+  if (seen || typeof dlg.showModal !== "function") return;
+  dlg.addEventListener("cancel", (e) => e.preventDefault());
+  document.getElementById("notice-ok").addEventListener("click", () => {
+    try { localStorage.setItem(NOTICE_KEY, "1"); } catch (e) { /* no storage */ }
+    dlg.close();
+  });
+  document.getElementById("notice-legal").addEventListener("click", () => dlg.close());
+  dlg.showModal();
+}
 
 // Never stay stuck on «Loading…»: say what failed and how to try again
 function showError(e) {
@@ -514,6 +535,7 @@ async function start() {
   INDEX_PROMISE.catch((e) => console.error(e));
   try { L = await loadLocale(lang); } catch (e) { showError(e); return; }
   applyLang();
+  showNotice();
   window.addEventListener("hashchange", route);
   route();
 }

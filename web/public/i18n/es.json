@@ -1,5 +1,9 @@
 {
   "strings": {
+    "notice_title": "Una herramienta de investigación, no un consejo médico",
+    "notice_body": "<p>OREVID genera hipótesis para investigadores: qué fármacos existentes podría valer la pena estudiar para una enfermedad. Los candidatos no se han probado en pacientes con esa enfermedad, muchos serán erróneos y algunos podrían ser perjudiciales.</p><p><strong>No los utilice para empezar, dejar o cambiar ningún tratamiento.</strong> Si tiene dudas sobre su tratamiento, consulte a su médico.</p>",
+    "notice_ok": "Lo entiendo",
+    "notice_legal": "Aviso legal y condiciones de uso",
     "nav_method": "Método y validación",
     "title": "¿Qué fármacos existentes podrían servir para una enfermedad?",
     "subtitle": "Busca una enfermedad para ver los candidatos a reposicionamiento, por qué, y qué dianas se podrían atacar.",
