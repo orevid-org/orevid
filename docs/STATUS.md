@@ -219,20 +219,21 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 1. **Preprints.org** (preprints-238326, online 20-10, DOI 10.20944/preprints202610.1918.v1): DOI added to README,
    website and `CITATION.cff`, and to ORCID (20-10; the Zenodo records were already there through DataCite). New versions go through the
    User Dashboard («My Preprints»; keep the same server; each version gets its own DOI, `.v2`).
-   **Post v2 now that v1 is online**: export Word from the Claude Doc (`docs/preprint/OREVID_preprint_draft.docx` is
-   the current export) with the changes listed in «Done on 16–18 October».
+   **v2 ready, not yet posted** (20-10): `docs/preprint/OREVID_preprint_v2.docx` (A4, continuous line numbers) and
+   `OREVID_preprint_v2.pdf` (made from it with Word) hold the changes of «Done on 16–18 October» plus the PCI items
+   below (figures from `evaluation/figures.py`, PCI conflict sentence). Upload both through the User Dashboard
+   (new version of preprints-238326) with a short list of changes against v1.
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
    Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
    (repository public for 6 months). In parallel, write to the TxGNN authors (Zitnik lab), Every Cure and David Ochoa.
-   **Before PCI:** PCI does not accept AI-generated illustrations, and figures 1–4 were drawn by the AI assistant in
-   the Claude Doc. `evaluation/figures.py` (written with AI assistance, to be read and run by the author) draws the
-   four figures from the result files (`benchmark/predictions/*/results.json`, `docs/EVIDENCE_CI.md`): `py -3 -m pip
-   install matplotlib`, `py -3 -m evaluation.figures` → `docs/preprint/figures/figure{1..4}.png|.pdf`. Then replace the
-   four embedded charts of the Claude Doc by these images, add to Methods that the figures were produced by that
-   script, number the lines (Word: Layout → Line Numbers → Continuous) and use PCI's conflict sentence («The authors
-   declare that they comply with the PCI rule of having no financial conflicts of interest…»). Post the new version
-   on Preprints.org (same server) before submitting to PCI.
+   **PCI preparation: done on 20-10.** PCI does not accept AI-generated illustrations («Authors must not generate
+   illustrations using AI», PCI code of conduct): the author read and ran `evaluation/figures.py` on the work PC
+   (with the Spyder venv's Python, `~/.venvs/spyder`, which has matplotlib) → `docs/preprint/figures/figure{1..4}.png|.pdf`;
+   the four charts of the Claude Doc were replaced by these images; Methods says the figures come from that script;
+   Conflicts of Interest uses PCI's wording (no financial conflict of interest with the content of the article, and
+   no non-financial one); the Word export has continuous line numbers. Post v2 on Preprints.org (same server)
+   before submitting to PCI. Minor: in figure 3 the popularity point of «Diabetes» (0.0) is half cut by the axis.
 1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: the next OREVID-bench release must include
    `benchmark/predictions/kge_rotate/` (and the train-only files, item 5); optional TxGNN on the temporal cutoffs;
    pathway overlap with its own null (P46) as a new pre-registered test.

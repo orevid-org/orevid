@@ -1,4 +1,4 @@
-<!-- Draft preprint (Preprints.org; bioRxiv declined it for lack of an institutional affiliation), 14 October 2026. Source of truth: the Claude Docs document (see docs/STATUS.md); this file and OREVID_preprint_draft.docx are exports of it. -->
+<!-- Preprint v2 for Preprints.org (v1: DOI 10.20944/preprints202610.1918.v1), 20 October 2026. Source of truth: the Claude Docs document (see docs/STATUS.md); this file, OREVID_preprint_v2.docx (A4, continuous line numbers) and OREVID_preprint_v2.pdf are exports of it. Figures from evaluation/figures.py. -->
 
 # OREVID: open, evidence-based drug repurposing with a benchmark against TxGNN
 
@@ -28,7 +28,7 @@ OREVID addresses both. It ranks drugs with an interpretable metapath model, but 
 
 ## Methods
 
-![](figures/figure1.png)
+![Figure 1: OREVID pipeline, from the sources to what a disease page shows](figures/figure1.png)
 
 **Figure 1.** From the sources to a disease page. The model ranks every drug; only the 25 highest-ranked candidates not yet approved are considered, and each is shown only if one of two evidence lines supports it.
 
@@ -66,7 +66,7 @@ The external exam uses 3,718 drug–disease pairs in 645 diseases that are appro
 
 Zero-shot results are given as mean ± standard deviation over the five seeds, with the paired difference between models per seed. Disease-area results are means over the nine areas; because areas range from 2 to 180 test diseases, means weighted by disease are also given. Confidence intervals for Recall@100 and for differences between models come from a bootstrap that resamples whole diseases (10,000 resamples, within seeds for zero-shot and within areas for the disease areas), so the correct drugs of one disease are never counted as independent. Differences are paired by disease and were also tested with a Wilcoxon signed-rank test on the per-disease differences, Holm-adjusted over 28 comparisons (Supplementary Table S4). Hit rates have 95% intervals from the same disease-level bootstrap. To test whether the shared genes themselves carry information, a permutation test replaced the gene set of every disease with a random set of the same size, drawing genes in proportion to their number of associated diseases, and recomputed the shared-genes section 100 times with the ranking and the drugs' indications unchanged; the criterion fixed in advance required the observed hit rate on the external exam to exceed the 99th percentile of this null. The comparisons of OREVID with TxGNN and with the popularity baseline on Recall@100 are the primary analysis; subsets, novelty scenarios, single metapaths and hit rates by evidence line are exploratory and were not corrected for multiple comparisons. The external exam was repeated with the models trained on each of the five zero-shot splits to estimate its variability between training seeds.
 
-OREVID uses Python 3.12.4, LightGBM 4.7.0, scikit-learn 1.9.1, NumPy 2.4.6, SciPy 1.18.0 and pandas 3.0.3. TxGNN ran in its own environment (Python 3.10, PyTorch 1.13.1 with CUDA 11.6, DGL 0.9.1). Training OREVID's predictor takes about 1 minute on a CPU and all OREVID evaluations about 35 minutes; TxGNN took about 95 minutes per split on one RTX 3060 GPU, about 22 hours for the 14 splits. AI assistance (Claude, Anthropic) was used to write and review code, to support the data analysis and for language editing; the reviews by AI agents and how their suggestions were checked are described under Use of AI in the Declarations.
+OREVID uses Python 3.12.4, LightGBM 4.7.0, scikit-learn 1.9.1, NumPy 2.4.6, SciPy 1.18.0 and pandas 3.0.3. TxGNN ran in its own environment (Python 3.10, PyTorch 1.13.1 with CUDA 11.6, DGL 0.9.1). Training OREVID's predictor takes about 1 minute on a CPU and all OREVID evaluations about 35 minutes; TxGNN took about 95 minutes per split on one RTX 3060 GPU, about 22 hours for the 14 splits. AI assistance (Claude, Anthropic) was used to write and review code, to support the data analysis and for language editing; the reviews by AI agents and how their suggestions were checked are described under Use of AI in the Declarations. Figures 1–4 are drawn with matplotlib by the script evaluation/figures.py in the repository, which reads the result files (benchmark/predictions/\*/results.json and docs/EVIDENCE\_CI.md), so every plotted number comes from those files.
 
 ## Results
 
@@ -74,7 +74,7 @@ OREVID uses Python 3.12.4, LightGBM 4.7.0, scikit-learn 1.9.1, NumPy 2.4.6, SciP
 
 OREVID recovered two to three times as many held-out treatments as TxGNN in every test (Figure 2, Table 1). Resampling whole diseases, the 95% interval of the paired difference in Recall@100 was +0.35 to +0.44 on zero-shot, +0.31 to +0.45 on the areas and +0.21 to +0.27 on the external exam; OREVID was ahead on 63% of zero-shot diseases and behind on 2%, the rest being ties (Supplementary Table S4). On the zero-shot split, Recall@100 was 0.811 ± 0.042 against 0.412 ± 0.042, and OREVID was ahead on each of the five seeds (paired differences 0.36–0.47; on the hard subset 0.539 ± 0.090 against 0.258 ± 0.067, differences 0.21–0.43). On the disease areas it was ahead in all nine (Figure 3, Table 2): 0.617 against 0.237 as a mean of areas, and 0.637 against 0.269 weighted by disease; on the hard area diseases TxGNN (0.141) did no better than the popularity baseline (0.141). Precision@K showed the same pattern (zero-shot 0.573 against 0.079; areas 0.408 against 0.057). AUPRC under TxGNN's protocol, which sets each correct drug against one sampled negative, was closer: 0.952 ± 0.009 against 0.910 ± 0.036 on zero-shot and 0.897 against 0.866 on the areas, and TxGNN had the higher AUPRC in five of the nine areas. TxGNN separates correct drugs from random ones almost as well; OREVID's advantage is in ranking them high among all 7,957 drugs. The popularity baseline, which ignores the disease, reached 0.358 ± 0.040 on zero-shot, slightly below TxGNN, and 0.130 on the external exam, slightly above it (0.121). Per disease, the difference between TxGNN and this baseline was not significant after Holm adjustment in any test except all area diseases (p = 0.047).
 
-![](figures/figure2.png)
+![Figure 2: Recall@100 of the popularity baseline, TxGNN and OREVID on four tests](figures/figure2.png)
 
 **Figure 2.** Recall@100 of the popularity baseline, TxGNN and OREVID on four tests. Zero-shot: mean of five seeds; areas: mean of nine areas; external exam: first training split (over five splits, OREVID 0.367 ± 0.008, TxGNN 0.126 ± 0.004).
 
@@ -110,7 +110,7 @@ Removing the two protocol differences did not change the conclusion. Validation 
 | Mean of areas | 345 (233) | 0.237 | 0.617 | 0.141 | 0.490 | 0.866 | 0.897 |
 | Weighted by disease | 345 (233) | 0.269 | 0.637 | 0.173 | 0.479 | – | – |
 
-![](figures/figure3.png)
+![Figure 3: Recall@100 per zero-shot seed and per disease area](figures/figure3.png)
 
 **Figure 3.** Recall@100 of the three models on each zero-shot seed and each disease area. The line joins TxGNN and OREVID on the same split.
 
@@ -122,7 +122,7 @@ In the zero-shot split, the advantage held when candidates were restricted to ap
 
 Among each disease's 25 highest-ranked candidates, the evidence lines separated correct from incorrect candidates in the same direction on the benchmark, on the area splits and on the external exam (Figure 4; numbers in Supplementary Table S3). A drug acting on a disease-associated gene, with no other line, was correct 1.8–3.4% of the time, no better than candidates with no evidence line at all (1.4–2.4%); shared genes with a disease that has many associated genes, where the overlap did not reach the significance threshold, were correct 0–2.5% of the time. When at least 3 shared genes were specific, shared-genes candidates were correct 30–33% of the time in hidden-treatment tests and 4.8% (95% CI 3.3–6.5%) in the external exam, against 9–11% and 2.8% (1.6–4.2%) otherwise.
 
-![](figures/figure4.png)
+![Figure 4: Hit rate among the top 25 candidates, by website section](figures/figure4.png)
 
 **Figure 4.** Percentage of candidates that were correct among the 25 highest-ranked per disease, by the section the website's rules assign them to. Benchmark: zero-shot seeds 1–5; areas: nine disease areas; external exam: Open Targets approvals absent from PrimeKG. 95% intervals from a bootstrap that resamples whole diseases.
 
@@ -174,7 +174,7 @@ To address the prospective gap, the rankings and pages of this version were froz
 
 **Reference check.** Journal articles were checked against PubMed, and conference papers and the technical report against their publishers' pages, on 12 October 2026.
 
-**Conflicts of Interest.** The author declares no conflicts of interest. The work was done in a personal capacity and is independent of the author's employer.
+**Conflicts of Interest.** The author of this article declares no financial conflict of interest with the content of this article, in compliance with the PCI rule, and no non-financial conflict of interest. The work was done in a personal capacity and is independent of the author's employer.
 
 ## References
 
