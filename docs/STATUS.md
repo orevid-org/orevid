@@ -217,7 +217,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 
 
 1. **Preprints.org** (preprints-238326, online 20-10, DOI 10.20944/preprints202610.1918.v1): DOI added to README,
-   website and `CITATION.cff`; **left: ORCID** (Works → Add → Search & link / Add DOI). New versions go through the
+   website and `CITATION.cff`, and to ORCID (20-10; the Zenodo records were already there through DataCite). New versions go through the
    User Dashboard («My Preprints»; keep the same server; each version gets its own DOI, `.v2`).
    **Post v2 now that v1 is online**: export Word from the Claude Doc (`docs/preprint/OREVID_preprint_draft.docx` is
    the current export) with the changes listed in «Done on 16–18 October».
@@ -244,7 +244,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
 5. Next release (v1.2.0, current code): include the train-only and RotatE (`benchmark/predictions/kge_rotate/`) prediction files and update `CITATION.cff`
    `version`/`date-released` first (the name and ORCID are already right there).
-6. ORCID record (optional): add the two Zenodo DOIs as Works, website and keywords.
+6. ORCID record: done (preprint added by hand; both Zenodo concept DOIs added automatically by DataCite, with their versions; website links and keywords filled in).
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
    associations and comorbidities that read as shared biology (lupus–endocarditis, RA–Graves).
