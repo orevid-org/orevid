@@ -15,7 +15,7 @@ clinical tool. Non-commercial use of some sources (data under CC BY-NC-SA 4.0; c
 |---|---|
 | Public code and docs | https://github.com/orevid-org/orevid (this repository) |
 | Website | https://orevid.org (GitHub Pages, branch `gh-pages`; deploy: `DOMAIN=orevid.org REMOTE=https://github.com/orevid-org/orevid.git bash web/deploy.sh`) |
-| Code archive | Zenodo concept DOI 10.5281/zenodo.23323226 (GitHub release integration) |
+| Code archive | Zenodo concept DOI 10.5281/zenodo.23323226 (GitHub release integration); v1.2.0 = 10.5281/zenodo.23545853 |
 | Prospective snapshot (12-10-2026) | Zenodo DOI 10.5281/zenodo.23326593; plan in `docs/PROSPECTIVE_PLAN.md` |
 | Preprint | Preprints.org, DOI 10.20944/preprints202610.1918.v1 (https://www.preprints.org/manuscript/202610.1918/v1). Source and exports in `docs/preprint/` (Word, Markdown, figures); the editable source is a Claude Docs document in the maintainer's account |
 | Contact | contact@orevid.org (forwarded by the registrar) |
@@ -205,7 +205,8 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   in three languages. The website change was published by committing only the three `i18n/*.json` on top of
   `gh-pages` (as on 14-10; `main`'s `web/public` matches the deployed site).
 - At the next GitHub release, check that Zenodo still takes the software's title and type from the top-level fields of
-  `CITATION.cff` and not from `preferred-citation`; if it does not, fix the record by hand.
+  `CITATION.cff` and not from `preferred-citation`; if it does not, fix the record by hand. (Checked for v1.2.0 on
+  21-10: correct.)
 
 ## Done on 20-10-2026, afternoon (work PC)
 
@@ -230,6 +231,21 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
 - **Release v1.2.0 postponed to the home PC**: the prediction files of RotatE and of the train-only variant
   (`benchmark/predictions/kge_rotate/*.parquet`, `orevid_lambdarank_train_only/*.parquet`) exist only there (this
   clone has their `results.json` only). Steps in «Next steps», item 5.
+
+## Done on 21-10-2026, evening (home PC)
+
+- Work-PC changes of 20–21 October brought into `C:\dev\farmagraf` (DOI, v2 files, figures, first-visit notice).
+- **Figure 3 replaced in the Claude Doc** (rev 122): the doc still had the old image (identical to the one in v2);
+  it now has the fixed `docs/preprint/figures/figure3.png`. Use the Claude Doc / that image for PCI.
+- **Release v1.2.0 published** by the author (21-10, 22:39), tag `v1.2.0` → `6c9b734` (the commit with
+  `CITATION.cff` 1.2.0). Before it: the 15 + 14 prediction files checked, RotatE re-evaluated (identical
+  `results.json`), `CITATION.cff` and `benchmark/README.md` updated; zip and notes in `data/release/`
+  (`orevid-bench-predictions-v1.2.zip`, 247 MB, 95 files; `notes_v1.2.0.md`).
+- **Zenodo checked**: version record 10.5281/zenodo.23545853 has title «OREVID: Open Repurposing Evidence», type
+  software, version v1.2.0, creator «Quadrada Jané, Joaquim» with ORCID: `preferred-citation` did not leak into it.
+- **Pending: the zip is not attached to the release** (it has no asset). Upload it with
+  `gh release upload v1.2.0 data/release/orevid-bench-predictions-v1.2.zip -R orevid-org/orevid` (GitHub CLI being
+  installed on this PC with winget; `gh auth login` once) or by editing the release on github.com.
 
 ## Next steps
 
@@ -263,8 +279,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    Conflicts of Interest uses PCI's wording (no financial conflict of interest with the content of the article, and
    no non-financial one); the Word export has continuous line numbers. Post v2 on Preprints.org (same server)
    before submitting to PCI. Figure 3 was fixed on 21-10 (see that day): put the new image in the Claude Doc.
-1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: the next OREVID-bench release must include
-   `benchmark/predictions/kge_rotate/` (and the train-only files, item 5); optional TxGNN on the temporal cutoffs;
+1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: optional TxGNN on the temporal cutoffs;
    pathway overlap with its own null (P46) as a new pre-registered test.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
@@ -272,28 +287,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 3. Biomarker table: applied on 14-10 (P41); Gram-stain and class rules rejected (`docs/BIOMARKERS.md`). New rows
    go through `py -3 -m evaluation.biomarker_check` and `py -3 -m web.build --patch` as before.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
-5. **Next release v1.2.0 (current code), from the home PC** (the RotatE and train-only `.parquet` are only there):
-   1. Check the files: `benchmark/predictions/kge_rotate/` and `orevid_lambdarank_train_only/` must hold the 15
-      `.parquet` of the other models (5 `zero_shot_*`, 9 `area_*`, `external_ot2606`); re-evaluate one with
-      `python bench.py evaluate --pred predictions/kge_rotate` and compare with its `results.json`.
-   2. `CITATION.cff`: `version: "1.2.0"` and `date-released` = the day of the release (it still says 1.0.0 of
-      12-10: it was not bumped for v1.1.0). Do not touch the top-level `title`/`type`.
-   3. `benchmark/README.md` («Predictions»): five models in the zip (RotatE included), the train-only files too,
-      zip name `orevid-bench-predictions-v1.2.zip`; same name in the table at the top of this file. Commit, push.
-   4. Zip from `benchmark/`: `predictions/<model>/*.parquet` + `results.json` of the six folders.
-   5. `gh release create v1.2.0 -R orevid-org/orevid --target main --title "OREVID v1.2.0" --notes-file <notes>
-      orevid-bench-predictions-v1.2.zip`. Notes (changes since v1.1.0, whose tag is the 12-10 snapshot commit):
-      temporal validation (I1, `docs/TEMPORAL.md`); RotatE baseline on every task (I5, `docs/KGE.md`, P47);
-      disease-level intervals and review tasks T1–T8 (P34–P39); shared-genes test over genes only (P40); biomarker
-      table (P41); calibration, signature reversal and shared-biology lines tested and not adopted (I2, I4, I6);
-      practical information and first-visit notice on the website; preprint DOI in `CITATION.cff`
-      (`preferred-citation`); `evaluation/figures.py`. The ranking model is unchanged since v1.0.0. The zip adds the
-      prediction files of RotatE and of OREVID trained with training labels only.
-   6. **Zenodo check** (a few minutes later): `curl -sL https://zenodo.org/api/records/23323226/versions/latest`
-      (23323226 is the concept record) → `metadata.title` must be «OREVID: Open Repurposing Evidence»,
-      `resource_type` software, version 1.2.0, creator «Quadrada Jané, Joaquim» with ORCID — not the preprint's
-      title or type from `preferred-citation`. If not, fix the record by hand on zenodo.org (not from the work PC:
-      ESET breaks it). Then note the new version DOI here and in the table at the top.
+5. Release v1.2.0: published 21-10 and checked on Zenodo (see that day); **attach the zip** (only step left).
 6. ORCID record: done (preprint added by hand; both Zenodo concept DOIs added automatically by DataCite, with their versions; website links and keywords filled in).
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
