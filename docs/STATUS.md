@@ -243,9 +243,10 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   (`orevid-bench-predictions-v1.2.zip`, 247 MB, 95 files; `notes_v1.2.0.md`).
 - **Zenodo checked**: version record 10.5281/zenodo.23545853 has title «OREVID: Open Repurposing Evidence», type
   software, version v1.2.0, creator «Quadrada Jané, Joaquim» with ORCID: `preferred-citation` did not leak into it.
-- **Pending: the zip is not attached to the release** (it has no asset). Upload it with
-  `gh release upload v1.2.0 data/release/orevid-bench-predictions-v1.2.zip -R orevid-org/orevid` (GitHub CLI being
-  installed on this PC with winget; `gh auth login` once) or by editing the release on github.com.
+- **Zip attached** (21-10, with the GitHub CLI, now installed on this PC and logged in as quimqu):
+  `orevid-bench-predictions-v1.2.zip`, 247,270,717 bytes, same size as the local file; release notes checked against
+  `data/release/notes_v1.2.0.md`. Release v1.2.0 complete. `gh` lets future releases and uploads be done from here
+  (`gh release create|upload … -R orevid-org/orevid`).
 
 ## Next steps
 
@@ -287,7 +288,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 3. Biomarker table: applied on 14-10 (P41); Gram-stain and class rules rejected (`docs/BIOMARKERS.md`). New rows
    go through `py -3 -m evaluation.biomarker_check` and `py -3 -m web.build --patch` as before.
 4. Model: production stays (P33). Optional: a pre-specified test of the LightGBM + logistic ensemble on new uses.
-5. Release v1.2.0: published 21-10 and checked on Zenodo (see that day); **attach the zip** (only step left).
+5. Release v1.2.0: done 21-10 (zip attached, Zenodo checked). Next release: same steps, with `gh` from this PC.
 6. ORCID record: done (preprint added by hand; both Zenodo concept DOIs added automatically by DataCite, with their versions; website links and keywords filled in).
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
