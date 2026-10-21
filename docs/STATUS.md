@@ -20,7 +20,7 @@ clinical tool. Non-commercial use of some sources (data under CC BY-NC-SA 4.0; c
 | Preprint | Preprints.org, DOI 10.20944/preprints202610.1918.v1 (https://www.preprints.org/manuscript/202610.1918/v1). Source and exports in `docs/preprint/` (Word, Markdown, figures); the editable source is a Claude Docs document in the maintainer's account |
 | Contact | contact@orevid.org (forwarded by the registrar) |
 | Data (`data/`, ~5 GB) | Not in git. Rebuild with `build_all.sh` (see README); several hours |
-| Benchmark prediction files | GitHub release assets (`orevid-bench-predictions-v1.1.zip`) |
+| Benchmark prediction files | GitHub release assets (`orevid-bench-predictions-v1.2.zip`, release v1.2.0) |
 
 On the home PC the working copy is `C:\dev\farmagraf` (local history) and `sync_public.sh` copies it
 to `C:\dev\orevid` (public clone). **On any other computer, work directly in a clone of
