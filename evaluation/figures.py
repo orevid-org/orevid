@@ -164,7 +164,7 @@ def figure3():
         ax.scatter([o], [yy], s=70, color=BLUE, zorder=4)
         ax.text(o + 0.015, yy, f"{o:.2f}", va="center", fontsize=9, color=MUTED)
     ax.set_yticks(ys, labels)
-    ax.set_xlim(0, 1)
+    ax.set_xlim(-0.02, 1)  # room for a point at 0 (the popularity baseline on Diabetes), which the axes would clip
     ax.set_xlabel("Recall@100 (share of correct drugs in the top 100)", loc="right")
     ax.grid(axis="x", color=GRID, zorder=0)
     for s in ("top", "right", "left", "bottom"):
