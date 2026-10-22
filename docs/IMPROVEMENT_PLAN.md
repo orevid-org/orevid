@@ -269,6 +269,77 @@ All four need `data/` and run on the home PC.
 
 ---
 
+## Registered 22-10-2026, before any run: R1, R2, N1, N2 (and the state of N3, N4)
+
+Written and pushed before running any of them (the commit time is the proof). Unless said otherwise the test unit
+is the one of `evaluation/evidence_ci.py`: the 25 highest-ranked candidates per test disease, sections «direct
+extensions», «shared genes» and «hidden»; benchmark = zero-shot seeds 1–5, areas = nine areas (seed 1), external =
+Open Targets approvals absent from PrimeKG (training split zero-shot seed 1); 95 % intervals resample diseases.
+The **P29 rule** reused below: a filter that removes a subset from a shown section is adopted only if the removed
+candidates hit < 5 % on both the benchmark and the areas.
+
+**R1. Shared-genes candidates from unrelated diseases** (STATUS, next steps 9: insulin for MS through type 1
+diabetes, paclitaxel for Castleman disease through ovarian cancers). Two variants, fixed now:
+- **R1a, small gene sets:** the shared-genes line does not apply to a test disease with fewer than 10 associated
+  genes (production gene sets, `GENES_EXTRA`); its shared-genes candidates become hidden.
+- **R1b, hub genes:** genes associated with ≥ 500 diseases in the training graph do not count; the line needs ≥ 3
+  shared non-hub genes and the hypergeometric p < 10⁻⁵ recomputed over the non-hub genes with at least one disease.
+Each variant is adopted if (i) it meets the P29 rule and (ii) on the external exam the removed candidates hit no more
+than the candidates the section keeps. If both pass, both are applied together only if the combination also passes;
+otherwise the one that removes more candidates. Reported in `docs/R1_R2.md`.
+
+**R2. Infectious diseases: anti-infectives of the wrong pathogen class.** Disease class from the ontology ancestors
+(`sources/hierarchy.py`), by the MONDO labels «bacterial infectious disease», «fungal infectious disease», «viral
+infectious disease» and «parasitic infection» (a label not found in the graph is reported); a disease with more than
+one class is left alone. Drug classes from the DrugBank ATC texts (`atc_1`–`atc_4`, lower case): antibacterial
+(«antibacterial», «antibiotic», «antimycobacterial»), antifungal («antimycotic», «antifungal»), antiviral («antiviral»),
+antiparasitic («antiprotozoal», «anthelmintic», «antimalarial», «ectoparasiticide»); a drug belongs to every class
+its texts name (so fluconazole, listed with an antibacterial combination, stays in the antifungal class). Rule: in
+a disease of one class, a direct-extension or shared-genes candidate that belongs to some anti-infective class but
+not to the disease's class becomes hidden; other drugs are untouched. Adopted only if (i) it meets the P29 rule (a set
+with fewer than 20 removed candidates counts as uninformative, and then the external exam must also show the
+removed candidates below 5 %), and (ii) as the biomarker rule (P37), **no removed pair is an approved indication**
+of that disease in the full graph (PrimeKG indication or confirmed Open Targets approval); the removed pairs are
+listed for a manual check. Expected conflict, stated now: trimethoprim–sulfamethoxazole for pneumocystosis
+(*Pneumocystis* is a fungus); if it or any other approved pair is removed, the rule is rejected, as the Gram-stain
+rule was. Display only, independent of the rule: for diseases of one infection class, the «targets» section says
+that it lists human proteins.
+
+**N1. DrugMechDB as an evaluation of the shared-genes evidence** (`indication_paths.json`, CC0, from
+github.com/SuLab/DrugMechDB). Mapping: drugs by DrugBank id, diseases MESH → MONDO (SSSOM exact matches) → graph
+node, proteins UniProt → gene (HGNC); coverage reported before any result. For each covered pair: the mechanism
+genes *M* = proteins of the curated path except the drug's direct targets (the nodes linked to the drug in the
+path); the evidence genes *S* = the disease's genes shared with the diseases where the drug is indicated (the disease
+itself and its twins excluded) under the production rule (≥ 3 genes, p < 10⁻⁵, `GENES_EXTRA`), i.e. what the
+shared-genes line would show. Pairs with empty *M* or *S* are counted and left out. Observed: the share of pairs with
+*S* ∩ *M* ≠ ∅. Null: for each pair, |*S*| genes drawn at random from the same disease's genes, 1,000 draws; the
+pooled share per draw gives the null distribution. Outcome: if the observed share is above the null's 99th
+percentile, the Method page may say that the shared genes overlap curated mechanisms more than random genes of the
+same disease; otherwise the P38 wording stays. Reported in `docs/DRUGMECHDB.md`.
+
+**N2. Network proximity** (Guney et al. 2016 closest distance). Network: PrimeKG `protein_protein` ∪ STRING (score ≥
+700) among genes. Disease genes: `GENES_EXTRA` of the training graph in the network (diseases with < 5 such genes get
+no score). Drug targets: `drug_protein:target` in the network. Score: mean over the drug's targets of the shortest
+distance to any disease gene, z-scored against **50** random disease gene sets of the same size and degree
+distribution (genes binned by degree, ~100 genes per bin; 50 instead of 1,000 for compute); proximity = −z.
+Drugs without a target in the network get the lowest score. (a) Standalone, as I4: benchmark scenario C (positives
+without a training indication; the other positives removed from the candidates) and the temporal 2015 set (primary
+positives of drugs with no indication at the cutoff), candidates restricted to drugs with a target in the network;
+Recall@100 and Precision@K against random (100 / candidates) and against OREVID's ranking of the same candidates.
+(b) As a LambdaRank feature: run only if (a) is above random on both the benchmark and the temporal set; adopted only
+if Recall@100 on the no-prior-use subset improves with a 95 % interval excluding 0 on both the benchmark and the
+areas, and overall zero-shot Recall@100 does not fall by more than 0.01. **NeDRex:** its knowledge base includes
+drug–indication edges (DrugBank, DrugCentral); if its API cannot exclude them per split, it is reported as not
+comparable and not run. Reported in `docs/PROXIMITY.md`.
+
+**N3. Bioteque:** the IRB websites were still offline on 22-10 at night (no download possible): not run tonight.
+
+**N4. Drug status audit:** registered above (sources, what to build, checks before release). Tonight: as much as
+the sources allow; the release gate (≤ 5 % wrong in the two manual checks of 50 pairs, none of the 22-10 cases
+still wrong) applies before anything reaches the website.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

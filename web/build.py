@@ -126,7 +126,9 @@ class Explainer:
     """Fast, structured explanations for a (drug, disease) pair."""
 
     def __init__(self, g):
+        from evaluation.twins import twins
         self.g = g
+        self.drug_twins = twins(g, "drug")  # the same drug in several nodes (P22): records may sit on either
         a = g.attributes()
         moa = a[a.relation == "moa"]
         self.action = moa.groupby(["x_index", "y_index"]).display_relation.first().to_dict()
@@ -252,7 +254,8 @@ class Explainer:
                     break
             if ex:
                 e.append({"t": "similar_drug", "g": ex})
-        for r in [r for m in twins for r in self.clinical.get((f, m), [])]:
+        ft = self.drug_twins.get(f, {f})
+        for r in [r for x in ft for m in twins for r in self.clinical.get((x, m), [])]:
             if r.relation == CLINICAL:
                 stopped = int(np.nan_to_num(r.n_negative) + np.nan_to_num(r.n_safety))
                 year = getattr(r, "year", None)
@@ -262,7 +265,7 @@ class Explainer:
                           "stopped": stopped})
             else:
                 e.append({"t": "stopped", "reason": r.display_relation})
-        lit = next((self.lit[(f, m)] for m in twins if (f, m) in self.lit), None)
+        lit = next((self.lit[(x, m)] for x in ft for m in twins if (x, m) in self.lit), None)
         if lit:
             e.append({"t": "literature", "treats": lit.get("treats", 0), "causes": lit.get("causes", 0)})
         return e
@@ -301,6 +304,7 @@ class DiseasePages:
         self.status = drug_status(gc)
         # Twins (same drug or disease in more than one node; DECISIONS.md P22): compared by name.
         self.twins = twins(gc, "disease")
+        self.drug_twins = twins(gc, "drug")  # e.g. belimumab: DrugBank node + ChEMBL node holding its trials
         used_names = names_with_use(gc, KNOWN_USE)
         self.no_use_name = np.array([key(gc.names[f]) not in used_names for f in self.g.drugs])
         self.atc = atc_classes(gc)
@@ -459,8 +463,9 @@ class DiseasePages:
         «Underexplored»: no trial for the pair and at most 2 papers co-mentioning drug and disease (thresholds fixed in
         docs/IMPROVEMENT_PLAN.md)."""
         p = self.practical.get(f, {})
-        n_trials = max((self.trials_pair.get((f, m), 0) for m in dt), default=0)
-        n_papers = max((self.papers_pair.get((f, m), 0) for m in dt), default=0)
+        ft = self.drug_twins.get(f, {f})  # the same drug in several nodes (P22): trials may sit on the ChEMBL one
+        n_trials = max((self.trials_pair.get((x, m), 0) for x in ft for m in dt), default=0)
+        n_papers = max((self.papers_pair.get((x, m), 0) for x in ft for m in dt), default=0)
         return {"generic": {k: p[k] for k in ("generic_us", "biosimilar_us", "generic_eu", "biosimilar_eu",
                                               "exclusivity_until", "routes") if p.get(k)},
                 "n_trials": int(n_trials), "n_papers": int(n_papers),
