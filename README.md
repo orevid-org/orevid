@@ -1,7 +1,7 @@
 # OREVID — Open Repurposing Evidence
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23323226.svg)](https://doi.org/10.5281/zenodo.23323226)
-[![Preprint](https://img.shields.io/badge/preprint-10.20944%2Fpreprints202610.1918.v1-blue)](https://doi.org/10.20944/preprints202610.1918.v1)
+[![Preprint](https://img.shields.io/badge/preprint-10.20944%2Fpreprints202610.1918.v2-blue)](https://doi.org/10.20944/preprints202610.1918.v2)
 
 OREVID ranks existing drugs for each disease using a biomedical knowledge graph (drugs, genes,
 diseases, phenotypes, trials, adverse effects) and shows **the evidence behind every candidate**.
@@ -96,7 +96,7 @@ Other documents: [`docs/TARGETS.md`](docs/TARGETS.md) (which gene to target),
 [`docs/PROSPECTIVE_PLAN.md`](docs/PROSPECTIVE_PLAN.md) (prospective validation, snapshot of 12 October 2026),
 [`resources/opentargets/`](resources/opentargets/) and `sources/ot_suspect_approvals.py` (suspect Open Targets approvals, opentargets/issues#4579),
 [`docs/REVIEW_RESPONSE.md`](docs/REVIEW_RESPONSE.md) (answer to an external review, with [`docs/EVIDENCE_CI.md`](docs/EVIDENCE_CI.md), [`docs/BIOMARKERS.md`](docs/BIOMARKERS.md) and [`docs/EXTERNAL_SEEDS.md`](docs/EXTERNAL_SEEDS.md)),
-[`docs/preprint/`](docs/preprint/) (preprint source and exports; posted as [10.20944/preprints202610.1918.v1](https://doi.org/10.20944/preprints202610.1918.v1)) and [`docs/STATUS.md`](docs/STATUS.md) (status and next steps).
+[`docs/preprint/`](docs/preprint/) (preprint source and exports; posted as [10.20944/preprints202610.1918.v2](https://doi.org/10.20944/preprints202610.1918.v2)) and [`docs/STATUS.md`](docs/STATUS.md) (status and next steps).
 
 ## Data sources
 
@@ -171,7 +171,7 @@ built data and are skipped without it). Publishing the website: [`docs/DEPLOY.md
 If you use OREVID or OREVID-bench, please cite the preprint:
 
 > Quadrada Jané J. OREVID: Open, Evidence-Based Drug Repurposing with a Benchmark Against TxGNN. *Preprints.org*,
-> 2026. DOI [10.20944/preprints202610.1918.v1](https://doi.org/10.20944/preprints202610.1918.v1)
+> 2026. DOI [10.20944/preprints202610.1918.v2](https://doi.org/10.20944/preprints202610.1918.v2)
 
 and, for the code and data, the archive (DOI [10.5281/zenodo.23323226](https://doi.org/10.5281/zenodo.23323226), all
 versions; see [`CITATION.cff`](CITATION.cff)), together with the original sources, in particular PrimeKG and TxGNN for

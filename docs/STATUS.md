@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 21-10-2026)
+# Project status and how to continue (updated 22-10-2026)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -17,7 +17,7 @@ clinical tool. Non-commercial use of some sources (data under CC BY-NC-SA 4.0; c
 | Website | https://orevid.org (GitHub Pages, branch `gh-pages`; deploy: `DOMAIN=orevid.org REMOTE=https://github.com/orevid-org/orevid.git bash web/deploy.sh`) |
 | Code archive | Zenodo concept DOI 10.5281/zenodo.23323226 (GitHub release integration); v1.2.0 = 10.5281/zenodo.23545853 |
 | Prospective snapshot (12-10-2026) | Zenodo DOI 10.5281/zenodo.23326593; plan in `docs/PROSPECTIVE_PLAN.md` |
-| Preprint | Preprints.org, DOI 10.20944/preprints202610.1918.v1 (https://www.preprints.org/manuscript/202610.1918/v1). Source and exports in `docs/preprint/` (Word, Markdown, figures); the editable source is a Claude Docs document in the maintainer's account |
+| Preprint | Preprints.org, DOI 10.20944/preprints202610.1918.v2 (https://www.preprints.org/manuscript/202610.1918/v2; v1: `….v1`). Source and exports in `docs/preprint/` (Word, Markdown, figures); the editable source is a Claude Docs document in the maintainer's account |
 | Contact | contact@orevid.org (forwarded by the registrar) |
 | Data (`data/`, ~5 GB) | Not in git. Rebuild with `build_all.sh` (see README); several hours |
 | Benchmark prediction files | GitHub release assets (`orevid-bench-predictions-v1.2.zip`, release v1.2.0) |
@@ -46,8 +46,9 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
 - Key numbers (Recall@100): zero-shot 0.811 vs TxGNN 0.412 (RotatE 0.289); areas 0.617 vs 0.237; external exam
   0.359 vs 0.121 (RotatE 0.156); temporal test at 2015 0.322 vs popularity 0.174 (`docs/TEMPORAL.md`). Hit rate on
   unseen approvals: direct extensions 12.6 %, shared genes 4.3 %.
-- Preprint: v1 online on Preprints.org since 20-10 (preprints-238326, DOI 10.20944/preprints202610.1918.v1,
-  registered with Crossref). The Claude Doc and `docs/preprint/` already hold the v2 text (see «Done on 16–18 October»).
+- Preprint: v1 online on Preprints.org since 20-10 (preprints-238326, DOI 10.20944/preprints202610.1918.v1), v2
+  online since 22-10 (preprints-239415, DOI 10.20944/preprints202610.1918.v2); README, `CITATION.cff` and website
+  point to v2. v2 has the old figure 3; the Claude Doc has the fixed one (see 21-10).
 
 ## Done on 12-10-2026
 
@@ -248,6 +249,16 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   `data/release/notes_v1.2.0.md`. Release v1.2.0 complete. `gh` lets future releases and uploads be done from here
   (`gh release create|upload … -R orevid-org/orevid`).
 
+## Done on 22-10-2026 (work PC)
+
+- **Preprint v2 online** on Preprints.org (dashboard «Online», 22-10): DOI **10.20944/preprints202610.1918.v2**.
+  README (badge, documentation line, «Citing»), `CITATION.cff` (`preferred-citation` doi and url) and the website
+  (Method and About pages, three languages) now point to v2; the `.v1` DOI keeps working. Pushed only once the v2
+  DOI resolved at doi.org; the website change was published by committing only the three `i18n/*.json` on top of
+  `gh-pages` (as on 14-10 and 20-10; `main`'s `web/public` matches the deployed site).
+- ORCID: Crossref asked (e-mail of 21-10) for permission to add works automatically; once granted, v2 should appear
+  by itself (the v1 entry was added by hand; ORCID groups entries that share a DOI).
+
 ## Next steps
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the biomarker table (3: editing the CSV; checking it needs `data/`) and
@@ -264,8 +275,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    `docs/preprint/OREVID_preprint_v2.docx` (A4, continuous line numbers) and `OREVID_preprint_v2.pdf` (made from it
    with Word), graphical abstract = the new `figures/figure1.png`; abstract updated (temporal-validation sentence);
    the `supplementary.docx` Preprints.org had carried over from v1 was removed (the Word holds Tables S1–S5).
-   When it is online (DOI `…1918.v2`), decide whether README, website and `CITATION.cff` should point to v2 (the
-   `.v1` DOI keeps working), then add v2 to ORCID if it does not appear by itself.
+   **v2 online on 22-10** (DOI `…1918.v2`); README, website and `CITATION.cff` point to it (see 22-10). Left: check
+   that v2 appears in ORCID (Crossref permission), or add it by hand.
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
    Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
