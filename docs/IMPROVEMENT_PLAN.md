@@ -172,6 +172,51 @@ on the temporal C2 set. If none passes, the website keeps today's wording (P38).
 
 ---
 
+## Next candidates (noted 22-10-2026, NOT registered)
+
+Ideas from the survey of biomedical knowledge graphs by R. Haas
+(https://github.com/robert-haas/awesome-biomedical-knowledge-graphs), checked against the sources OREVID already
+uses and the rules in STATUS. **Nothing here is registered:** each item gets its own section with fixed criteria,
+committed before any run (as I1–I6), and only then is evaluated. Most graphs in that survey were set aside:
+Hetionet, DRKG, RTX-KG2, ROBOKOP, SPOKE, the Translator, SemMedDB, INDRA and Implicitome carry literature
+«treats» edges (the answer, never a feature); Reactome is already tested (I6, P46); Monarch's curated
+gene–disease links (OMIM, Orphanet) already reach the graph through Open Targets' genetic associations.
+
+| # | Work | Why |
+|---|---|---|
+| N1 | **DrugMechDB** as an evaluation set for the evidence shown | first direct measure of whether the evidence paths the website shows resemble real mechanisms (the weak point P38 left) |
+| N2 | **Network proximity** (drug targets ↔ disease module), with **NeDRex** as an external reference | a signal independent of known indications, aimed at drugs with no prior use |
+| N3 | **Bioteque** embeddings restricted to sources without drug–disease edges | the same target, from a resource built on 150 sources |
+
+**N1. DrugMechDB** (https://github.com/SuLab/DrugMechDB, CC0; curated drug → target → … → disease paths for
+indications sampled from DrugCentral, written from DrugBank, Wikipedia and the literature). Use it **only for
+evaluation**: it encodes indications, so it never enters the features or the training labels. Question: for the
+pairs it covers, do the paths OREVID shows (target genes, shared genes, pathways) contain the genes / proteins
+of the curated mechanism more often than a matched null (random paths of the same length and degree)? To fix at
+registration: identifier mapping to the graph and its coverage (report before any result), the overlap measure,
+the null, and what the Method page may say depending on the outcome.
+
+**N2. Network proximity and NeDRex** (https://github.com/repotrial/nedrexapi_v2d). Proximity as in network
+medicine: mean shortest distance from a drug's targets to the disease's genes in the STRING / PrimeKG
+protein network, z-scored against degree-matched random gene sets. Two uses: (a) a standalone score and an
+added LambdaRank feature on the no-prior-use subset (novelty scenario C and the temporal I1 set), with an
+adoption rule like I4; (b) NeDRex's own ranking (closeness / TrustRank over its disease modules) run on
+OREVID-bench as an external baseline, if its API can be restricted to each split's training data. To fix at
+registration: which disease genes (all, genetic only), the network and threshold, the number of random sets,
+how NeDRex's data are kept free of the test drug–disease edges (if they cannot be, it is reported as not
+comparable and not run).
+
+**N3. Bioteque** (IRB Barcelona, https://bioteque.irbbarcelona.org; Fernández-Torras et al., Nat Commun 2022).
+Precomputed node embeddings from 150 sources. Only metapaths without any drug–disease or indication edge
+(e.g. compound–target, gene–gene, gene–pathway) may be used; the list is fixed at registration and checked
+against Bioteque's metapath descriptions. Use: drug–drug and drug–disease-gene similarity as features, with
+the I4 adoption rule. To fix at registration: the metapaths, how drugs and genes are matched, the licence terms
+of the embeddings.
+
+All three need `data/` and run on the home PC.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

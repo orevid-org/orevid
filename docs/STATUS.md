@@ -21,6 +21,9 @@ clinical tool. Non-commercial use of some sources (data under CC BY-NC-SA 4.0; c
 | Contact | contact@orevid.org (forwarded by the registrar) |
 | Data (`data/`, ~5 GB) | Not in git. Rebuild with `build_all.sh` (see README); several hours |
 | Benchmark prediction files | GitHub release assets (`orevid-bench-predictions-v1.2.zip`, release v1.2.0) |
+| Benchmark on Hugging Face | https://huggingface.co/datasets/orevid/orevid-bench (organization `orevid`, admin account `quimqu`; tasks, predictions of the six models, `bench.py`, dataset card; viewer: one config per model, one split per task) |
+| Tool registry | bio.tools entry https://bio.tools/orevid (account `joaquim0`, e-mail contact@orevid.org; editable only by that account) |
+| Bluesky | @joaquim.orevid.org (personal account, e-mail contact@orevid.org; handle = DNS TXT `_atproto.joaquim` at Namecheap, never delete) |
 
 On the home PC the working copy is `C:\dev\farmagraf` (local history) and `sync_public.sh` copies it
 to `C:\dev\orevid` (public clone). **On any other computer, work directly in a clone of
@@ -258,6 +261,25 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   `gh-pages` (as on 14-10 and 20-10; `main`'s `web/public` matches the deployed site).
 - ORCID: Crossref asked (e-mail of 21-10) for permission to add works automatically; once granted, v2 should appear
   by itself (the v1 entry was added by hand; ORCID groups entries that share a DOI).
+- **Outreach channels that do not depend on followers** (the website is meant for researchers; no general press,
+  disease pages stay non-indexable):
+  - **bio.tools** entry `orevid` (summary, EDAM function and topics, links, downloads, documentation, v2 preprint,
+    credit with ORCID), filled from a JSON prepared from this repository.
+  - **Hugging Face**: OREVID-bench published as a dataset, `orevid/orevid-bench` (the v1.2.0 zip + `tasks/`,
+    `disease_areas/`, `bench.py`, `LEADERBOARD.md` and a dataset card; CC BY-NC-SA 4.0). Uploaded with a
+    fine-grained token limited to the `orevid` organization, logged in on the work PC (`~/.venvs/hf`). On the
+    external exam the best value is OREVID without popularity (0.364), not production (0.359): the card says so.
+  - **Bluesky** account created; Bluesky suspended it the same day for following 123 accounts at once with no
+    posts (anti-spam), restored after an appeal. Follow at most 5–10 accounts a day; a short introduction post
+    first; the announcement thread (6 posts, drafted) on launch day, pinned to the profile.
+  - **Awesome lists**: pull requests prepared, not yet opened, for `everycure-org/awesome-ai-drug-repurposing`
+    (Graph ML Methods), `AstraZeneca/awesome-drug-discovery-knowledge-graphs` (new «Drug Repurposing» section in
+    `chapters/applications.md`) and `yboulaamane/awesome-drug-discovery` (Network Pharmacology). Set aside:
+    `robert-haas/awesome-biomedical-knowledge-graphs` (downloadable graphs only, no outside contributions); its
+    survey gave the three candidates N1–N3 of `docs/IMPROVEMENT_PLAN.md`.
+  - Planned: launch day with the r/bioinformatics post and the Bluesky thread together; e-mails to Open Targets
+    (community forum), ReDO (Anticancer Fund), Cures Within Reach, CURE ID, EURORDIS and the Bioteque group (IRB);
+    **BOSC 2027** (Open Bioinformatics Foundation, within ISMB; abstracts usually due around April).
 
 ## Next steps
 
@@ -279,7 +301,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    that v2 appears in ORCID (Crossref permission), or add it by hand.
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
-   Community Journal, free), Briefings in Bioinformatics as the fallback; JOSS for the software after April 2027
+   Community Journal, free), Briefings in Bioinformatics as the fallback; BOSC 2027 abstract (talk or poster);
+   JOSS for the software after April 2027
    (repository public for 6 months). **Outreach, 20-10:** e-mails sent to the TxGNN authors (Marinka Zitnik,
    marinka@hms.harvard.edu, cc Kexin Huang) and to Every Cure (info@everycure.org), with the v1 link; both say OREVID
    is non-profit and open. David Ochoa: a reply on opentargets/issues#4573 (preprint link + the 26.12 check) was
@@ -292,7 +315,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    no non-financial one); the Word export has continuous line numbers. Post v2 on Preprints.org (same server)
    before submitting to PCI. Figure 3 was fixed on 21-10 (see that day): put the new image in the Claude Doc.
 1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: optional TxGNN on the temporal cutoffs;
-   pathway overlap with its own null (P46) as a new pre-registered test.
+   pathway overlap with its own null (P46) as a new pre-registered test. **Next candidates, not registered yet**
+   (`docs/IMPROVEMENT_PLAN.md`, «Next candidates»): N1 DrugMechDB as an evaluation set for the evidence shown,
+   N2 network proximity with NeDRex as an external reference, N3 Bioteque embeddings without drug–disease edges.
+   Each needs its own section with fixed criteria, committed before running (home PC).
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
    (permuting pathway sets) in a new pre-registered test.
