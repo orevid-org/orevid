@@ -46,13 +46,30 @@ def node_types_all():
     return _TYPES
 
 
-class Genes:
-    """Shared-gene statistics between test diseases D and the diseases M where drugs are indicated."""
+HUB_DISEASES = 500  # R1b (P48): genes associated with ≥ 500 diseases do not count for the shared-genes line
 
-    def __init__(self, g, D, G=None):
+
+def drop_hubs(G):
+    """G without the hub genes (rows and columns), so counts, population N and gene-set sizes are all non-hub."""
+    G = G.tocsr()
+    deg = np.diff(G.tocsc().indptr)
+    hub = (node_types_all()[:len(deg)] == "gene/protein") & (deg >= HUB_DISEASES)
+    keep = sp.diags((~hub).astype(np.float32))
+    G2 = (keep @ G @ keep).tocsr()
+    G2.eliminate_zeros()
+    return G2
+
+
+class Genes:
+    """Shared-gene statistics between test diseases D and the diseases M where drugs are indicated.
+    hubs=False reproduces the rule before R1b (P48)."""
+
+    def __init__(self, g, D, G=None, hubs=True):
         from evaluation.txgnn import GENES_EXTRA, INDICATION
         self.g, self.D = g, np.asarray(D)
         G = (g.M(GENES_EXTRA) if G is None else G).tocsr()
+        if hubs and G.shape[0] == G.shape[1]:
+            G = drop_hubs(G)
         I = g.M(INDICATION).tocsr()
         self.ng = np.diff(G.indptr)
         deg = np.diff(G.tocsc().indptr)

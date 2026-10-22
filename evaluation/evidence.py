@@ -87,7 +87,8 @@ def evaluate(split, seed, top=25, significance=True):
     diseases, positives = z["diseases"], [np.asarray(p, int) for p in z["positives"]]
     g = TxGraph(kg, split_edges(kg, split, seed) == 0, node_types(kg), extra=True)
     F = score_paths(g, diseases, paths)
-    G, I = g.M(GENES_EXTRA).tocsr(), g.M(INDICATION).tocsr()
+    from evaluation.evidence_ci import drop_hubs
+    G, I = drop_hubs(g.M(GENES_EXTRA)), g.M(INDICATION).tocsr()  # hub genes out (R1b, P48)
     drug_pos = np.full(g.N, -1)
     drug_pos[g.drugs] = np.arange(len(g.drugs))
     nd = near_duplicates(g, diseases, positives, drug_pos)
@@ -148,7 +149,8 @@ def external(top=25):
     paths = FEATURE_SETS[PRODUCTION]
     ix = {c: paths.index(c) for c in paths}
     F = score_paths(g, diseases, paths)
-    G, I = g.M(GENES_EXTRA).tocsr(), g.M(INDICATION).tocsr()
+    from evaluation.evidence_ci import drop_hubs
+    G, I = drop_hubs(g.M(GENES_EXTRA)), g.M(INDICATION).tocsr()  # hub genes out (R1b, P48)
     ng, gene_degree = np.diff(G.indptr), np.diff(G.tocsc().indptr)
     N = n_genes(G)
     res = defaultdict(lambda: [0, 0])

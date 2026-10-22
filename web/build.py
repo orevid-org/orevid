@@ -43,6 +43,10 @@ MIN_SHARED_GENES = 3
 # the number of genes (before, every linked node, genes and diseases, with p < 1e-6; docs/HYPERGEOMETRIC_N.md).
 # The genes shared are context, not evidence of a shared mechanism (P38).
 MAX_P_SHARED = 1e-5
+# «Hub» genes (associated with ≥ 500 diseases: IL6, TNF, HLA genes…) do not count for the shared-genes line, neither in
+# the number of shared genes nor in the hypergeometric test (R1b, DECISIONS.md P48: the candidates they alone brought
+# hit 1-3 %, like hidden ones).
+HUB_DISEASES = 500
 
 
 # «Specific» gene: associated with fewer than 100 diseases. With ≥ 3 specific shared genes, candidates
@@ -156,6 +160,10 @@ class Explainer:
         self.gene_degree = np.diff(self.genes_c.indptr)  # diseases per gene
         # genes with at least one disease (the matrix is symmetric: the diseases must not be counted; P40)
         self.N_genes = int(((self.gene_degree > 0) & (g.types == "gene/protein")).sum())
+        # R1b (P48): hub genes are left out of the shared-genes line (count, population and gene-set sizes)
+        self.hub = (self.gene_degree >= HUB_DISEASES) & (g.types == "gene/protein")
+        self.n_genes_nh = self.n_genes - np.asarray(self.genes @ self.hub.astype(np.float64)).ravel().astype(int)
+        self.N_genes_nh = int(((self.gene_degree > 0) & (g.types == "gene/protein") & ~self.hub).sum())
         # Adverse effects (SIDER) specific enough (≤ 5 % of drugs with effects): not a validated warning
         # (they do not separate contraindications from indications, DECISIONS.md P27), but an expert wants to see them.
         self.effects = g.M(EFFECT)
@@ -200,13 +208,14 @@ class Explainer:
         if ind:
             e.append({"t": "interaction", "n": len(ind), "g": ind[:3]})
         sim = []
+        genes_nh = {x for x in genes if not self.hub[x]}  # hub genes do not count (R1b, P48)
         for m in self._neighbors(self.ind, f):
             if m in twins:
                 continue
-            shared = genes.intersection(self._neighbors(self.genes, m))
+            shared = genes_nh.intersection(self._neighbors(self.genes, m))
             if shared:
-                # probability of sharing this many by chance (hypergeometric)
-                p = float(hypergeom.sf(len(shared) - 1, self.N_genes, self.n_genes[m], len(genes)))
+                # probability of sharing this many non-hub genes by chance (hypergeometric)
+                p = float(hypergeom.sf(len(shared) - 1, self.N_genes_nh, self.n_genes_nh[m], len(genes_nh)))
                 order = sorted(shared, key=lambda x: (self.gene_degree[x], g.name(x)))  # specific first
                 spec = int(sum(self.gene_degree[x] < MAX_SPECIFIC_DEGREE for x in shared))
                 sim.append((p, -len(shared), int(m), [g.name(x) for x in order], spec))

@@ -291,6 +291,19 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   - Planned: launch day with the r/bioinformatics post (to be drafted) and the Bluesky thread together;
     **BOSC 2027** (Open Bioinformatics Foundation, within ISMB; abstracts usually due around April).
 
+## Night of 22–23 October 2026 (home PC) — in progress, updated during the night
+
+Registered first (`docs/IMPROVEMENT_PLAN.md`, «Registered 22-10-2026, before any run», commit `389458a`), then run:
+- **R1b adopted (P48)**: hub genes (≥ 500 diseases) no longer count for the shared-genes line; R1a rejected
+  (`docs/R1_R2.md`). Code changed in `web/build.py` and the evaluation; website not rebuilt yet.
+- **R2 rejected (P49)**: removes an approved pair (sulfanilamide, vulvovaginal candidiasis).
+- **N1 positive (P50)**: shared genes contain curated mechanism proteins (DrugMechDB) in 25.1 % of pairs vs 16.9 %
+  for random genes of the same disease (`docs/DRUGMECHDB.md`).
+- **N2 (a) above random** on drugs with no prior use (`docs/PROXIMITY.md`); (b) the LambdaRank-feature test is running.
+- **N3 not run**: Bioteque still offline. **N4** (drug status audit): FDA labels downloading, code in
+  `sources/drug_status.py`.
+- Fixed: trials of a candidate counted over all the nodes of the same drug (belimumab in systemic sclerosis).
+
 ## Next steps
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the biomarker table (3: editing the CSV; checking it needs `data/`) and
