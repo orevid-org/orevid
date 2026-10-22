@@ -272,9 +272,12 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   - **Bluesky** account created; Bluesky suspended it the same day for following 123 accounts at once with no
     posts (anti-spam), restored after an appeal. Follow at most 5–10 accounts a day; a short introduction post
     first; the announcement thread (6 posts, drafted) on launch day, pinned to the profile.
-  - **Awesome lists**: pull requests prepared, not yet opened, for `everycure-org/awesome-ai-drug-repurposing`
-    (Graph ML Methods), `AstraZeneca/awesome-drug-discovery-knowledge-graphs` (new «Drug Repurposing» section in
-    `chapters/applications.md`) and `yboulaamane/awesome-drug-discovery` (Network Pharmacology). Set aside:
+  - **Awesome lists**: pull requests opened from `quimqu` forks (branch `add-orevid`), each saying the author
+    is the contributor: [everycure-org/awesome-ai-drug-repurposing#11](https://github.com/everycure-org/awesome-ai-drug-repurposing/pull/11)
+    (Graph ML Methods), [AstraZeneca/awesome-drug-discovery-knowledge-graphs#12](https://github.com/AstraZeneca/awesome-drug-discovery-knowledge-graphs/pull/12)
+    (new «Drug Repurposing» section in `chapters/applications.md`; so far only the maintainer's own PRs were merged
+    there) and [yboulaamane/awesome-drug-discovery#28](https://github.com/yboulaamane/awesome-drug-discovery/pull/28)
+    (Network Pharmacology). Answer any review comment there. Set aside:
     `robert-haas/awesome-biomedical-knowledge-graphs` (downloadable graphs only, no outside contributions); its
     survey gave the three candidates N1–N3 of `docs/IMPROVEMENT_PLAN.md`.
   - Planned: launch day with the r/bioinformatics post and the Bluesky thread together; e-mails to Open Targets
