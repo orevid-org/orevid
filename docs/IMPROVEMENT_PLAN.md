@@ -210,8 +210,17 @@ comparable and not run).
 Precomputed node embeddings from 150 sources. Only metapaths without any drug–disease or indication edge
 (e.g. compound–target, gene–gene, gene–pathway) may be used; the list is fixed at registration and checked
 against Bioteque's metapath descriptions. Use: drug–drug and drug–disease-gene similarity as features, with
-the I4 adoption rule. To fix at registration: the metapaths, how drugs and genes are matched, the licence terms
-of the embeddings.
+the I4 adoption rule. To fix at registration: the metapaths and how drugs and genes are matched.
+
+*Terms, from Patrick Aloy (e-mail of 22-10-2026):* the embeddings may be used provided the Bioteque article is cited
+and the embeddings are not modified; no other restriction. Computing similarities from them leaves them unmodified;
+OREVID-bench will not redistribute them (users download them from Bioteque; the code documents how). He also
+pointed to **BQsupports** (https://bqsupports.irbbarcelona.org, Bioinformatics 2023,
+doi:10.1093/bioinformatics/btad581), which, given a set of pairs (e.g. drug–gene interactions), finds the
+metapaths / embeddings that best explain them. It may be used to choose the metapaths **only with pairs that are
+not drug–disease** (e.g. drug–target interactions) or with training pairs of the development split, never with
+test indications; the choice is fixed before the evaluation. On 22-10 the IRB websites (Bioteque, BQsupports) were
+offline (access cut by UB/PCB for security reasons); the download waits until they are back.
 
 All three need `data/` and run on the home PC.
 

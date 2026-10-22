@@ -280,8 +280,15 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
     (Network Pharmacology). Answer any review comment there. Set aside:
     `robert-haas/awesome-biomedical-knowledge-graphs` (downloadable graphs only, no outside contributions); its
     survey gave the three candidates N1–N3 of `docs/IMPROVEMENT_PLAN.md`.
-  - Planned: launch day with the r/bioinformatics post and the Bluesky thread together; e-mails to Open Targets
-    (community forum), ReDO (Anticancer Fund), Cures Within Reach, CURE ID, EURORDIS and the Bioteque group (IRB);
+  - **E-mails sent** (22-10, from contact@orevid.org) to ReDO (info@anticancerfund.org, for Pan Pantziarka),
+    Cures Within Reach (research@), CURE ID (CDRC@c-path.org), EURORDIS / REMEDi4ALL (Claudia Fuchs) and Patrick
+    Aloy (Bioteque, IRB; in Catalan). **Aloy answered the same day** (his address: paloy@irbbarcelona.org): the
+    embeddings may be used if the article is cited and they are not modified; he suggested BQsupports; the IRB
+    websites were offline (UB/PCB security). Terms and caveats in `docs/IMPROVEMENT_PLAN.md`, N3.
+  - **Open Targets community forum**: first post (announcement) held for moderation, the account «temporarily on
+    hold» (automatic: new account with many links); a short note was sent to the moderators. Do not repost.
+  - **Bluesky**: introduction post published (22-10).
+  - Planned: launch day with the r/bioinformatics post (to be drafted) and the Bluesky thread together;
     **BOSC 2027** (Open Bioinformatics Foundation, within ISMB; abstracts usually due around April).
 
 ## Next steps
