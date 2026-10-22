@@ -24,38 +24,63 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 FDA = ROOT / "data" / "raw" / "openfda"
 PRACT = ROOT / "data" / "raw" / "practical"
-NEG = re.compile(r"\b(not|no|never)\b[^.;]{0,60}\b(effective|efficacy|indicated|established|shown|demonstrated|recommended|"
-                 r"approved|active|be used|for use|intended)\b|\bineffective\b|\bhas not been\b|\bhave not been\b|"
-                 r"\bis not\b|\bare not\b|\bshould not\b|\bdoes not\b|\bdo not\b", re.I)
-SENT = re.compile(r"(?<=[.;:])\s+|\n+|•")
+# Negation tied to efficacy or use only («patients who do not respond to…» is an ordinary indication)
+NEG = re.compile(r"\b(not|no)\b[^.;]{0,40}\b(effective|efficacy|indicated|established|shown|demonstrated|recommended|"
+                 r"approved|active against|be used|intended)\b|\bineffective\b", re.I)
+SENT = re.compile(r"(?<=[.;])\s+|\n+|•")  # not at «:» (a negation often introduces a list)
+
+
+# esters and salts frequent in label substance names that evaluation.twins does not strip (triamcinolone acetonide)
+EXTRA_SUFFIXES = ("hexacetonide", "acetonide", "diacetate", "aceponate", "nitrate", "pamoate", "oxalate", "lactate",
+                  "gluconate", "mesilate", "besilate", "tosylate", "hemifumarate", "hemihydrate", "sesquihydrate",
+                  "pentahydrate", "dihydrochloride", "hcl")
 
 
 def moiety(n):
     from sources.practical import moiety as m
-    return m(n)
+    k = m(n)
+    changed = True
+    while changed:
+        changed = False
+        for x in EXTRA_SUFFIXES:
+            if k.endswith(" " + x) and len(k) - len(x) - 1 >= 4:
+                k = k[: -len(x) - 1].strip(" ,")
+                changed = True
+    return k
 
 
 # --- labels ------------------------------------------------------------------------------------
 
 def fda_labels():
-    """moiety -> list of (text, is_combination, title, effective_time) of current FDA labels."""
+    """moiety -> list of (text, is_combination, title, effective_time) of current FDA labels. The 14 openFDA files are
+    read as a stream (ijson) and the needed fields cached in data/ext/fda_labels.parquet."""
+    cache = ROOT / "data" / "ext" / "fda_labels.parquet"
+    if not cache.exists():
+        import ijson
+        rows = []
+        for z in sorted(FDA.glob("drug-label-*.json.zip")):
+            with zipfile.ZipFile(z) as zf, zf.open(zf.namelist()[0]) as fh:
+                for r in ijson.items(fh, "results.item"):
+                    text = " ".join(r.get("indications_and_usage") or [])
+                    if not text:
+                        continue
+                    o = r.get("openfda") or {}
+                    subs = list(o.get("substance_name") or [])
+                    gens = list(o.get("generic_name") or [])
+                    rows.append({"substances": "|".join(subs), "generic": "|".join(gens),
+                                 "title": (o.get("brand_name") or [""])[0], "time": r.get("effective_time", ""),
+                                 "text": text[:6000]})
+            print(f"  {z.name}: {len(rows):,} labels with indications so far", flush=True)
+        pd.DataFrame(rows).to_parquet(cache, index=False)
+    df = pd.read_parquet(cache)
     out = defaultdict(list)
-    for z in sorted(FDA.glob("drug-label-*.json.zip")):
-        with zipfile.ZipFile(z) as zf:
-            data = json.loads(zf.read(zf.namelist()[0]))
-        for r in data["results"]:
-            text = " ".join(r.get("indications_and_usage") or [])
-            if not text:
-                continue
-            o = r.get("openfda") or {}
-            subs = o.get("substance_name") or o.get("generic_name") or []
-            names = {moiety(s) for s in subs} | {moiety(s) for s in (o.get("generic_name") or [])}
-            names.discard("")
-            gen = " ".join(o.get("generic_name") or [])
-            combo = len(o.get("substance_name") or []) > 1 or bool(re.search(r"\band\b|,|/", gen))
-            title = (o.get("brand_name") or [""])[0]
-            for n in names:
-                out[n].append((text, combo, title, r.get("effective_time", "")))
+    for subs, gens, title, tm, text in zip(df.substances, df.generic, df.title, df.time, df.text):
+        sl = [x for x in subs.split("|") if x]
+        gl = [x for x in gens.split("|") if x]
+        names = {moiety(x) for x in sl + gl} - {""}
+        combo = len(sl) > 1 or any(re.search(r"\band\b|,|/", x, re.I) for x in gl)
+        for n in names:
+            out[n].append((text, combo, title, tm))
     return out
 
 
@@ -106,7 +131,7 @@ def us_status():
     prod = prod[~prod.Ingredient.str.contains(";", na=False)]
     st = {}
     for ing, typ in zip(prod.Ingredient, prod.Type):
-        m = moiety(ing)
+        m = moiety(re.sub(r",?\s*(ultra)?microsize", "", ing, flags=re.I))
         st[m] = st.get(m, False) or typ in ("RX", "OTC")
     lines = (RAW / "purple_book.csv").read_text("utf-8", errors="replace").splitlines()
     start = [i for i, l in enumerate(lines) if l.startswith("N/R/U,")][-1]
@@ -163,7 +188,18 @@ def find(text, names):
     return True, neg_all
 
 
-def classify(drug_keys, dnames, fda, ema):
+def classify(drug_keys, dnames, fda, ema, broader=None):
+    """Category for a pair; if the disease is not named, the names of its direct broader terms are tried
+    (a label for «relapsing forms of multiple sclerosis» covers relapsing-remitting MS), marked in `where`."""
+    cat, where = _classify(drug_keys, dnames, fda, ema)
+    if cat == "not found in a current label" and broader:
+        c2, w2 = _classify(drug_keys, broader, fda, ema)
+        if c2 != "not found in a current label":
+            return c2, w2 + " (broader term)"
+    return cat, where
+
+
+def _classify(drug_keys, dnames, fda, ema):
     labels = [l for k in drug_keys for l in fda.get(k, [])] + [l for k in drug_keys for l in ema.get(k, [])]
     if not labels:
         return "no current label", ""
@@ -196,6 +232,8 @@ def build():
     rows = []
     for f, ks in keys.items():
         u = next((us[k] for k in ks if k in us), "")
+        if any(fda.get(k) for k in ks):  # a current FDA label (SPL listing): a product on the US market
+            u = "marketed"
         e = next((eu[k] for k in ks if k in eu), ("", ""))
         rows.append({"node": f, "name": g.name(f), "us_status": u, "eu_status": e[0], "eu_year": e[1],
                      "fda_labels": int(sum(len(fda.get(k, [])) for k in ks)), "ema_labels": int(sum(len(ema.get(k, [])) for k in ks))})
@@ -203,6 +241,11 @@ def build():
     st.to_parquet(ROOT / "data" / "ext" / "drug_status.parquet", index=False)
     # pairs the website calls approved
     dn = disease_names(g)
+    from sources.hierarchy import load as load_hierarchy
+    h = load_hierarchy()
+    parents = defaultdict(list)
+    for a_, b_ in zip(h.parent.astype(int), h.child.astype(int)):
+        parents[b_].append(a_)
     I = g.M(INDICATION).tocsr()
     pairs = {(int(f), int(d), "PrimeKG") for f in g.drugs for d in I.indices[I.indptr[f]:I.indptr[f + 1]]
              if g.types[d] == "disease"}
@@ -211,7 +254,8 @@ def build():
         pairs.add((x, y, f"Open Targets ({s})"))
     out = []
     for f, d, src in sorted(pairs):
-        cat, where = classify(keys.get(f, set()), dn.get(d, {str(g.name(d)).lower()}), fda, ema)
+        broader = set().union(*(dn.get(p_, set()) for p_ in parents.get(d, ()))) if parents.get(d) else None
+        cat, where = classify(keys.get(f, set()), dn.get(d, {str(g.name(d)).lower()}), fda, ema, broader)
         out.append({"drug": f, "disease": d, "drug_name": g.name(f), "disease_name": g.name(d), "source": src,
                     "label": cat, "where": where})
     pl = pd.DataFrame(out)

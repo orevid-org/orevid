@@ -132,7 +132,27 @@ const pval = (p) => {
 function statusTag(c) {
   const s = c.status || "unknown";
   const cls = s === "approved" ? "ok" : s === "investigational" ? "warn" : s === "unknown" ? "neutral" : "risk";
-  return `<span class="tag ${cls}">${esc((L && L.terms[s]) || s)}</span>`;
+  return `<span class="tag ${cls}">${esc((L && L.terms[s]) || s)}</span>${nowTags(c.status_now)}`;
+}
+
+// Current regulatory status when the drug is no longer on the market (FDA Orange / Purple Book, EMA; N4)
+function nowTags(v) {
+  if (!v) return "";
+  const out = [];
+  if (v.us) out.push(`<span class="tag risk small" title="${esc(t("now_us_help"))}">${t("now_us")}</span>`);
+  if (v.eu) out.push(`<span class="tag risk small" title="${esc(t("now_eu_help"))}">${t("now_eu")} ${esc(tr(v.eu))}</span>`);
+  return " " + out.join(" ");
+}
+
+// «Approved» drugs that no current FDA / EMA label confirms for this disease (display only; docs/DRUG_STATUS.md)
+function checkedList(xs, d) {
+  if (!xs || !xs.length) return t("none");
+  const lc = d.label_check || {}, now = d.status_now || {};
+  return xs.map((x) => {
+    const c = lc[x];
+    const tag = c ? ` <span class="tag ${c[0] === "negated" ? "risk" : "warn"} small" title="${esc(t("lc_" + c[0].replace(/ /g, "_") + "_help") + (c[1] ? " (" + c[1] + ")" : ""))}">${t("lc_" + c[0].replace(/ /g, "_"))}</span>` : "";
+    return esc(x) + tag + nowTags(now[x]);
+  }).join(", ");
 }
 
 // Mechanism: targets with the action (↓ inhibits, ↑ activates)
@@ -424,8 +444,8 @@ async function showDisease(id) {
     ${(d.markers || []).length ? `<p class="markers"><b>${t("markers")}:</b> ${d.markers.map(([m, st]) => `${esc(m)} ${t("marker_" + st)}`).join(", ")}</p>` : ""}
     ${genes.length ? `<details class="genes"><summary>${t("genes_list")} (${d.n_genes})</summary><p>${genes.map((g) => `<span class="gen">${esc(g)}</span>`).join(" ")}${d.n_genes > genes.length ? " …" : ""}</p></details>` : ""}
     <div class="card known"><h3>${t("known")}</h3><dl>
-      <dt>${t("approved")}</dt><dd>${list(d.approved)}</dd>
-      ${d.approved_ot && d.approved_ot.length ? `<dt>${t("approved_ot")}</dt><dd>${list(d.approved_ot)}</dd>` : ""}
+      <dt>${t("approved")}</dt><dd>${checkedList(d.approved, d)}</dd>
+      ${d.approved_ot && d.approved_ot.length ? `<dt>${t("approved_ot")}</dt><dd>${checkedList(d.approved_ot, d)}</dd>` : ""}
       ${d.approved_unconfirmed && d.approved_unconfirmed.length ? `<dt>${t("approved_unconfirmed")}</dt><dd class="muted">${list(d.approved_unconfirmed)} <div class="small">${t("approved_unconfirmed_help")}</div></dd>` : ""}
       ${d.offlabel.length ? `<dt>${t("offlabel")}</dt><dd>${list(d.offlabel)}</dd>` : ""}
       ${trials ? `<dt>${t("trials")}</dt><dd>${trials}</dd>` : ""}

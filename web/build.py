@@ -334,6 +334,7 @@ class DiseasePages:
         self.n_genes = np.diff(self.g.M(GENES_ALL).indptr)
         self.markers = marker_rules(gc, self.children, self.targets_f)
         self.practical, self.trials_pair, self.papers_pair = practical_tables()
+        self.label_check, self.status_now = label_tables()  # N4 (P53): current labels and regulatory status
         pkg = (self.g.types == "disease") & (self.g.origin == "PrimeKG")
         self.has_page = pkg & ((self.n_genes > 0) | (np.diff(self.g.M("disease_phenotype_positive").indptr) > 0))
         print(f"models loaded ({time.time() - t0:.0f} s)", flush=True)
@@ -354,6 +355,8 @@ class DiseasePages:
                   if not (drug_family(g.name(i)) & names_contra)}
         indicated = ind_pkg | ind_ot  # to exclude candidates, all of them (cautious)
         ot_conf = {i for i in ind_ot if any((i, m) in self.ot_confirmed for m in dt)}
+        # an Open Targets approval our classifier left «unconfirmed» but a current label names (N4, P53)
+        label_ok = {i for i in ind_ot - ot_conf if any(self.label_check.get((i, m), ("",))[0] == "confirmed" for m in dt)}
         names_ind = {x for i in indicated | offlabel for x in drug_family(g.name(i))}
         drugs, total, _ = self.P.predict(d)
         # The order is only that of the evaluated model (with specificity); failed trials and literature are
@@ -373,7 +376,7 @@ class DiseasePages:
                 reasons["checkpoint"] = 1
             expl = X.explain(f, d, twins=dt)
             return {"node": f, "name": g.name(f), "id": self.ext.get(f, ""), "score": round(float(score), 3),
-                    "status": status.get(f, "unknown"), "atc": self.atc.get(f, ""),
+                    "status": status.get(f, "unknown"), "status_now": self.status_now.get(f), "atc": self.atc.get(f, ""),
                     "mechanism": self.mechanism(f), "indications": self.indications(f),
                     "lines": sorted(evidence_lines(expl)),
                     "risk": bool(risk_f[j]), "risk_reasons": reasons, "contra": f in contra, "expl": expl,
@@ -452,8 +455,11 @@ class DiseasePages:
         return {
             "id": d, "name": g.name(d), "mondo": self.ext.get(d, ""), "n_genes": int(len(g.neighbors(d, GENES_ALL))),
             "gene_sources": {k: int(len(g.neighbors(d, rel))) for k, rel in GENE_SOURCES.items()},
-            "approved": sorted({g.name(i) for i in ind_pkg}), "approved_ot": sorted({g.name(i) for i in ot_conf})[:40],
-            "approved_unconfirmed": sorted({g.name(i) for i in ind_ot - ot_conf})[:30],
+            "approved": sorted({g.name(i) for i in ind_pkg}),
+            "approved_ot": sorted({g.name(i) for i in ot_conf | label_ok})[:40],
+            "approved_unconfirmed": sorted({g.name(i) for i in ind_ot - ot_conf - label_ok})[:30],
+            "label_check": {g.name(i): v for i in ind_pkg | ot_conf | label_ok if (v := self.pair_label(i, dt))},
+            "status_now": {g.name(i): v for i in ind_pkg | ot_conf | label_ok if (v := self.status_now.get(i))},
             "offlabel": sorted({g.name(i) for i in offlabel})[:30],
             "contra": sorted({g.name(i) for i in contra})[:30], "trials": trials,
             "stopped": sorted({g.name(i) for i in twin_neighbors(gc, dt, NEGATIVE)})[:20],
@@ -466,6 +472,14 @@ class DiseasePages:
             "n_descendants": self.descendants(d),
             "markers": sorted({(m, st) for m, st, _ in self.markers.get(d, [])}),
             "excluded_marker": [[n, m] for n, m in removed_marker.items()]}
+
+    def pair_label(self, f, dt):
+        """[category, label] when no current label confirms the pair (N4, P53; display only), else None."""
+        found = [self.label_check[(f, m)] for m in dt if (f, m) in self.label_check]
+        if not found or any(c == "confirmed" for c, _ in found):
+            return None
+        order = ["negated", "only in a combination product", "not found in a current label", "no current label"]
+        return list(min(found, key=lambda x: order.index(x[0]) if x[0] in order else 9))
 
     def practical_info(self, f, dt):
         """Generic / biosimilar status, routes, and how much the pair has been studied (I3; display only).
@@ -518,6 +532,32 @@ class DiseasePages:
         """Current approved indications of the drug (to place it: «what it is used for today»)."""
         ms = sorted({self.g.name(m) for m in self.ind_f.indices[self.ind_f.indptr[f]:self.ind_f.indptr[f + 1]]})
         return ms[:4] + ([f"+{len(ms) - 4}"] if len(ms) > 4 else [])
+
+
+# N4 failed its release check on 23-10-2026 (23 of 100 checked pairs wrong; gate ≤ 5 %, docs/DRUG_STATUS.md, P53):
+# the label checks and current-status tags stay off the website until a second version passes its own check.
+N4_RELEASED = False
+
+
+def label_tables():
+    """N4 (sources/drug_status.py): per (drug, disease) the current-label category, per drug its current US / EU
+    status when it is not on the market (display only; checks in docs/DRUG_STATUS.md)."""
+    pl_f, st_f = ROOT / "data" / "ext" / "pair_label.parquet", ROOT / "data" / "ext" / "drug_status.parquet"
+    if not N4_RELEASED or not pl_f.exists() or not st_f.exists():
+        return {}, {}
+    pl = pd.read_parquet(pl_f)
+    check = {(int(f), int(d)): (c, w) for f, d, c, w in zip(pl.drug, pl.disease, pl.label, pl["where"])}
+    st = pd.read_parquet(st_f)
+    now = {}
+    for f, us, eu, year in zip(st.node, st.us_status, st.eu_status, st.eu_year):
+        v = {}
+        if us == "discontinued":
+            v["us"] = "discontinued"
+        if eu in ("withdrawn", "refused", "revoked", "suspended", "expired", "lapsed"):  # not «application withdrawn»
+            v["eu"] = eu + (f" {year}" if year else "")
+        if v:
+            now[int(f)] = v
+    return check, now
 
 
 def practical_tables():

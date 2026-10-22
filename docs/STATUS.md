@@ -291,18 +291,24 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   - Planned: launch day with the r/bioinformatics post (to be drafted) and the Bluesky thread together;
     **BOSC 2027** (Open Bioinformatics Foundation, within ISMB; abstracts usually due around April).
 
-## Night of 22–23 October 2026 (home PC) — in progress, updated during the night
+## Night of 22–23 October 2026 (home PC)
 
-Registered first (`docs/IMPROVEMENT_PLAN.md`, «Registered 22-10-2026, before any run», commit `389458a`), then run:
-- **R1b adopted (P48)**: hub genes (≥ 500 diseases) no longer count for the shared-genes line; R1a rejected
-  (`docs/R1_R2.md`). Code changed in `web/build.py` and the evaluation; website not rebuilt yet.
-- **R2 rejected (P49)**: removes an approved pair (sulfanilamide, vulvovaginal candidiasis).
-- **N1 positive (P50)**: shared genes contain curated mechanism proteins (DrugMechDB) in 25.1 % of pairs vs 16.9 %
-  for random genes of the same disease (`docs/DRUGMECHDB.md`).
-- **N2 (a) above random** on drugs with no prior use (`docs/PROXIMITY.md`); (b) the LambdaRank-feature test is running.
-- **N3 not run**: Bioteque still offline. **N4** (drug status audit): FDA labels downloading, code in
-  `sources/drug_status.py`.
-- Fixed: trials of a candidate counted over all the nodes of the same drug (belimumab in systemic sclerosis).
+Everything registered first (`docs/IMPROVEMENT_PLAN.md`, «Registered 22-10-2026, before any run», commit `389458a`),
+then run. Results in DECISIONS P48–P53:
+
+| Item | Result | Decision |
+|---|---|---|
+| **R1b** hub genes (≥ 500 diseases, 55 genes) out of the shared-genes line | removed candidates hit 2.7 / 3.3 / 1.2 % (benchmark / areas / external), kept ones 24.2 / 27.8 / 4.4 % | **adopted** (P48): website and evaluation; section now 24.2 % (18.3–30.1), 27.6 %, 4.4 % (3.2–5.8); the permutation null still wins (5.2 % mean, 4.4 % observed): P38 holds (`docs/EVIDENCE_CI.md`) |
+| R1a no line for diseases with < 10 genes | removed candidates hit 26.6 / 50.6 / 5.2 % | rejected (P48) |
+| R2 anti-infectives of the wrong pathogen class | removes an approved pair (sulfanilamide, vulvovaginal candidiasis); PrimeKG has no separate bacterial / viral classes | rejected (P49) |
+| **N1** DrugMechDB | shared genes contain a curated mechanism protein in 25.1 % of 447 pairs vs 16.9 % for random genes of the same disease (99th pct 19.2 %) | **positive** (P50); Method page says so |
+| N2 network proximity | (a) above random for no-prior-use drugs (0.178 vs 0.020; 0.061 vs 0.018), below OREVID; (b) as a feature +0.004 (0.000 to +0.011) benchmark, +0.009 (−0.011 to +0.035) areas | not adopted (P51); NeDRex comparable but not run (≥ 1,300 remote jobs) |
+| N3 Bioteque | IRB websites offline | not run (P52) |
+| N4 drug status audit | the six 22-10 cases right; manual check 23 wrong of 100 (gate ≤ 5 %) | **not released** (P53); code ready, `N4_RELEASED = False`; second version described in `docs/DRUG_STATUS.md` |
+| Bug | trials of a candidate on a twin drug node (belimumab, systemic sclerosis) | fixed (display) |
+
+Website rebuilt in full with R1b and the trials fix, Method page (three languages) and README updated.
+Preprint: not changed tonight; a v3 would add R1b (new hit rates), N1 and the N2 / N4 results.
 
 ## Next steps
 

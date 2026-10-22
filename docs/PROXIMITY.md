@@ -27,3 +27,13 @@ Implementation note: the first full run failed on a SciPy argument and the z-sco
 drugs whose distance does not change across random sets; both were fixed before the reported run (z = 0 when there is
 no spread), without changing any registered choice.
 
+## (b) Proximity as an added LambdaRank feature
+
+`py -3 -m evaluation.proximity_feature`: production rows and model, with and without the proximity column (paired by disease; mean of the task means; differences pooled over the diseases of the group).
+
+| Group | Recall@100, all (production → with proximity) | Difference | Recall@100, no prior use | Difference |
+|---|---|---|---|---|
+| benchmark (zero-shot 1-5) | 0.811 → 0.813 | +0.002 (-0.004 to +0.010; 335 diseases) | 0.167 → 0.170 | +0.004 (+0.000 to +0.011; 47 diseases) |
+| areas | 0.617 → 0.628 | +0.007 (-0.001 to +0.018; 345 diseases) | 0.157 → 0.161 | +0.009 (-0.011 to +0.035; 127 diseases) |
+
+**Decision (rule fixed before running):** not adopted.

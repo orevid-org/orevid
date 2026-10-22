@@ -46,7 +46,7 @@ What the website shows, and how often it was right among each disease's top 25
 | Section | Hidden-treatment tests | New approvals (external exam) |
 |---|---|---|
 | Direct extensions (indicated for a neighbouring disease) | 13–59 % | 12.6 % |
-| Candidates table (≥ 3 shared genes, hypergeometric p < 10⁻⁵ over the 19,766 genes with a disease) | 22–27 % | 4.3 % |
+| Candidates table (≥ 3 shared genes, not counting the 55 genes linked to ≥ 500 diseases, hypergeometric p < 10⁻⁵) | 24–28 % | 4.4 % |
 | Hidden (none of the above) | 2–4 % | 1.5 % |
 
 Chance would be below 0.1 %. Random gene sets of the same size select candidates that are right as often as the real shared genes, so the shared genes are not evidence of a shared mechanism: the table works as a selection of drugs already used in comparable diseases ([`docs/EVIDENCE_CI.md`](docs/EVIDENCE_CI.md), P38). The hidden-treatment test is the usual one (also TxGNN's) but rewards
@@ -65,7 +65,14 @@ and 80 % of PrimeKG indications are undated, so some leakage remains. A calibrat
 tested and not adopted ([`docs/CALIBRATION.md`](docs/CALIBRATION.md)). Each candidate on the website also shows
 whether a generic or biosimilar exists and how much the pair has been studied, as information only
 ([`docs/PRACTICAL.md`](docs/PRACTICAL.md)).
-Two pre-registered attempts gave negative results: expression-signature reversal (LINCS L1000) ranks drugs
+Tested on 22–23 October 2026, each with a rule fixed before running ([`docs/IMPROVEMENT_PLAN.md`](docs/IMPROVEMENT_PLAN.md)):
+hub genes (linked to ≥ 500 diseases) no longer count for the shared-genes line, because the candidates they alone
+brought were right 1–3 % of the time ([`docs/R1_R2.md`](docs/R1_R2.md)); against curated mechanisms
+(DrugMechDB) the shared genes contain a protein of the real mechanism more often than random genes of the same disease
+([`docs/DRUGMECHDB.md`](docs/DRUGMECHDB.md)); network proximity carries a small signal for drugs with no prior use but
+does not improve the model enough to be adopted ([`docs/PROXIMITY.md`](docs/PROXIMITY.md)); a drug-status audit against
+current FDA / EMA labels failed its manual check and is not shown yet ([`docs/DRUG_STATUS.md`](docs/DRUG_STATUS.md)).
+Two earlier pre-registered attempts gave negative results: expression-signature reversal (LINCS L1000) ranks drugs
 with no prior use at chance ([`docs/LINCS.md`](docs/LINCS.md)), and no replacement for the shared-genes line beat
 the permutation null on the external exam ([`docs/BIOLOGY_LINES.md`](docs/BIOLOGY_LINES.md)).
 
