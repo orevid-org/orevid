@@ -43,7 +43,7 @@ MIN_SHARED_GENES = 3
 # the number of genes (before, every linked node, genes and diseases, with p < 1e-6; docs/HYPERGEOMETRIC_N.md).
 # The genes shared are context, not evidence of a shared mechanism (P38).
 MAX_P_SHARED = 1e-5
-# «Hub» genes (associated with ≥ 500 diseases: IL6, TNF, HLA genes…) do not count for the shared-genes line, neither in
+# «Hub» genes (associated with ≥ 500 diseases: FGFR3, GLI3, TP53, COL2A1…, mostly developmental genes of rare syndromes) do not count for the shared-genes line, neither in
 # the number of shared genes nor in the hypergeometric test (R1b, DECISIONS.md P48: the candidates they alone brought
 # hit 1-3 %, like hidden ones).
 HUB_DISEASES = 500

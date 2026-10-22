@@ -307,7 +307,11 @@ then run. Results in DECISIONS P48–P53:
 | N4 drug status audit | the six 22-10 cases right; manual check 23 wrong of 100 (gate ≤ 5 %) | **not released** (P53); code ready, `N4_RELEASED = False`; second version described in `docs/DRUG_STATUS.md` |
 | Bug | trials of a candidate on a twin drug node (belimumab, systemic sclerosis) | fixed (display) |
 
-Website rebuilt in full with R1b and the trials fix, Method page (three languages) and README updated.
+Website rebuilt in full with R1b and the trials fix and deployed (23-10, early morning); Method page (three
+languages) and README updated. **R1b does not remove the review's examples**: the hub genes are developmental genes of
+rare syndromes (FGFR3, GLI3, TP53, COL2A1…), while insulin reaches MS through 36 ordinary genes shared with type 1
+diabetes and paclitaxel reaches Castleman disease through IL6, JAK1 and NOTCH1 (271, 221 and 382 diseases). A rule for
+those cases is still to find (R1a, the obvious one for Castleman's 3 genes, failed).
 Preprint: not changed tonight; a v3 would add R1b (new hit rates), N1 and the N2 / N4 results.
 
 ## Next steps
