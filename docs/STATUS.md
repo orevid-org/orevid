@@ -340,6 +340,40 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
    associations and comorbidities that read as shared biology (lupus–endocarditis, RA–Graves).
+9. **Corrections from a review of the visited pages (22-10, work PC; nothing changed on the website).** The eight
+   disease pages visitors opened (GoatCounter) were read from the published `gh-pages` data and checked by hand:
+   candidiasis (35873, also oral 83958 and vulvovaginal 83986), multiple sclerosis (37722; GoatCounter shows it
+   with the home-page title), angiosarcoma (33713), systemic sclerosis (33225), Angelman syndrome (29997),
+   Castleman disease (32631), Rosai-Dorfman disease (33528), POEMS syndrome (33287). Mostly sensible (angiosarcoma
+   is the best example: propranolol first, with trials and papers). To do from the home PC; rule changes follow the
+   usual validation (DECISIONS «Rules»), data fixes and display-only changes are labelled as such:
+   - **Approval classifier (`sources/ot_approvals.py`), false «unconfirmed»:** ublituximab for MS (FDA-approved
+     12-2022), butoconazole and terconazole for candidiasis (FDA-approved for vulvovaginal candidiasis). The page
+     says «do not treat them as treatments»: wrong for these. Check why a single-drug label was not found.
+   - **False «approved»:** griseofulvin for candidiasis (Open Targets; its label says it is *not* effective against
+     Candida: a negation read as an indication); benzoic acid for systemic sclerosis (DrugBank/PrimeKG, probably a
+     combination product); olaratumab shown as approved (withdrawn 2019; appears as an angiosarcoma extension);
+     zinc oxide as a cutaneous-candidiasis drug (comes from a miconazole/zinc oxide combination).
+   - **Inconsistency:** systemic sclerosis lists belimumab among phase 3 trials, but its candidate row says
+     «trials: 0». Check how `n_trials` and the trials section are computed (exact disease vs descendants, sources).
+   - **Shared-genes candidates from unrelated diseases:** MS gets insulin glargine / lispro (via type 1 diabetes),
+     T-cell lymphoma drugs (forodesine, pralatrexate, romidepsin, mogamulizumab) and mesalazine; systemic sclerosis
+     gets theophylline and pirbuterol (asthma); Castleman (only 3 genes: IL6, JAK1, NOTCH1) gets paclitaxel via
+     ovarian cancers. Candidate rules to pre-register and test: a minimum disease gene-set size for the line;
+     requiring the source disease to share more than the generic immune genes. Until then the page's caveat stands.
+   - **Infectious diseases:** extensions through a parent term mix pathogens (vulvovaginal candidiasis gets
+     metronidazole, tinidazole, secnidazole and sulfonamides via «vulvovaginitis»; antibiotics even favour
+     candidiasis); the «targets» section shows human targets (glucocorticoid receptor, tubulins) that make no
+     sense for a pathogen. Options: restrict parent-term extensions to the same pathogen class (antifungal /
+     antibacterial / antiviral / antiparasitic, by ATC), and hide or relabel the targets section for infections.
+     The earlier filter «no anti-infectives in non-infectious diseases» failed validation; this is a different
+     rule and needs its own test.
+   - **Safety knowledge missing:** in Angelman syndrome carbamazepine, phenytoin and vigabatrin are reported to
+     aggravate seizures, yet they appear without a warning (vigabatrin is the second candidate). Eculizumab reaches
+     MS through neuromyelitis optica, a distinct disease where drugs do not transfer. Consider a curated
+     «known to worsen» list (with sources) for the risk column; display only, labelled.
+   - **Gaps:** POEMS syndrome shows nothing (no genes, no link to plasma-cell neoplasms, where its real treatments
+     come from); chronic mucocutaneous candidiasis shows nothing although azoles are used.
 
 ## Rebuild order (from scratch)
 
