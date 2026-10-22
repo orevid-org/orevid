@@ -187,6 +187,7 @@ gene–disease links (OMIM, Orphanet) already reach the graph through Open Targe
 | N1 | **DrugMechDB** as an evaluation set for the evidence shown | first direct measure of whether the evidence paths the website shows resemble real mechanisms (the weak point P38 left) |
 | N2 | **Network proximity** (drug targets ↔ disease module), with **NeDRex** as an external reference | a signal independent of known indications, aimed at drugs with no prior use |
 | N3 | **Bioteque** embeddings restricted to sources without drug–disease edges | the same target, from a resource built on 150 sources |
+| N4 | **Drug status audit** against current regulatory sources (data quality, display only) | the review of 22-10 (STATUS, next steps 9) found wrong «approved» and «unconfirmed» labels and a withdrawn drug shown as approved |
 
 **N1. DrugMechDB** (https://github.com/SuLab/DrugMechDB, CC0; curated drug → target → … → disease paths for
 indications sampled from DrugCentral, written from DrugBank, Wikipedia and the literature). Use it **only for
@@ -222,7 +223,49 @@ not drug–disease** (e.g. drug–target interactions) or with training pairs of
 test indications; the choice is fixed before the evaluation. On 22-10 the IRB websites (Bioteque, BQsupports) were
 offline (access cut by UB/PCB for security reasons); the download waits until they are back.
 
-All three need `data/` and run on the home PC.
+**N4. Drug status audit** (added 22-10-2026). Not a model change: it fixes what the website says about each drug
+and about each «approved» pair, so it is validated by manual checks, not by hit rates (like I3).
+
+*Where the errors found on 22-10 come from* (STATUS, next steps 9):
+- **Extraction errors upstream:** griseofulvin «approved» for candidiasis comes from Open Targets / ChEMBL label
+  mining, which read «not effective against … candidiasis» as an indication (negation); zinc oxide for candidiasis
+  comes from a PrimeKG indication of the miconazole / zinc oxide combination given to each ingredient (as lincomycin
+  for MS); benzoic acid for systemic sclerosis is probably a name-mapping error for potassium *aminobenzoate*.
+- **Our classifier too strict:** ublituximab (MS), butoconazole and terconazole (candidiasis) are approved and
+  Open Targets has them right; `sources/ot_approvals.py` marks them «unconfirmed», probably because the labels use
+  acronyms (RMS, VVC) and the rule rejects acronyms of ≤ 3 letters (written for the PMDA «ad» = ADHD error).
+- **Outdated status:** olaratumab shown as approved (withdrawn 2019); PrimeKG's drug status comes from DrugBank
+  (~2021) and does not record withdrawals well; newer approvals are missing.
+- Check also the website label «Approved (DrugBank)» for PrimeKG indications: PrimeKG takes drug–disease edges
+  mainly from DrugCentral; correct the label if so.
+
+*Sources.* Already downloaded for I3 (`data/raw/practical/`): FDA Orange Book (marketing status, discontinued
+products), FDA Purple Book (licensed / discontinued biologics), EMA medicines table (authorised / withdrawn /
+refused / suspended, and the therapeutic indication text). To add: **DrugCentral** (current dump; FDA / EMA / PMDA
+approvals with dates, label indications mapped to disease codes; CC BY-SA 4.0: check the licence terms before
+publishing derived fields) and **current FDA labels** (DailyMed / openFDA «indications and usage» section).
+Optional: AEMPS CIMA (Spain).
+
+*What to build.*
+1. Per drug shown on the website: current US and EU status (marketed, discontinued, withdrawn with year and,
+   when given, reason; authorised / withdrawn / refused / suspended in the EU), with the source and download date.
+2. Per «approved» pair: confirmed if a current FDA label or the EMA indication text names the disease (or a
+   synonym, via the graph's disease names and the MONDO / UMLS cross-references), **and** the sentence is not
+   negated («not effective», «not indicated», «has not been established»). Otherwise flagged «not found in a
+   current label».
+3. With 2 in place, revisit `ot_approvals.py`: accept a short acronym when a current label confirms the full
+   disease name; reject label mentions that are negated.
+4. Combination products: an indication that only a combination product carries is shown on the combination,
+   not on each ingredient.
+
+*Checks before release (fixed now).* Report the match rate of each source (all drugs, approved drugs). Manual
+check of 50 random «approved» pairs and of 50 random pairs that change category (confirmed ↔ flagged) against the
+source pages, written to a new `docs/DRUG_STATUS.md`; the release goes ahead only if ≤ 5 % of the checked pairs are
+wrong after the change and none of the cases of 22-10 remains wrong. The validated definitions used in the
+evaluations (PrimeKG indications) do not change; if the audit removes PrimeKG indications, the effect on the
+benchmark is reported, not silently applied.
+
+All four need `data/` and run on the home PC.
 
 ---
 

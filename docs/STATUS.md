@@ -326,7 +326,9 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    before submitting to PCI. Figure 3 was fixed on 21-10 (see that day): put the new image in the Claude Doc.
 1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: optional TxGNN on the temporal cutoffs;
    pathway overlap with its own null (P46) as a new pre-registered test. **Next candidates, not registered yet**
-   (`docs/IMPROVEMENT_PLAN.md`, «Next candidates»): N1 DrugMechDB as an evaluation set for the evidence shown,
+   (`docs/IMPROVEMENT_PLAN.md`, «Next candidates»): N4 drug status audit against current FDA / EMA / DrugCentral
+   data (display only; fixes the approval errors of item 9; its checks are already fixed in the plan),
+   N1 DrugMechDB as an evaluation set for the evidence shown,
    N2 network proximity with NeDRex as an external reference, N3 Bioteque embeddings without drug–disease edges.
    Each needs its own section with fixed criteria, committed before running (home PC).
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
@@ -347,10 +349,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    Castleman disease (32631), Rosai-Dorfman disease (33528), POEMS syndrome (33287). Mostly sensible (angiosarcoma
    is the best example: propranolol first, with trials and papers). To do from the home PC; rule changes follow the
    usual validation (DECISIONS «Rules»), data fixes and display-only changes are labelled as such:
-   - **Approval classifier (`sources/ot_approvals.py`), false «unconfirmed»:** ublituximab for MS (FDA-approved
+   - **Approval classifier (`sources/ot_approvals.py`), false «unconfirmed»** (→ plan N4): ublituximab for MS (FDA-approved
      12-2022), butoconazole and terconazole for candidiasis (FDA-approved for vulvovaginal candidiasis). The page
      says «do not treat them as treatments»: wrong for these. Check why a single-drug label was not found.
-   - **False «approved»:** griseofulvin for candidiasis (Open Targets; its label says it is *not* effective against
+   - **False «approved»** (→ plan N4): griseofulvin for candidiasis (Open Targets; its label says it is *not* effective against
      Candida: a negation read as an indication); benzoic acid for systemic sclerosis (DrugBank/PrimeKG, probably a
      combination product); olaratumab shown as approved (withdrawn 2019; appears as an angiosarcoma extension);
      zinc oxide as a cutaneous-candidiasis drug (comes from a miconazole/zinc oxide combination).
