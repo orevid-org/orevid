@@ -286,7 +286,9 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
     embeddings may be used if the article is cited and they are not modified; he suggested BQsupports; the IRB
     websites were offline (UB/PCB security). Terms and caveats in `docs/IMPROVEMENT_PLAN.md`, N3.
   - **Open Targets community forum**: first post (announcement) held for moderation, the account «temporarily on
-    hold» (automatic: new account with many links); a short note was sent to the moderators. Do not repost.
+    hold» (automatic: new account with many links); a short note was sent to the moderators. **Approved on 23-10**:
+    the topic is online, https://community.opentargets.org/t/2098 (do not repost; answer replies; add the v3 there
+    as a reply when it is out).
   - **Bluesky**: introduction post published (22-10).
   - Planned: launch day with the r/bioinformatics post (to be drafted) and the Bluesky thread together;
     **BOSC 2027** (Open Bioinformatics Foundation, within ISMB; abstracts usually due around April).
