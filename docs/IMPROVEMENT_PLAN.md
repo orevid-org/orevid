@@ -820,6 +820,17 @@ DECISIONS P73–P78.
 
 ---
 
+## Registered 24-10-2026, before running: L3b (Orphanet genes as a model column)
+
+**Column:** for (drug, disease), log(1 + the drug's targets (`drug_protein|moa`, the split's training graph) that are
+Orphanet genes of the disease (`data/ext/orphadata_genes.parquet`, single-MONDO nodes)). It uses no drug–disease edge.
+**Rule: M2's** (P61), against the current production model `extra_qtl`: Recall@100 on all positives up with a 95 %
+interval above 0 on the benchmark or the areas, the other not below −0.005, no-prior-use not down by more than 0.01.
+Reported: the diseases that have Orphanet genes and none in PrimeKG. Implementation: `evaluation/l3b_feature.py`;
+DECISIONS P79.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
