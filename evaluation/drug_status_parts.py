@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parent.parent
 EU_BAD = ("withdrawn", "refused", "revoked", "suspended", "expired", "lapsed")
 
 
-def main():
+def main(round_=1):
+    """round_ 2: the fixed version (P55), new random samples (other seeds), files n4_part_{b,c}_2.jsonl."""
     sys.stdout.reconfigure(encoding="utf-8")
     from graph import Graph
     from sources.drug_status import ema_table, moiety
@@ -50,8 +51,8 @@ def main():
             eu_url.setdefault(moiety(name), url)
     in_site = set(pl[on_page].drug)
     bad = st[st.node.isin(in_site) & ((st.us_status == "discontinued") | st.eu_status.isin(EU_BAD))]
-    b = bad.sample(min(50, len(bad)), random_state=3)
-    with (out / "n4_part_b.jsonl").open("w", encoding="utf-8") as fh:
+    b = bad.sample(min(50, len(bad)), random_state=3 if round_ == 1 else 13)
+    with (out / ("n4_part_b.jsonl" if round_ == 1 else "n4_part_b_2.jsonl")).open("w", encoding="utf-8") as fh:
         for r in b.itertuples():
             claims = []
             if r.us_status == "discontinued":
@@ -64,8 +65,8 @@ def main():
                                 ensure_ascii=False) + "\n")
     # (c)
     c = pl[on_page & (pl.source == "Open Targets (unconfirmed)") & (pl.label == "confirmed")].drop_duplicates(["drug_name", "disease_name"])
-    cs = c.sample(min(50, len(c)), random_state=4)
-    with (out / "n4_part_c.jsonl").open("w", encoding="utf-8") as fh:
+    cs = c.sample(min(50, len(c)), random_state=4 if round_ == 1 else 14)
+    with (out / ("n4_part_c.jsonl" if round_ == 1 else "n4_part_c_2.jsonl")).open("w", encoding="utf-8") as fh:
         for r in cs.itertuples():
             title, url, sent = split(r.where)
             fh.write(json.dumps({"drug": r.drug_name, "disease": r.disease_name, "claim": "a current label lists this "
@@ -80,4 +81,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(int(sys.argv[1]) if len(sys.argv) > 1 else 1)

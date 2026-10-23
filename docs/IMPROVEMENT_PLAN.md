@@ -422,6 +422,50 @@ P54; if adopted, the same rule in `web/build.py`, the Method page (three languag
 
 ---
 
+## Registered 23-10-2026, before any run: D1 (drugs that may worsen a disease; roadmap item 2)
+
+Written on the home PC and pushed before OnSIDES is downloaded or any number computed.
+
+**Question.** Can OREVID show, per disease, approved drugs that may **worsen** it, with a reason and a source, and are
+those warnings right more often than a naive list?
+
+**Sources.** (i) PrimeKG contraindications (`contraindication`, DrugBank) and the validated risk rule (P15:
+contraindicated in more neighbouring or similar diseases than indicated, plus checkpoint inhibitors in immune
+diseases); (ii) **OnSIDES** v3.2.1 (tatonetti-lab, adverse events extracted from current US / EU / UK / JP labels;
+data CC BY 4.0, attribution by citing the paper), downloaded once into `data/raw/onsides/` with a `VERSION` file.
+Curated drugs-to-avoid lists (porphyria, Brugada, long QT, G6PD, myasthenia gravis) are **not** part of D1: each has
+its own terms; they get their own item after their licences are checked.
+
+**Mapping, fixed now.** OnSIDES ingredients → graph drugs by RxNorm / name through the active moiety (as N4); OnSIDES
+adverse-event terms (MedDRA) → graph diseases through MONDO cross-references to MedDRA or UMLS in
+`data/raw/mondo/mondo.sssom.tsv`, exact matches only; if that file has none, by exact normalised name of the disease
+or of its Open Targets exact synonyms. Report before any result: OnSIDES pairs read, drugs and terms mapped, graph
+diseases reached.
+
+**Signals, fixed now.** For a disease *d* and an approved drug *f*: **S1** the P15 risk rule (already on the website);
+**S2** an adverse event of *f* in a current label (OnSIDES) maps to *d* or to a direct broader term of *d*; **S3** both.
+
+**Test.** Diseases with ≥ 3 PrimeKG contraindications; for each, its own contraindication edges are hidden from the
+signals (S1 uses other diseases' contraindications only; S2 uses labels, not PrimeKG). Positives: the hidden
+contraindicated drugs. Candidates: approved drugs not indicated for *d*. Baseline: «contraindicated somewhere», drugs
+ranked by the number of diseases they are contraindicated for, flagging as many drugs per disease as the signal does.
+Diseases are split by node id parity into a development half (even) and a confirmation half (odd), the latter
+reported once. Precision = share of flagged pairs that are hidden contraindications; disease-level bootstrap.
+
+**Decision rule.** A signal is shown in the new section «May worsen this disease» only if, on the confirmation half,
+its precision is above the baseline's with a 95 % interval of the difference excluding 0, and it flags at least 200
+pairs. Then, before release, **a manual check of 50 random flagged pairs (not contraindications already in PrimeKG)
+against the source pages** (the label section on DailyMed or the EMA product page, opened, URL and sentence kept):
+released only if ≤ 5 % are wrong. Reported, not deciding: the Angelman syndrome page of the 22-10 review
+(carbamazepine, phenytoin, vigabatrin), the share of flags explained by confounding by indication (the drug is
+indicated for a neighbour of *d*), and recall of all PrimeKG contraindications.
+
+**Display (if released).** A section per disease page listing the flagged drugs with the reason («contraindicated in
+related diseases», «adverse event in the current label: …») and the source; never a score; research use only.
+Implementation: `sources/onsides.py`, `evaluation/d1_worsen.py` → `docs/D1_WORSEN.md`; DECISIONS P56.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
