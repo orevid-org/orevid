@@ -317,6 +317,10 @@ def load_trials(g, new):
                   nct="nct", phase="phase", status="status", min_p="min_p")
 
 
+def load_perturbseq(g, new):
+    return _named(pd.read_parquet(EXT / "perturbseq.parquet"), "knockdown", "gene", "knockdown_effect", "direction", z="z")
+
+
 LAYERS = [
     Layer("gencc", "gene_disease_validity", "GenCC", "data/raw/gencc/VERSION", "CC0 1.0", "yes",
           "tested for the shared-genes line, not adopted (P54)", load_gencc),
@@ -354,6 +358,8 @@ LAYERS = [
           "yes", "internal graph (X1 uses CPIC for display)", load_pharmgkb),
     Layer("trials", "trial_result", "ClinicalTrials.gov API v2", "23-10-2026 (phase 2–3, posted results)", "Public domain",
           "yes", "T1 validation, claim not supported (P68)", load_trials),
+    Layer("perturbseq", "knockdown_effect", "Replogle et al. 2022 genome-wide Perturb-seq (K562 pseudo-bulk)",
+          "figshare 20029387", "CC BY 4.0", "yes", "P2, gate failed (P69)", load_perturbseq),
     Layer("ot_approvals", "approval", "Open Targets 26.06 (classified, sources/ot_approvals.py)", "26.06", "CC0 1.0", "yes",
           "evaluation and display of approvals", load_ot_approvals),
 ]

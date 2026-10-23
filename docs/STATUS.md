@@ -377,7 +377,8 @@ graph whatever its result (P60). Results in DECISIONS P61–P69:
 Not obtainable: AACT snapshots and CredibleMeds (accounts), Genebass (requester-pays cloud bucket), porphyria / G6PD /
 myasthenia lists (no open licence; CPIC covers G6PD), single-cell atlases (66 GB to terabytes), Bioteque (server does not
 answer from the home PC). New layers: PRISM, CIViC, Repurposing Hub (licence «check»), CPIC, PharmGKB, trials,
-Orphanet prevalence, Perturb-seq.
+Orphanet prevalence, Perturb-seq. Internal graph now 69 layers, 14.2 M edges; publishable 60 layers, 11.8 M
+edges (`docs/GRAPH_LAYERS.md`).
 
 ## Next steps
 
