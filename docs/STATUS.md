@@ -366,6 +366,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      gene–disease validity (GenCC / ClinGen / PanelApp), «drugs that may worsen this disease» (drugs-to-avoid
      lists, OnSIDES), OREVID-bench as an open leaderboard, drug-target MR with pQTL, full polypharmacology (ChEMBL
      bioactivities, IUPHAR, Repurposing Hub). Each one is registered in `docs/IMPROVEMENT_PLAN.md` before running.
+     **G1 (GenCC) registered on 23-10** (work PC; criteria fixed, nothing downloaded): run it on the home PC with
+     `sources/gencc.py` and `evaluation/g1_gencc.py`, results in `docs/G1_GENCC.md` and DECISIONS P54.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
    (permuting pathway sets) in a new pre-registered test.

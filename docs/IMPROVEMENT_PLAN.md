@@ -350,6 +350,78 @@ with the URL kept for every verdict; a check from memory, without the pages, doe
 
 ---
 
+## Registered 23-10-2026, before any run: G1 (curated gene–disease validity, roadmap item 1)
+
+Written on the work PC and pushed before any GenCC file was downloaded or any number computed (the commit time is the
+proof). To run on the home PC. Same test unit, sets, intervals and P29 rule as «Registered 22-10-2026» above; the
+production rule today is the one after R1b (P48: hub genes, ≥ 500 diseases, do not count).
+
+**Question.** Does restricting the shared-genes line to gene–disease links that curators have classified as valid
+remove wrong candidates without losing right ones?
+
+**Source.** GenCC (https://thegencc.org), the submissions file (`gencc-submissions.tsv`), downloaded once into
+`data/raw/gencc/` with a `VERSION` file (download date, file size, licence text as published on the site). GenCC
+already gathers ClinGen, Genomics England PanelApp, Orphanet, Gene2Phenotype and other submitters, so ClinGen and
+PanelApp are not downloaded separately. If the licence does not allow publishing derived fields, the rule may still
+be evaluated and applied, but no GenCC classification is shown on the website.
+
+**Mapping, fixed now.**
+- Genes: GenCC `gene_curie` (HGNC) → NCBI Gene through the HGNC file already in `data/raw/hgnc/` (graph genes are NCBI
+  keys, `sources/ids.py`).
+- Diseases: GenCC `disease_curie` when it is MONDO → the graph disease node whose MONDO group contains it
+  (`sources.ids.primekg_keys`); OMIM / Orphanet curies → MONDO through `sources.ids.xref_to_mondo()`. No propagation to
+  ancestors or descendants.
+- Classification per (gene, disease) pair, over all its submissions:
+  **supported** = at least one Definitive, Strong or Moderate, and no ClinGen submission Disputed or Refuted;
+  **contradicted** = no Definitive / Strong / Moderate and at least one Disputed, Refuted or «No Known Disease
+  Relationship»; **limited** = everything else (Limited, Animal model only, Supportive).
+- A graph disease is **covered** if it has ≥ 3 supported genes after mapping.
+- **Report before any result:** GenCC pairs read and mapped (genes, diseases), covered graph diseases, covered test
+  diseases in the benchmark, areas and external exam, and how many of the graph's gene–disease edges are supported /
+  limited / contradicted, by edge source (`disease_protein`, Open Targets genetic, animal, expression).
+
+**Variants, fixed now** (they change only the shared-genes line, in the evaluation and on the website, as R1b; the
+model's features and its ranking are not touched):
+- **G1a, contradicted links out:** a gene–disease edge classified contradicted does not count for the line, for any
+  disease.
+- **G1b, curated genes for the test disease:** for a covered test disease, only its supported genes count on its side
+  of the comparison (the other disease keeps its gene set); the hypergeometric test is recomputed with that gene set
+  (same population N of non-hub genes with at least one disease, ≥ 3 shared genes, p < 10⁻⁵). Diseases not covered are
+  unchanged.
+- **G1c, curated genes on both sides:** as G1b, and the disease the candidate drug is indicated for also uses only
+  its supported genes when that disease is covered.
+
+**Decision rules, fixed now.** A variant changes the section in two ways: candidates **removed** (shared-genes
+candidates that no longer qualify become hidden) and candidates **added** (hidden candidates that now qualify). It is
+adopted only if all of these hold:
+1. P29 rule on the removed candidates: they hit < 5 % on both the benchmark and the areas;
+2. on the external exam the removed candidates hit no more than the candidates the section keeps;
+3. if a set has ≥ 20 added candidates, their hit rate on that set is not below the current section's (production,
+   after R1b) beyond the 95 % interval;
+4. the section's hit rate after the change is not lower than today's on the external exam beyond the interval.
+
+A set with fewer than 20 removed candidates is uninformative for rule 1; if both the benchmark and the areas are
+uninformative, the external exam must show the removed candidates below 5 %, otherwise the variant is not adopted
+(«not enough data» is reported as such). **Choice:** among the variants that pass, G1c if it passes, else G1b, else
+G1a (the more curated, the better, if the data allow it); a combination of G1a with G1b or G1c is adopted only if
+the combination itself passes. If none passes, the website keeps today's rule.
+
+**Reported, not deciding:** the degree-preserving permutation null of `evaluation/evidence_ci.py` for the adopted
+variant (does curation make the line beat the null, which P38 says it does not today?); the temporal C2 set (I1) with
+the same table; and the pages reviewed on 22-10 (STATUS, next steps 9). Expected now, before running: GenCC covers
+mostly Mendelian and rare diseases, so multiple sclerosis (insulin through type 1 diabetes) and Castleman disease
+(paclitaxel through IL6, JAK1, NOTCH1) will probably not change; for those the roadmap's item 4 (drug-target MR) is
+the better route.
+
+**Display only, independent of the rule** (if the licence allows): on each disease page, the GenCC classification
+next to the genes that have one, with a link to GenCC; a gene without one says nothing.
+
+**Implementation.** `sources/gencc.py` (download, mapping, classification → `data/ext/gencc.parquet`) and
+`evaluation/g1_gencc.py` (the variants, reusing `evaluation.evidence_ci`) → `docs/G1_GENCC.md`; decision in DECISIONS
+P54; if adopted, the same rule in `web/build.py`, the Method page (three languages) and the README.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

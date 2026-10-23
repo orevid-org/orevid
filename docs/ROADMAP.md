@@ -56,6 +56,9 @@ potential; the effort column says what each costs.
 
 ## 1. Curated gene–disease validity (GenCC, ClinGen, PanelApp)
 
+**Registered 23-10-2026 as G1** (`docs/IMPROVEMENT_PLAN.md`, «Registered 23-10-2026»): GenCC only (it already gathers
+ClinGen and PanelApp), variants G1a–G1c and their decision rules. To run on the home PC.
+
 **What.** GenCC aggregates gene–disease validity classifications from ClinGen, Orphanet, PanelApp, Genomics England
 and others, graded definitive / strong / moderate / limited / disputed / refuted. ClinGen gives the curated
 evidence; PanelApp (Genomics England) gives expert-reviewed gene panels per condition.
