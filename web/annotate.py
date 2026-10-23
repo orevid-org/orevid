@@ -14,7 +14,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 DEST = ROOT / "web" / "public" / "data" / "d"
-RELEASED = {"pgx", "prevalence"}  # release checks passed: X1 0/50 wrong, R4b 1/50 (P66, P67); «genetics» after G2 (P62)
+RELEASED = {"pgx", "prevalence", "genetics"}  # release checks passed: X1 0/50, R4b 1/50, G2c 1/50 (P66, P67, P72)
 LISTS = ("candidates", "no_use", "extensions")
 
 
@@ -47,6 +47,11 @@ class Annotations:
         self.pgx = defaultdict(list)
         for r in c.itertuples():
             self.pgx[int(r.drug)].append({"g": r.gene_symbol, "l": r.cpic_level, "u": r.url})
+        # G2c (P72): only lines whose colocalisation is stable in Open Targets 26.09 and rests on a case–control GWAS of
+        # the page's disease (`py -3 -m evaluation.release_checks g2b` writes them; new candidates need that step again)
+        v = ROOT / "data" / "ext" / "genetic_lines_g2c.parquet"
+        self.verified = {(int(r.disease), int(r.drug), r.gene): (r.gwas_study, r.trait)
+                         for r in pd.read_parquet(v).itertuples()} if v.exists() else {}
         p = pd.read_parquet(ROOT / "data" / "ext" / "orphadata_prevalence.parquet")
         self.prev = {int(r.disease): {"c": r.prevalence, "o": r.orpha, "n": r.orpha_name} for r in p.itertuples()}
 
@@ -83,8 +88,13 @@ def main():
                         rows += [{"kind": "genetics", "disease": d, "disease_name": page["name"], "drug": c["node"],
                                   "drug_name": c["name"], "list": lst, **x} for x in gl]
                         rows += [{"kind": "pgx", "drug": c["node"], "drug_name": c["name"], **x} for x in A.pgx.get(c["node"], [])]
-                    if "genetics" in RELEASED and gl:
-                        c["genetics"] = gl
+                    shown = []
+                    for x in gl:
+                        src = A.verified.get((d, int(c["node"]), x["g"]))
+                        if src:
+                            shown.append({k: x[k] for k in ("g", "e", "s", "a", "agree", "q")} | {"st": src[0], "tr": src[1]})
+                    if "genetics" in RELEASED and shown:
+                        c["genetics"] = shown
                     if "pgx" in RELEASED and A.pgx.get(c["node"]):
                         c["pgx"] = A.pgx[c["node"]]
         if not dump and RELEASED:

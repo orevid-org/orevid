@@ -223,7 +223,7 @@ function candidateDetail(c, disease) {
     ${(c.genetics || []).length ? `<h4>${t("h_genetics")}</h4><ul>${c.genetics.map((x) => `<li>${t("gen_line")
       .replace("{g}", `<span class="gen">${esc(x.g)}</span>`).replace("{risk}", t(x.s > 0 ? "gen_higher" : "gen_lower"))
       .replace("{act}", t(x.a < 0 ? "gen_lowers" : "gen_raises"))} → <b>${t(x.agree ? "gen_agrees" : "gen_opposes")}</b>
-      <span class="muted">(${esc(x.q)}, ${ext(`https://platform.opentargets.org/target/${esc(x.e)}`, "Open Targets")})</span></li>`).join("")}</ul>
+      <span class="muted">(${esc(x.q)}; GWAS: ${x.st ? ext(`https://platform.opentargets.org/study/${esc(x.st)}`, esc(x.tr || x.st)) : ""}; ${ext(`https://platform.opentargets.org/target/${esc(x.e)}`, "Open Targets")})</span></li>`).join("")}</ul>
       <p class="muted small">${t("gen_note")}</p>` : ""}
     ${(c.pgx || []).length ? `<h4>${t("h_pgx")}</h4><ul>${c.pgx.map((x) => `<li><span class="gen">${esc(x.g)}</span> · CPIC ${esc(x.l)}${x.u ? " · " + ext(x.u, t("guideline")) : ""}</li>`).join("")}</ul>` : ""}
     <p class="links">${drugLinks(c, disease)}</p>

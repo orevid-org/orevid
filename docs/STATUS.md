@@ -372,7 +372,7 @@ graph whatever its result (P60). Results in DECISIONS P61–P69:
 | X1 CPIC guidelines | 0/50 wrong | **released** (P67); PharmGKB in the internal graph |
 | P2 Perturb-seq knockdown reversal | +0.004 / +0.009, intervals include 0 | not adopted (P69) |
 | **O1** CIViC oncology exam | 47 cancers: Recall@100 0.55 vs popularity 0.21, +0.34 (+0.17 to +0.50) | **claim supported** (P64) |
-| G2 genetic line on the pages | 9/50 lines not supported by the current Open Targets release (26.09; single-study eQTL colocalisations change between releases) | not released (P62) |
+| G2 genetic line on the pages | 9/50 lines not supported by the current Open Targets release (26.09; single-study eQTL colocalisations change between releases) | not released (P62); G2b (stable only) 7/50 wrong traits, not released (P71); **G2c (stable + case–control GWAS of the page's disease) 1/50 wrong: released** (P72), 198 lines |
 | B1 TrustRank (NeDRex method, local) | zero-shot 0.141, areas 0.151, external 0.068 | added to the leaderboard (P70) |
 
 Not obtainable: AACT snapshots and CredibleMeds (accounts), Genebass (requester-pays cloud bucket), porphyria / G6PD /

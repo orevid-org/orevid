@@ -51,7 +51,7 @@ def coloc_rows(ensg, size=10):
     while True:
         q = (f'query {{ target(ensemblId:"{ensg}") {{ credibleSets(page:{{index:{page},size:{size}}}) {{ count rows {{ '
              'studyType isTransQtl study { id } colocalisation(studyTypes:[gwas], page:{index:0,size:200}) { rows { h4 '
-             'betaRatioSignAverage otherStudyLocus { study { id traitFromSource diseases { id } } } } } } } } }')
+             'betaRatioSignAverage otherStudyLocus { study { id traitFromSource nCases diseases { id } } } } } } } } }')
         cs = ot(q)["target"]["credibleSets"]
         rows += cs["rows"]
         page += 1
@@ -117,8 +117,9 @@ def g2b():
             for c in cs["colocalisation"]["rows"]:
                 st = c["otherStudyLocus"]["study"]
                 if {d["id"] for d in st["diseases"]} & ids_ and c["h4"] is not None and c["h4"] >= 0.8:
+                    dis = {d["id"] for d in st["diseases"]}
                     h = {"qtl_study": cs["study"]["id"], "gwas_study": st["id"], "trait": st["traitFromSource"],
-                         "h4": round(c["h4"], 3)}
+                         "h4": round(c["h4"], 3), "cases": st.get("nCases") or 0, "only_page_disease": dis <= ids_}
                     if c["betaRatioSignAverage"] == r.s:
                         same.append(h)
                     elif c["betaRatioSignAverage"] == -r.s:
@@ -132,7 +133,22 @@ def g2b():
           f"{sum(not x['support'] for x in out)} without support in 26.09")
     import random
     random.Random(71).shuffle(ok)
-    (OUT / "g2b_sample.json").write_text(json.dumps(ok[:N], ensure_ascii=False, indent=1), "utf-8")
+    if not (OUT / "g2b_sample.json").exists():
+        (OUT / "g2b_sample.json").write_text(json.dumps(ok[:N], ensure_ascii=False, indent=1), "utf-8")
+    # G2c (P72): a stable line with a case–control supporting GWAS whose diseases are all the page's disease
+    for x in out:
+        x["g2c"] = x["stable"] and any(h["cases"] > 0 and h["only_page_disease"] for h in x["support"])
+    (OUT / "g2b_lines.jsonl").write_text("\n".join(json.dumps(x, ensure_ascii=False) for x in out) + "\n", "utf-8")
+    okc = [x for x in out if x["g2c"]]
+    rows = []
+    for x in okc:  # the lines web/annotate.py may show, with their best supporting study
+        best = max((h for h in x["support"] if h["cases"] > 0 and h["only_page_disease"]), key=lambda h: h["h4"])
+        rows.append({"disease": x["disease_id"], "drug": x["drug_id"], "gene": x["gene"], "gwas_study": best["gwas_study"],
+                     "trait": best["trait"], "h4": best["h4"]})
+    pd.DataFrame(rows).to_parquet(ROOT / "data" / "ext" / "genetic_lines_g2c.parquet", index=False)
+    random.Random(72).shuffle(okc)
+    (OUT / "g2c_sample.json").write_text(json.dumps(okc[:N], ensure_ascii=False, indent=1), "utf-8")
+    print(f"G2c: {len(okc)} lines kept")
     return out
 
 
