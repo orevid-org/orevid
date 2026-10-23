@@ -155,6 +155,10 @@ subset and the temporal set; report coverage first.
 **Limits.** Assay heterogeneity; potency thresholds fixed before running. ChEMBL is CC BY-SA 3.0: check what derived
 fields may be published.
 
+**State 23-10-2026:** registered and run as P1 (P59, `docs/P1_OFFTARGETS.md`): ChEMBL + GtoPdb give 14,722 drug–gene
+pairs; standalone on no-prior-use positives 0.042 vs random 0.013 with an interval including 0, so the gate failed and
+the model test was not run. Repurposing Hub not used (licence).
+
 ## 6. Trial outcomes (AACT results, CTIS / EudraCT)
 
 **What.** OREVID counts trials per pair; it does not know whether they worked. ClinicalTrials.gov results (AACT:
