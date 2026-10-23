@@ -344,12 +344,13 @@ All items registered before running; results in DECISIONS P54–P56.
 | **N4 v2** drug status by parts, checked by opening DailyMed / EMA pages (URL and quote kept) | (a) negated pairs 31/61 wrong; (b) current status 3/50, then **0/50** after the DailyMed fix; (c) label-confirmed Open Targets approvals 4/50, then 4 + 1 unsure /50 | **(b) released** (P55): pages show «no US product · EU: withdrawn / revoked …» (olaratumab, daclizumab…); (a) and (c) not; 25 negations verified one by one kept in `resources/n4_verified_negations.csv`, **shown only if the author agrees** |
 | **D1** drugs that may worsen a disease (OnSIDES v3.1.1 + the P15 rule) | S1 (P15) beats «contraindicated somewhere» (+2.1, CI +1.6 to +2.5) but flags ~190 drugs per disease and fails the label check (first 3 of 50 wrong); OnSIDES adverse events do worse than the baseline (−4.2) | **not released** (P56) |
 | **R3** infections (roadmap 8): MONDO pathogen classes + ChEMBL ATC codes | 832 website diseases with one class, 392 anti-infectives; removes 10 / 0 / 23 shown candidates (benchmark / areas / external) and **one approved pair** (sulfanilamide, vulvovaginal candidiasis) | rejected (P57) |
+| **M1** direction from QTL colocalisation (roadmap 4) | pQTL: ratio 5.97 but 21 positives (30 needed); eQTL (reported): 4.5× more indications when the drug's action agrees with genetics (2.0–11.7, 106 positives) | not validated (P58); prospective confirmation registered as M1b |
 | **P1** measured off-targets (roadmap 5): ChEMBL 37 + GtoPdb, 14,722 drug–gene pairs | standalone on no-prior-use positives 0.042 vs random 0.013, +0.029 (−0.009 to +0.081), 47 diseases | gate failed, not adopted (P59) |
 | Preprint v3 text | R1b, recomputed hit rates and null, N1, N2, G1, N4; refs DrugMechDB, GenCC, Guney (Claude Doc rev. 137) | exported to `docs/preprint/` (A4 draft); **the author regenerates figure 4** with `evaluation/figures.py`, then the final Word with line numbers, Preprints.org v3, PCI |
 
 **Two graphs (P60, author's request):** `layers.py` keeps every source, also the ones not adopted, as a layer of an
-internal graph (`data/graph/internal/`, 61 layers) and exports the redistributable ones as a publishable graph
-(`data/graph/public/`, 53 layers, not published); `docs/GRAPH_LAYERS.md` lists source, licence, status and decision of each.
+internal graph (`data/graph/internal/`, 62 layers) and exports the redistributable ones as a publishable graph
+(`data/graph/public/`, 54 layers, not published); `docs/GRAPH_LAYERS.md` lists source, licence, status and decision of each.
 The model's relations are frozen by a test. Website rebuilt in full with N4 part b and deployed (orevid commit `6f154ed`). **Roadmap 3 (open leaderboard)**: submission route ready, not
 announced (`benchmark/SUBMITTING.md`, `bench.py validate`, `benchmark/submission_check.py`, workflow
 `bench-submission`; `docs/ROADMAP.md` §3); announcing it on Hugging Face and in the preprint is the author's decision.
@@ -397,7 +398,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      griseofulvin) and c (Open Targets approvals a label confirms) failed their checks against the source pages and stay
      off: a third version would need a person or a better sentence parser. Pending author decision: show the 25
      verified negations (`resources/n4_verified_negations.csv`) as a curated list.
-   - **N3 Bioteque**: when the IRB websites are back (terms from Patrick Aloy in the plan).
+   - **N3 Bioteque**: when the IRB websites are back (terms from Patrick Aloy in the plan). 23-10, 20:30: the name resolves
+     (84.88.74.135) but the server does not answer from the home PC (http, https, IP); `www.irbbarcelona.org` does.
    - **A rule for the shared-genes outliers** that R1b does not remove (insulin for MS through 36 ordinary genes
      shared with type 1 diabetes; paclitaxel for Castleman through IL6, JAK1, NOTCH1); R1a failed.
    - NeDRex as a benchmark baseline: comparable but not run (≥ 1,300 remote jobs).
@@ -407,7 +409,7 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      bioactivities, IUPHAR, Repurposing Hub). Each one is registered in `docs/IMPROVEMENT_PLAN.md` before running.
      **Done on 23-10:** item 1 (G1, GenCC) not adopted (P54); item 2 (D1, «may worsen») not released (P56); item 3
      (leaderboard) submission route ready, to announce; item 8 (R3, infections) rejected (P57); item 5 (P1, off-targets) gate failed (P59);
-     item 4 registered as M1 (pQTL colocalisation direction), running. The curated drugs-to-avoid lists (porphyria,
+     item 4 run as M1, not validated but eQTL promising (P58), confirmation M1b registered (next Open Targets release). The curated drugs-to-avoid lists (porphyria,
      Brugada, long QT, G6PD, myasthenia) were left out of D1 and still need their licences checked.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null

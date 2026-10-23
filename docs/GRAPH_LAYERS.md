@@ -19,6 +19,7 @@ Nodes: 161,859 (157,822 core, 4,033 ATC class, 4 pathogen class).
 | drugmechdb | curated_mechanism|mechanism_path | DrugMechDB (indication_paths.json) | CC0 1.0 | yes | 13,989 | evaluation only: shared genes overlap curated mechanisms (P50) |
 | lincs | expression_signature | LINCS L1000 consensus signatures (Enrichr library) (Enrichr download) | LINCS / Enrichr terms | check | 1,182,496 | tested, negative (P45) |
 | creeds | expression_signature | CREEDS disease signatures from GEO (Enrichr library) (Enrichr download) | CREEDS / Enrichr terms | check | 279,822 | tested, negative (P45) |
+| qtl_coloc | qtl_colocalisation | Open Targets colocalisation (26.06 (h4 ≥ 0.8, cis, consistent sign)) | CC0 1.0 | yes | 224,640 | M1: not validated on pQTL, eQTL promising (P58); confirmation M1b registered |
 | label_fda | current_label | openFDA / DailyMed (openFDA labels 22-10-2026) | Public domain (US government) | yes | 19,094 | N4: status part shown (P55); pair labels not released |
 | label_ema | current_label | EMA product information (EMA medicines table 22-10-2026) | EMA reuse with acknowledgement | check | 509 | N4: not released (P55) |
 | verified_negations | label_negation_verified | OREVID check of DailyMed / EMA (resources/n4_verified_negations.csv) | quotes from DailyMed / EMA | check | 24 | curated list, shown only if the author agrees (P55) |

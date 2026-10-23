@@ -583,6 +583,21 @@ only derived features are published. Implementation: `sources/offtargets.py`, `e
 
 ---
 
+## Registered 23-10-2026, after M1 and before any new data: M1b (prospective confirmation of the genetic direction)
+
+M1 (P58) did not validate the pQTL direction (21 positives, 30 required); the eQTL and pQTL + eQTL ratios (4.5 and
+5.1, intervals above 1) were reported, not deciding, and were seen before this registration, so they need data the
+analysis has not seen. **Test:** exactly the M1 code and filters (`evaluation/m1_direction.py`, colocalisations of
+Open Targets 26.06, unchanged), with positives replaced by the drug–disease approvals that are confirmed (by
+`sources/ot_approvals.py`) in a later Open Targets release (26.09 is skipped: its multiple sclerosis merge, see
+README) and absent from both PrimeKG and Open Targets 26.06. Primary: pQTL + eQTL; ratio agree ÷ oppose with the
+95 % interval resampling diseases. **Validated** if the lower bound is > 1 with at least 15 new positives among the
+directed pairs; if there are fewer, the test waits for the next release (positives accumulate, nothing else
+changes). Then, and only then, a display line («human genetics agrees with the direction of this drug») is
+registered with its own release check.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
