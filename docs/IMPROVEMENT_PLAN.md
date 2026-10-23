@@ -757,6 +757,22 @@ and the leaderboard as a baseline; no decision depends on it. Implementation: `b
 
 ---
 
+## Registered 24-10-2026, after G2 and before any new query: G2b (only lines stable between Open Targets releases)
+
+G2 failed (P62): 9 of 50 lines were not supported by Open Targets 26.09, all single-study eQTL colocalisations. **G2b
+shows a genetic line only if it is stable:** besides OREVID's 26.06 data, release 26.09 (the API) has a colocalisation
+(h4 ≥ 0.8) of a cis QTL of the same type (pQTL or eQTL) of the gene with a GWAS mapped to the disease, with the stated
+direction, and **no** such colocalisation with the opposite direction. Every one of the website's genetic lines is
+queried once; the supporting 26.09 GWAS study is kept and linked on the card.
+
+**Release check, fixed now.** Since the stability filter uses the same API, the check looks at what the filter does
+not: 50 random lines that pass it, each read by a person (the assistant, answers kept) for (1) the supporting GWAS
+study's reported trait is the page's disease or a form of it (not another disease or a measurement), (2) the QTL is of
+the stated gene, (3) the drug's mechanism on that gene is of the stated kind (Open Targets / ChEMBL). Released only
+if ≤ 2 of 50 are wrong. Implementation: `evaluation/release_checks.py` (`g2b`), `web/annotate.py`; DECISIONS P71.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
