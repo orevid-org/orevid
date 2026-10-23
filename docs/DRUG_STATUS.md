@@ -228,3 +228,19 @@ in the session record).
 
 Next: (b) only claim «no US product» when DailyMed's own search returns nothing; (c) the three fixes; then a new check
 of 50 new random rows each, against the source pages, before release.
+
+### Second check after the fixes (23-10-2026, new random samples, source pages opened)
+
+| Part | Checked | Wrong | Decision |
+|---|---|---|---|
+| (b) current status | 50 (seed 13; 417 drugs after the DailyMed test removed 101 «no US product» claims) | **0** (50 correct) | **released** |
+| (c) label-confirmed Open Targets approvals | 50 (seed 14; 512 pairs) | **4 + 1 unsure** (8–10 %) | not released |
+
+- **(b)** All 50 right. The checker noted that an EU status belongs to one product (DepoCyte withdrawn while cytarabine is
+  marketed; Intrinsa withdrawn while testosterone is marketed; one refused sumatriptan generic): the website shows the
+  EU tag only when the drug has no current US label either (`web/build.py` `label_tables`), so these three get none.
+- **(c)** New kinds of error: the disease named as a qualifier of another indication (fedratinib — «post-polycythemia
+  vera myelofibrosis»), a complication taken for the disease (ibandronate — tumour-induced hypercalcaemia for
+  «cancer»), a too loose broader term (benzylpenicillin — «infections» for eye infections), and a mention outside the
+  indication (amitriptyline — anxiety). Two failed checks in a row: part (c) is not pursued with patterns; reading the
+  indication sentence needs a different method.

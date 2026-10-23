@@ -537,7 +537,7 @@ class DiseasePages:
 # N4 (P53, P55): parts released one by one, each after its own check against the source pages (docs/DRUG_STATUS.md):
 # "a" negated pairs, "b" current US / EU status of drugs no longer on the market, "c" «unconfirmed» Open Targets
 # approvals that a current label confirms. The full «not found in a current label» flag is not released.
-N4_PARTS = set()
+N4_PARTS = {"b"}  # (b) passed its second check (0 of 50 wrong, P55); (a) and (c) did not
 
 
 def label_tables():
@@ -553,11 +553,13 @@ def label_tables():
     now = {}
     if "b" in N4_PARTS:
         st = pd.read_parquet(st_f)
-        for f, us, eu, year in zip(st.node, st.us_status, st.eu_status, st.eu_year):
+        for f, us, eu, year, nfda in zip(st.node, st.us_status, st.eu_status, st.eu_year, st.fda_labels):
             v = {}
             if us == "discontinued":
                 v["us"] = "discontinued"
-            if eu in ("withdrawn", "refused", "revoked", "suspended", "expired", "lapsed"):  # not «application withdrawn»
+            # EU statuses are per product (Intrinsa withdrawn, testosterone marketed): shown only when the drug has
+            # no current US label either (P55, check of part b)
+            if eu in ("withdrawn", "refused", "revoked", "suspended", "expired", "lapsed") and (us == "discontinued" or nfda == 0):
                 v["eu"] = eu + (f" {year}" if year else "")
             if v:
                 now[int(f)] = v
