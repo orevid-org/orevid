@@ -74,6 +74,9 @@ METAPATHS = {
     "failed similar": ("similar", NEGATIVE, GENES_ALL, "trials stopped in diseases that share genes"),
     # Direction: the drug does to the gene what the disease needs (✓) or the opposite (✗).
     # 2nd element: drug effects (see EFFECTS); 3rd: what the disease needs (sources/direction.py).
+    # QTL colocalisation direction (M1, P58; in the model by the author's decision, P61): targets the drug moves the
+    # way human genetics asks minus those it moves the other way; 0 without a directed target
+    "qtl direction": ("qtl_direction", None, None, "moves its targets in the direction human genetics (QTL colocalisation) asks"),
     "dir genetics ✓": ("agrees", "all", "dir_genetic", "activates/inhibits the gene as genetics asks"),
     "dir genetics ✗": ("contradicts", "all", "dir_genetic", "does to the gene the opposite of what genetics asks"),
     "dir all ✓": ("agrees", "all", DIR_ALL, "does to the gene what genetics, mouse or expression ask"),
@@ -109,6 +112,17 @@ WEIGHT_DIRECTION = {"dir_genetic": 0.4}
 # if none says so, 43 %. See the README.
 WEIGHT_CAUSE = 2.0
 MIN_ARTICLES_CAUSE = 6
+
+
+_QTL = []
+
+
+def qtl_direction():
+    """The genetic direction of evaluation/m2_direction_feature.py, built once (data/ext/coloc_qtl.parquet)."""
+    if not _QTL:
+        from evaluation.m2_direction_feature import GeneticDirection
+        _QTL.append(GeneticDirection())
+    return _QTL[0]
 
 
 class Graph:
@@ -267,6 +281,11 @@ class Graph:
                 if strict:
                     continue
                 m = self.W(rel) @ self.W(ONTOLOGY)[:, diseases]
+            elif kind == "qtl_direction":
+                # no drug–disease edge: the same in every graph; 0 when no directed target (the logistic model needs
+                # finite values; M2 tested NaN with LightGBM only)
+                res[name] = np.nan_to_num(qtl_direction().column(f, diseases), nan=0.0)
+                continue
             res[name] = np.asarray(m[f].todense())
         return res
 

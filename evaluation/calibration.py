@@ -50,7 +50,7 @@ def scores(y, p):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     from evaluation.temporal import pairs
-    load = lambda C: dict(np.load(ROOT / "data" / "eval" / f"temporal_C{C}_extra_no_ctd.npz", allow_pickle=True))
+    load = lambda C: dict(np.load(ROOT / "data" / "eval" / f"temporal_C{C}_extra_qtl.npz", allow_pickle=True))
     tr, te = pairs(load(2012)), pairs(load(2015))
     full, model, cols = fit(tr, FEATURES)
     sect, _, _ = fit(tr, ["section"])

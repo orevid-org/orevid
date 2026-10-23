@@ -34,7 +34,7 @@ $PY -m evaluation.direction train
 step "evaluations"
 bash evaluation/rebuild_all.sh
 $PY -m evaluation.evidence > data/eval/log_evidence.txt
-$PY -m evaluation.temporal run 2012 extra_no_ctd && $PY -m evaluation.temporal run 2015 extra_no_ctd
+$PY -m evaluation.temporal run 2012 extra_qtl && $PY -m evaluation.temporal run 2015 extra_qtl
 $PY -m evaluation.temporal run 2012 extra_no_ot && $PY -m evaluation.temporal run 2015 extra_no_ot
 $PY -m evaluation.temporal report
 $PY -m evaluation.calibration

@@ -1,4 +1,4 @@
-"""Exports the evaluation scores (data/eval/scores/*_extra_no_ctd_r5_rank.npz) to the OREVID-bench
+"""Exports the evaluation scores (data/eval/scores/*_<PRODUCTION>_r5_rank.npz) to the OREVID-bench
 format (benchmark/predictions/<model>/<task>.parquet: disease, drug, score).
 
     py -3 -m evaluation.export_bench

@@ -644,6 +644,49 @@ only if ≤ 2 of 50 are wrong**; the queries and answers are kept. Implementatio
 
 ---
 
+## Registered 23-10-2026, evening, before any download: O1, O2, P1b, R4, X1 (roadmap items 9, 5, 12, 13)
+
+Written on the home PC before the data are downloaded (only file listings and licence pages were read). Every
+source also enters the internal graph as a layer (`layers.py`, P60) whatever its result. Following the author's view
+(M1, P58), no minimum counts are set: a test passes on its interval alone, and the counts are reported beside it.
+
+**O1. CIViC (CC0), oncology exam.** CIViC clinical evidence items, status accepted, type *Predictive*, significance
+sensitivity / response, levels A–B (validated or clinical), single-drug therapies only; drugs → graph by name and
+synonyms (`sources/practical.py` moieties), diseases by DOID → MONDO (SSSOM, exact) → graph node. Positives: those
+drug–cancer pairs that are neither PrimeKG indications nor confirmed Open Targets approvals. For each such cancer,
+the production model's ranking (full graph, `predictor.py`) of all approved drugs minus the known indications,
+against popularity (number of indications). **Claim** («OREVID ranks CIViC-supported uses above popularity») if the
+paired Recall@100 difference, resampling diseases, has a 95 % interval above 0. Reported: the subset without any Open
+Targets clinical record for the pair.
+
+**O2. PRISM Repurposing 19Q4 (CC BY 4.0), drug sensitivity by cancer lineage.** Secondary screen dose–response
+(AUC; lower = more sensitive), per drug and cell-line lineage the median AUC; drugs → graph by name / Broad id
+synonyms. Lineage → graph cancers: a table written from the cell-line metadata before any AUC is read
+(`resources/prism_lineages.csv`). Test: for each lineage, among the screened drugs, do the drugs approved for a cancer
+of that lineage (PrimeKG or confirmed Open Targets) have a lower median AUC than the other screened drugs? AUROC per
+lineage, mean over lineages against 0.5 with a 95 % interval resampling lineages. **Passes** if the interval is above
+0.5; then (only then) a feature test is registered.
+
+**P1b. Measured and annotated targets again, with the temporal set (the deviation of P1).** The P1 gate on the
+benchmark and, as the roadmap asked, on the temporal 2015 no-prior-use positives, with the targets of ChEMBL +
+GtoPdb + the **Broad Drug Repurposing Hub** (CC BY 4.0, research use; its `target` annotations). **Passes** if the
+difference with random has a 95 % interval above 0 on either set; then the P1 model test (b) is run.
+
+**R4. Orphadata prevalence (CC BY 4.0), display.** Point prevalence class per ORPHA code (product 9), ORPHA → MONDO
+(SSSOM exact) → graph node; shown on rare-disease pages as information («prevalence: < 1 / 1,000,000, Orphanet»).
+Release check: 50 random shown values against orpha.net, ≤ 2 wrong.
+
+**X1. CPIC (CC0), display.** CPIC gene–drug pairs with a guideline (levels A and B); shown on candidates as «a
+pharmacogenomic guideline exists for this drug (CPIC: gene)». Release check: 50 random shown pairs against
+cpicpgx.org, ≤ 2 wrong. PharmGKB (CC BY-SA 4.0) when its download service answers.
+
+Not obtainable openly (recorded, not downloaded): CredibleMeds (long QT; needs an account), the porphyria drug
+databases and the G6PD / myasthenia lists (no open licence). Implementation: `sources/civic.py`, `sources/prism.py`,
+`sources/repurposing_hub.py`, `sources/orphadata.py`, `sources/cpic.py`, evaluations `evaluation/o1_civic.py`,
+`evaluation/o2_prism.py`, `evaluation/p1_offtargets.py` (P1b); DECISIONS P63–P67.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

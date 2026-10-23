@@ -1,4 +1,5 @@
-# Relations read by the production ranking model (layers.model_relations()). Change only with a registered test.
+# Relations read by the production ranking model (layers.model_relations()). Change only with a registered test or a recorded author decision.
+# layer:qtl_coloc = column «qtl direction», added 23-10-2026 (P61).
 bioprocess_protein
 contraindication
 disease_disease
@@ -9,6 +10,7 @@ drug_effect
 drug_protein
 drug_protein:target
 indication
+layer:qtl_coloc
 moa
 off-label use
 ot_assoc:animal_model

@@ -54,6 +54,9 @@ def model_relations():
 
     def resolve(name):
         kind, a, b, *rest = tx.METAPATHS[name]
+        if kind == "qtl_direction":  # reads a layer of the internal graph, not data/prep (P61)
+            out.add("layer:qtl_coloc")
+            return
         add(a)
         add(b)
         if rest[1:]:
@@ -303,7 +306,7 @@ LAYERS = [
     Layer("creeds", "expression_signature", "CREEDS disease signatures from GEO (Enrichr library)", "Enrichr download",
           "CREEDS / Enrichr terms", "check", "tested, negative (P45)", load_creeds),
     Layer("qtl_coloc", "qtl_colocalisation", "Open Targets colocalisation", "26.06 (h4 ≥ 0.8, cis, consistent sign)",
-          "CC0 1.0", "yes", "M1: not validated on pQTL, eQTL promising (P58); confirmation M1b registered", load_coloc),
+          "CC0 1.0", "yes", "used by the ranking model, column «qtl direction» (author's decision, P61)", load_coloc),
     Layer("label_fda", "current_label", "openFDA / DailyMed", "openFDA labels 22-10-2026", "Public domain (US government)",
           "yes", "N4: status part shown (P55); pair labels not released", load_labels(False)),
     Layer("label_ema", "current_label", "EMA product information", "EMA medicines table 22-10-2026",

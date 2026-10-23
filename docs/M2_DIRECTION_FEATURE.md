@@ -18,3 +18,7 @@ noise: +0.004 (0.000 to +0.009) on the benchmark, +0.005 (−0.007 to +0.022) on
 stays as it is. This measures whether the column helps the ranking on these tests, not whether the genetic
 direction is informative: M1 showed it is (pQTL + eQTL, 5.1 times more indications among agreeing pairs). The next
 step registered is to show it as information on the pages, not as a score.
+
+**Author's decision (23-10-2026, after this result): adopted.** The column does not harm the ranking and helps a little where it applies, so it enters the production model (feature set `extra_qtl`); every evaluation and the website are rebuilt with it. Sanity check made at once: lovastatin «agrees» with genetics for type 2 diabetes because one eQTL colocalisation of HMGCR (2 colocalisations, one study) gives higher expression with higher risk, the opposite of the statin MR literature; single-study directions are noisy, which the G2 release check must take into account.
+
+Implementation note (23-10): in production the column is 0, not missing, when the drug has no directed target, because the evaluation pipeline also fits a logistic model that needs finite values; M2 tested the missing-value version with LightGBM. The rebuilt evaluations measure the version in production.

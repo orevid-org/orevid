@@ -5,9 +5,9 @@ set -e
 export PY="${PY:-python}"  # e.g. PY="py -3" on Windows
 cd "$(dirname "$0")/.."
 echo "== zero-shot (5 seeds) $(date +%T)"
-$PY -m evaluation.txgnn --paths extra_no_ctd --rounds 5 --rank > data/eval/log_rebuild_complex.txt
+$PY -m evaluation.txgnn --paths extra_qtl --rounds 5 --rank > data/eval/log_rebuild_complex.txt
 echo "== areas $(date +%T)"
-$PY -m evaluation.txgnn --split areas --seeds 1 --paths extra_no_ctd --rounds 5 --rank > data/eval/log_rebuild_areas.txt
+$PY -m evaluation.txgnn --split areas --seeds 1 --paths extra_qtl --rounds 5 --rank > data/eval/log_rebuild_areas.txt
 echo "== external exam $(date +%T)"
 $PY -m evaluation.external_exam evaluate > data/eval/log_rebuild_external.txt
 echo "== OREVID-bench $(date +%T)"
