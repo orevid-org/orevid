@@ -623,6 +623,27 @@ shown pairs against the Open Targets pages. Implementation: `evaluation/m2_direc
 
 ---
 
+## Registered 23-10-2026, before any change to the website: G2 (genetic direction shown as information)
+
+M1 (with the author's decision, P58) found that drugs used for a disease agree with the QTL colocalisation direction
+5.1 times more often than they oppose it; M2 (P61) found too little coverage on the benchmark to change the ranking.
+G2 shows the direction as **information**, never as a score and without changing the order.
+
+**What is shown.** On a disease page, for a listed candidate whose target has a cis-QTL colocalising with a GWAS of
+that disease (M1's data and filters, pQTL + eQTL, twins included): one line per target, «Human genetics: higher
+*GENE* goes with higher / lower risk; this drug lowers / raises it → agrees / disagrees», the QTL type, and a link to
+the Open Targets target–disease page. With the reading of M1 on the Method page (5.1 times; based on known uses;
+association, not proof). Coverage reported before release (pages and candidates with a line).
+
+**Release check, fixed now.** 50 random shown lines, checked against Open Targets (its GraphQL API, the data behind
+the platform pages, release 26.06): (1) a GWAS credible set of a study mapped to the disease colocalises (h4 ≥ 0.8)
+with a cis QTL of the gene, with the stated direction (`betaRatioSignAverage`); (2) the drug's mechanism on that gene
+in Open Targets / ChEMBL is of the stated kind (lowers or raises). A line is wrong if (1) or (2) fails. **Released
+only if ≤ 2 of 50 are wrong**; the queries and answers are kept. Implementation: `web/build.py` (`genetics` field),
+`web/public/app.js`, `evaluation/g2_check.py` → `docs/G2_GENETIC_DIRECTION.md`; DECISIONS P62.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
