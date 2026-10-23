@@ -534,29 +534,33 @@ class DiseasePages:
         return ms[:4] + ([f"+{len(ms) - 4}"] if len(ms) > 4 else [])
 
 
-# N4 failed its release check on 23-10-2026 (23 of 100 checked pairs wrong; gate ≤ 5 %, docs/DRUG_STATUS.md, P53):
-# the label checks and current-status tags stay off the website until a second version passes its own check.
-N4_RELEASED = False
+# N4 (P53, P55): parts released one by one, each after its own check against the source pages (docs/DRUG_STATUS.md):
+# "a" negated pairs, "b" current US / EU status of drugs no longer on the market, "c" «unconfirmed» Open Targets
+# approvals that a current label confirms. The full «not found in a current label» flag is not released.
+N4_PARTS = set()
 
 
 def label_tables():
     """N4 (sources/drug_status.py): per (drug, disease) the current-label category, per drug its current US / EU
-    status when it is not on the market (display only; checks in docs/DRUG_STATUS.md)."""
+    status when it is not on the market; only the released parts (display only)."""
     pl_f, st_f = ROOT / "data" / "ext" / "pair_label.parquet", ROOT / "data" / "ext" / "drug_status.parquet"
-    if not N4_RELEASED or not pl_f.exists() or not st_f.exists():
+    if not N4_PARTS or not pl_f.exists() or not st_f.exists():
         return {}, {}
     pl = pd.read_parquet(pl_f)
-    check = {(int(f), int(d)): (c, w) for f, d, c, w in zip(pl.drug, pl.disease, pl.label, pl["where"])}
-    st = pd.read_parquet(st_f)
+    keep = (("a" in N4_PARTS) & (pl.label == "negated")) | (("c" in N4_PARTS) & (pl.label == "confirmed"))
+    pl = pl[keep]
+    check = {(int(f), int(d)): (c, w.split(" | ")[0]) for f, d, c, w in zip(pl.drug, pl.disease, pl.label, pl["where"])}
     now = {}
-    for f, us, eu, year in zip(st.node, st.us_status, st.eu_status, st.eu_year):
-        v = {}
-        if us == "discontinued":
-            v["us"] = "discontinued"
-        if eu in ("withdrawn", "refused", "revoked", "suspended", "expired", "lapsed"):  # not «application withdrawn»
-            v["eu"] = eu + (f" {year}" if year else "")
-        if v:
-            now[int(f)] = v
+    if "b" in N4_PARTS:
+        st = pd.read_parquet(st_f)
+        for f, us, eu, year in zip(st.node, st.us_status, st.eu_status, st.eu_year):
+            v = {}
+            if us == "discontinued":
+                v["us"] = "discontinued"
+            if eu in ("withdrawn", "refused", "revoked", "suspended", "expired", "lapsed"):  # not «application withdrawn»
+                v["eu"] = eu + (f" {year}" if year else "")
+            if v:
+                now[int(f)] = v
     return check, now
 
 

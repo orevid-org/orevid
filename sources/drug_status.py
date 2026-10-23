@@ -26,7 +26,7 @@ FDA = ROOT / "data" / "raw" / "openfda"
 PRACT = ROOT / "data" / "raw" / "practical"
 # Negation tied to efficacy or use only («patients who do not respond to…» is an ordinary indication)
 NEG = re.compile(r"\b(not|no)\b[^.;]{0,40}\b(effective|efficacy|indicated|established|shown|demonstrated|recommended|"
-                 r"approved|active against|be used|intended)\b|\bineffective\b", re.I)
+                 r"approved|active against|be used|intended|evaluated)\b|\bineffective\b", re.I)
 SENT = re.compile(r"(?<=[.;])\s+|\n+|•")  # not at «:» (a negation often introduces a list)
 
 
@@ -54,7 +54,7 @@ def moiety(n):
 def fda_labels():
     """moiety -> list of (text, is_combination, title, effective_time) of current FDA labels. The 14 openFDA files are
     read as a stream (ijson) and the needed fields cached in data/ext/fda_labels.parquet."""
-    cache = ROOT / "data" / "ext" / "fda_labels.parquet"
+    cache = ROOT / "data" / "ext" / "fda_labels_v2.parquet"  # v2: with the SPL set id
     if not cache.exists():
         import ijson
         rows = []
@@ -69,18 +69,18 @@ def fda_labels():
                     gens = list(o.get("generic_name") or [])
                     rows.append({"substances": "|".join(subs), "generic": "|".join(gens),
                                  "title": (o.get("brand_name") or [""])[0], "time": r.get("effective_time", ""),
-                                 "text": text[:6000]})
+                                 "set_id": r.get("set_id", ""), "text": text[:6000]})
             print(f"  {z.name}: {len(rows):,} labels with indications so far", flush=True)
         pd.DataFrame(rows).to_parquet(cache, index=False)
     df = pd.read_parquet(cache)
     out = defaultdict(list)
-    for subs, gens, title, tm, text in zip(df.substances, df.generic, df.title, df.time, df.text):
+    for subs, gens, title, sid, text in zip(df.substances, df.generic, df.title, df.set_id, df.text):
         sl = [x for x in subs.split("|") if x]
         gl = [x for x in gens.split("|") if x]
         names = {moiety(x) for x in sl + gl} - {""}
         combo = len(sl) > 1 or any(re.search(r"\band\b|,|/", x, re.I) for x in gl)
         for n in names:
-            out[n].append((text, combo, title, tm))
+            out[n].append((text, combo, title, f"https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid={sid}"))
     return out
 
 
@@ -95,13 +95,14 @@ def ema_table():
 def ema_labels(t):
     out = defaultdict(list)
     inn = "International non-proprietary name (INN) / common name"
-    for name, ind, status, med in zip(t[inn], t["Therapeutic indication"], t["Medicine status"], t["Name of medicine"]):
+    for name, ind, status, med, url in zip(t[inn], t["Therapeutic indication"], t["Medicine status"], t["Name of medicine"],
+                                           t["Medicine URL"]):
         if not isinstance(name, str) or not isinstance(ind, str) or not str(status).lower().startswith("authorised"):
             continue
         parts = [p for p in re.split(r"\s*(?:/|,|\band\b)\s*", name) if p.strip()]
         combo = len(parts) > 1
         for p in parts:
-            out[moiety(p)].append((ind, combo, med, "EMA"))
+            out[moiety(p)].append((ind, combo, med, f"EMA {url}"))
     return out
 
 
@@ -172,20 +173,51 @@ def disease_names(g):
     return {k: {s for s in v if len(s) >= 4} for k, v in names.items()}
 
 
-def find(text, names):
-    """(found, negated): the disease named in a sentence of `text`; negated if every such sentence is negated."""
+CUE = re.compile(r"\b(indicated|indication|treatment|treat|management|prevention|prevent|prophylaxis|relief|relieve|"
+                 r"reduce the risk|therapy|adjunct|control of)\b", re.I)
+QUAL = re.compile(r"\btype\s*(1|2|i|ii)\b", re.I)
+
+
+def _pat(s):
+    return r"(?<![a-z])" + re.escape(s) + r"(?:s|es)?(?![a-z])"
+
+
+def _qualifier_ok(sentence, names):
+    """A disease named with a type (type 1 diabetes) is not confirmed by a sentence about the other type only."""
+    want = {m.group(1).lower().replace("ii", "2").replace("i", "1") for n in names for m in QUAL.finditer(n)}
+    if not want:
+        return True
+    got = {m.group(1).lower().replace("ii", "2").replace("i", "1") for m in QUAL.finditer(sentence)}
+    return not got or bool(want & got)
+
+
+def find(text, names, broader=False):
+    """(found, negated, confirming sentence): the disease named in `text`; negated if every sentence naming it is
+    negated; confirmed only by a sentence where it follows an indication cue («indicated for», «treatment of»…) within
+    120 characters. A broader term preceded by «forms of» («relapsing forms of multiple sclerosis») does not confirm."""
     low = text.lower()
-    hits = [s for s in names if re.search(r"(?<![a-z])" + re.escape(s) + r"(?![a-z])", low)]
+    hits = [s for s in names if re.search(_pat(s), low)]
     if not hits:
-        return False, False
-    neg_all = True
+        return False, False, ""
+    neg_all, seen = True, False
     for sent in SENT.split(text):
         sl = sent.lower()
-        if any(re.search(r"(?<![a-z])" + re.escape(s) + r"(?![a-z])", sl) for s in hits):
-            if not NEG.search(sent):
-                neg_all = False
-                break
-    return True, neg_all
+        spans = [(m.start(), s) for s in hits for m in re.finditer(_pat(s), sl)]
+        if broader:
+            spans = [(i, s) for i, s in spans if "forms of" not in sl[max(0, i - 12):i]]
+        if not spans:
+            continue
+        seen = True
+        if NEG.search(sent):
+            continue
+        neg_all = False
+        cues = [m.end() for m in CUE.finditer(sent)]
+        close = [s for i, s in spans if any(0 <= i - c <= 120 for c in cues)]
+        if close and _qualifier_ok(sent, close):
+            return True, False, sent.strip()[:300]
+    if not seen:
+        return False, False, ""
+    return True, neg_all, ""
 
 
 def classify(drug_keys, dnames, fda, ema, broader=None):
@@ -193,13 +225,13 @@ def classify(drug_keys, dnames, fda, ema, broader=None):
     (a label for «relapsing forms of multiple sclerosis» covers relapsing-remitting MS), marked in `where`."""
     cat, where = _classify(drug_keys, dnames, fda, ema)
     if cat == "not found in a current label" and broader:
-        c2, w2 = _classify(drug_keys, broader, fda, ema)
+        c2, w2 = _classify(drug_keys, broader, fda, ema, broader=True)
         if c2 != "not found in a current label":
             return c2, w2 + " (broader term)"
     return cat, where
 
 
-def _classify(drug_keys, dnames, fda, ema):
+def _classify(drug_keys, dnames, fda, ema, broader=False):
     labels = [l for k in drug_keys for l in fda.get(k, [])] + [l for k in drug_keys for l in ema.get(k, [])]
     if not labels:
         return "no current label", ""
@@ -208,14 +240,32 @@ def _classify(drug_keys, dnames, fda, ema):
     neg_seen = None
     for group in (single, combo):
         for text, is_combo, title, src in group:
-            found, neg = find(text, dnames)
-            if found and not neg:
-                return ("confirmed" if not is_combo else "only in a combination product"), f"{title} ({'EMA' if src == 'EMA' else 'FDA'})"
+            found, neg, sent = find(text, dnames, broader)
+            if sent:
+                return ("confirmed" if not is_combo else "only in a combination product"), f"{title} | {src} | {sent}"
             if found and neg:
-                neg_seen = neg_seen or f"{title} ({'EMA' if src == 'EMA' else 'FDA'})"
+                neg_seen = neg_seen or f"{title} | {src}"
     if neg_seen:
         return "negated", neg_seen
     return "not found in a current label", ""
+
+
+def dailymed_count(name, cache):
+    """Number of SPLs DailyMed lists for a drug name (any kind: a conservative test for «no US product»)."""
+    import time
+    import urllib.parse
+    import urllib.request
+    key = name.lower().strip()
+    if key not in cache:
+        url = ("https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?pagesize=1&drug_name="
+               + urllib.parse.quote(key))
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (OREVID research; contact@orevid.org)"})
+        try:
+            cache[key] = int(json.loads(urllib.request.urlopen(req, timeout=60).read())["metadata"]["total_elements"])
+        except Exception:
+            cache[key] = -1  # unknown: then no claim is made
+        time.sleep(0.2)
+    return cache[key]
 
 
 def build():
@@ -229,14 +279,22 @@ def build():
     t = ema_table()
     ema = ema_labels(t)
     eu, us = ema_status(t), us_status()
+    dm_file = ROOT / "data" / "raw" / "dailymed" / "spl_counts.json"
+    dm_file.parent.mkdir(parents=True, exist_ok=True)
+    dm = json.loads(dm_file.read_text("utf-8")) if dm_file.exists() else {}
     rows = []
     for f, ks in keys.items():
         u = next((us[k] for k in ks if k in us), "")
         if any(fda.get(k) for k in ks):  # a current FDA label (SPL listing): a product on the US market
             u = "marketed"
+        if u == "discontinued":  # P55: openFDA lacks some current labels; DailyMed must have none under the name
+            names = {str(g.name(f))} | set(ks)
+            if any(dailymed_count(n, dm) != 0 for n in names):
+                u = ""
         e = next((eu[k] for k in ks if k in eu), ("", ""))
         rows.append({"node": f, "name": g.name(f), "us_status": u, "eu_status": e[0], "eu_year": e[1],
                      "fda_labels": int(sum(len(fda.get(k, [])) for k in ks)), "ema_labels": int(sum(len(ema.get(k, [])) for k in ks))})
+    dm_file.write_text(json.dumps(dm), "utf-8")
     st = pd.DataFrame(rows)
     st.to_parquet(ROOT / "data" / "ext" / "drug_status.parquet", index=False)
     # pairs the website calls approved

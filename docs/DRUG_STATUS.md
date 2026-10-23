@@ -195,3 +195,36 @@ quotes the sentence it relies on; the record of each verdict keeps the URL of th
 | 98 | Methyldopa | hypertensive disorder | not found | **wrong** | «hypertension»: synonym |
 | 99 | Simvastatin | hyperlipoproteinemia | not found | **wrong** | Fredrickson types in the label |
 | 100 | Cefalotin | streptococcal pneumonia | no current label | correct | discontinued in the US |
+
+## Second version (23-10-2026, home PC): release in parts, checked against the source pages
+
+Changes (plan «Added 23-10-2026»): labels re-extracted with their SPL set id (DailyMed link) and the EMA product page;
+a confirmation needs an indication sentence («indicated», «treatment of»…) that respects type qualifiers (type 1 /
+type 2 diabetes); plurals; more ester / salt forms (triamcinolone acetonide). The six cases of 22-10 still come out
+right. Each part was checked by an independent agent that **opened every source page** (DailyMed SPL, EMA product page,
+DailyMed search) and kept the URL and the quoted sentence of each verdict (`data/eval/n4_part_{a,b,c}.jsonl`, verdicts
+in the session record).
+
+| Part | Pairs / drugs | Checked | Wrong | Gate (≤ 5 %) |
+|---|---|---|---|---|
+| (a) «negated» pairs | 61 pairs | all 61 | **31 (51 %)** | fails |
+| (b) current status of drugs no longer on the market | 504 drugs | 50 | **3 (6 %)** | fails |
+| (c) «unconfirmed» Open Targets approvals a label confirms | 545 pairs | 50 | **4 (8 %)** | fails |
+
+- **(a)** The negation pattern is not reliable: a limitation about another use for the same disease («not indicated for
+  induction of immune tolerance» in haemophilia B) or another population («not recommended for patients with end-stage
+  renal disease») was read as a negation, and indications listed as bare items (cyclophosphamide: myeloma,
+  retinoblastoma, breast carcinoma) were outweighed by a negated sentence elsewhere. **Not releasable as a rule.**
+  The 25 pairs the check confirmed as clear negations of the drug for that disease (borderline ones and a product
+  mismatch left out) are kept as a curated list with their quotes and URLs: `resources/n4_verified_negations.csv`
+  (griseofulvin – candidiasis, insulins – diabetic ketoacidosis, procaine benzylpenicillin – syphilis and other
+  treponematoses, hCG excluded, …).
+- **(b)** The EU side was right in every checked case. The three errors are US: «no marketed product» for drugs with a
+  current label on DailyMed that the openFDA export lacks (abametapir / Xeglyze; inotersen / Tegsedi, two nodes).
+- **(c)** Four errors: a broader term qualified by the label («relapsing forms of multiple sclerosis» does not cover
+  progressive MS: fingolimod), a negation not caught («has not been evaluated in the treatment of infections»:
+  minocycline), and two mentions in an indication sentence that are not the indication (hydrochlorothiazide –
+  diabetes, doxepin – anxiety).
+
+Next: (b) only claim «no US product» when DailyMed's own search returns nothing; (c) the three fixes; then a new check
+of 50 new random rows each, against the source pages, before release.
