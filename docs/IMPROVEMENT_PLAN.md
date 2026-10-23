@@ -598,6 +598,31 @@ registered with its own release check.
 
 ---
 
+## Registered 23-10-2026, after M1, by the author's decision: M2 (genetic direction as a model feature)
+
+**Deviation, decided by the author after seeing M1 (P58):** the 30-positive minimum of M1 was set by the assistant
+without the author; the author judges that it should not stop a signal of this size, and takes **pQTL + eQTL** as
+the M1 result (indication rate 5.14 times higher when the drug's action agrees with the genetic direction, 95 %
+interval 2.49–12.34, 117 indication pairs, 1,351 diseases), since pQTL alone had too few cases. Recorded here and in
+DECISIONS; M1b (prospective) stays as an extra confirmation and no longer blocks the next steps.
+
+**M2 test, fixed now before any run.** One column added to the production model: for (drug, disease), the number of
+the drug's targets whose action agrees with the colocalisation direction for that disease minus the number that
+oppose it (pQTL + eQTL, exactly M1's filters and mappings, expanded to the disease's twin nodes; missing when the
+drug has no directed target for the disease). It uses no drug–disease edge (GWAS, QTL and mechanisms only), so the
+same value is valid in every split. Same procedure as N2 (b) (`evaluation/proximity_feature.py` pattern): production
+rows and model with and without the column, paired by disease, zero-shot 1–5 and the nine areas. **Adopted** only if
+Recall@100 on all positives improves with a 95 % interval excluding 0 on the benchmark **or** the areas while not
+falling (point estimate ≥ −0.005) on the other, and the no-prior-use subset does not fall by more than 0.01.
+Reported: the same restricted to test diseases with at least one directed pair (where the column can act).
+
+**If adopted:** the temporal test (2015) is reported, then the website model is retrained and a display line
+(«human genetics agrees / disagrees with the direction of this drug») is registered with a release check of 50
+shown pairs against the Open Targets pages. Implementation: `evaluation/m2_direction_feature.py` →
+`docs/M2_DIRECTION_FEATURE.md`; DECISIONS P61.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
