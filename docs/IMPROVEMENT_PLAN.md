@@ -551,6 +551,38 @@ risk warning is registered separately with the D1 release check. Implementation:
 
 ---
 
+## Registered 23-10-2026, before any run: P1 (measured off-targets; roadmap item 5)
+
+Written on the home PC and pushed before any activity is downloaded (one ChEMBL API call was made to read the fields).
+
+**Question.** Does a drug that measurably hits a disease's genes outside its known mechanism rank its new uses
+better, above all for drugs with no prior use?
+
+**Sources, fixed now.** (i) **ChEMBL 37** activities (web services) of every ChEMBL molecule that maps to a graph drug
+(`sources/ids.py`, salts and parents included): `pchembl_value` ≥ 6, standard type IC50, Ki, Kd or EC50 (no HTS
+«Potency»), no data-validity comment, target organism *Homo sapiens*, target type SINGLE PROTEIN, target → UniProt →
+HGNC → graph gene. (ii) **IUPHAR / BPS Guide to Pharmacology** `interactions.csv` (version recorded): human targets,
+ligands mapped through its ChEMBL ids, affinity (median of the reported range) ≥ 6. A drug's **off-targets** are its
+measured targets minus the targets it already has in the graph (`drug_protein`). The Broad Repurposing Hub is not
+used now (licence to check). Coverage reported first: drugs with an off-target, off-targets per drug, pairs.
+
+**Feature.** For (drug, disease): log(1 + number of the disease's genes, in the split's training graph
+(`GENES_EXTRA`), that are off-targets of the drug). It uses no drug–disease edge.
+
+**(a) Gate.** Standalone, on the benchmark's no-prior-use positives (zero-shot seeds 1–5, scenario C of
+`docs/NOVELTY.md`): Recall@100 of the feature (ties broken at random) against random ranking, difference with a
+disease-level 95 % interval. (b) is run only if the interval excludes 0.
+
+**(b) Decision rule, the same as N2 (P51).** The production rows and model with and without the column
+(`evaluation/proximity_feature.py` pattern, paired by disease): adopted only if Recall@100 on the no-prior-use subset
+improves with a 95 % interval excluding 0 on both the benchmark (zero-shot 1–5) and the areas, and overall zero-shot
+Recall@100 does not fall by more than 0.01. If adopted: the temporal test (2015 cutoff) is reported before the
+website model changes, and the licences (ChEMBL CC BY-SA 3.0, GtoPdb CC BY-SA 4.0) are added to the legal page;
+only derived features are published. Implementation: `sources/offtargets.py`, `evaluation/p1_offtargets.py` →
+`docs/P1_OFFTARGETS.md`; DECISIONS P59.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
