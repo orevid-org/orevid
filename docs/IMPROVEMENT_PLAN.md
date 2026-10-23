@@ -785,6 +785,41 @@ no further version tonight: the genetic line stays off the pages. DECISIONS P72.
 
 ---
 
+## Registered 24-10-2026, before any download: L1–L6 (more open sources, author's request)
+
+Every source enters the internal graph as a layer (`layers.py`, P60) whatever its result; no minimum counts (author's
+view, P58); a claim passes on its 95 % interval alone.
+
+**L1. DrugCentral (CC BY-SA 4.0, dump of 02-09-2026) and MED-RT (VA / NLM, public domain).** Curated indications,
+contraindications and off-label uses (DrugCentral `omop_relationship`; MED-RT `may_treat`, `CI_with`), DrugCentral
+first-approval dates. Drugs by DrugBank / UNII / name, diseases by UMLS / SNOMED / MeSH → MONDO (SSSOM exact). **Exam:**
+indications in either source that are neither PrimeKG indications nor confirmed Open Targets approvals; production
+model vs popularity, Recall@100 per disease, paired difference resampling diseases; **claim** if the interval is above
+0. Reported: how many PrimeKG indications get an approval date (for a future temporal test).
+
+**L2. EMA orphan designations (medicines-output report).** Drug–rare-disease designations by name; **exam** as L1 on
+the designations not already indications, and on those dated after 2023 (later than PrimeKG); claim on the first.
+
+**L3. Orphadata genes (product 6) and HPO phenotypes with frequency (product 4), CC BY 4.0.** Layers; reported: rare
+diseases that gain genes they had none of. No model test now (it would change the model's relations; registered
+separately if wanted).
+
+**L4. Human Protein Atlas (CC BY-SA 4.0) tissue specificity and Pharos / TCRD target development level.** Gene
+attributes for target prioritisation (roadmap 11); no test now.
+
+**L5. DepMap CRISPR gene effect (CC BY 4.0).** Per gene and cancer lineage the median effect. **Gate:** for each PRISM
+lineage (`resources/prism_lineages.csv`), do the targets of drugs approved for its cancers have a stronger (more
+negative) dependency in that lineage than in the others? AUROC per lineage of −(effect in the lineage − the gene's
+median over lineages), mean over lineages above 0.5 with a 95 % interval → then a feature test.
+
+**L6. OFFSIDES (nSIDES, FAERS-derived adverse events).** D1's S2 test with OFFSIDES instead of OnSIDES (confirmation
+half, the same rule as D1). Implementation: `sources/drugcentral.py`, `sources/medrt.py`, `sources/orphan_ema.py`,
+`sources/orphadata.py` (genes, phenotypes), `sources/hpa.py`, `sources/pharos.py`, `sources/depmap.py`,
+`sources/offsides.py`; evaluations `evaluation/l_exams.py`, `evaluation/l5_depmap.py`, `evaluation/d1_worsen.py`;
+DECISIONS P73–P78.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
