@@ -57,3 +57,5 @@ registered as **M1b** (`docs/IMPROVEMENT_PLAN.md`): the same ratio on approvals 
 
 Earlier, cheaper version: `sources/gwas_direction.py` (`dir_gwas`, shared lead variant) was «suggestive but not
 conclusive» and is in the graph, not scored (`docs/STATUS.md`); M1 uses real colocalisation (h4 ≥ 0.8) and cis QTL.
+
+**Author's decision (23-10-2026, after this result):** the 30-positive minimum was set by the assistant without the author and does not stop a signal of this size; pQTL + eQTL is taken as the result (5.14, 2.49–12.34; 117 indication pairs) and the direction goes to a model test (M2, `docs/M2_DIRECTION_FEATURE.md`). M1b stays as an extra, prospective confirmation.
