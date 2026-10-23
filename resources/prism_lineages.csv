@@ -1,0 +1,39 @@
+# PRISM secondary-screen primary_tissue -> graph cancers (PrimeKG names; the evaluation adds their descendants).
+# Written on 23-10-2026 from the cell-line metadata only, before any AUC was read (O2, docs/IMPROVEMENT_PLAN.md).
+lineage,disease
+lung,lung cancer
+lung,lung carcinoma
+lung,small cell lung carcinoma
+central_nervous_system,glioma
+central_nervous_system,brain cancer
+skin,melanoma
+ovary,ovarian cancer
+ovary,ovarian carcinoma
+pancreas,pancreatic adenocarcinoma
+colorectal,colorectal cancer
+colorectal,colorectal carcinoma
+upper_aerodigestive,head and neck cancer
+breast,breast cancer
+breast,breast carcinoma
+esophagus,esophageal cancer
+urinary_tract,urinary bladder cancer
+urinary_tract,urothelial carcinoma
+uterus,endometrial cancer
+uterus,uterine cancer
+bone,osteosarcoma
+bone,Ewing sarcoma
+bone,bone cancer
+liver,hepatocellular carcinoma
+liver,liver cancer
+gastric,gastric cancer
+gastric,gastric carcinoma
+kidney,kidney cancer
+rhabdoid,rhabdoid tumor
+peripheral_nervous_system,neuroblastoma
+thyroid,thyroid cancer
+mesothelioma,mesothelioma
+bile_duct,cholangiocarcinoma
+bile_duct,bile duct cancer
+soft_tissue,soft tissue sarcoma
+prostate,prostate cancer
+prostate,prostate carcinoma

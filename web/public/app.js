@@ -193,6 +193,11 @@ function safetyChips(c) {
   const cl = c.expl.find((e) => e.t === "clinical");
   if (cl) xs.push(`<span class="chip info" title="${esc(explanation(cl).replace(/<[^>]+>/g, ""))}">${t("tested")}: ${esc(tr(cl.phase))}</span>`);
   if (c.expl.some((e) => e.t === "stopped") || (cl && cl.stopped)) xs.push(`<span class="chip risk">${t("trial_stopped")}</span>`);
+  if ((c.pgx || []).length) xs.push(`<span class="chip neutral" title="${esc(t("pgx_help"))}">${t("pgx")}: ${c.pgx.map((x) => esc(x.g)).join(", ")}</span>`);
+  if ((c.genetics || []).length) {
+    const agree = c.genetics.some((x) => x.agree), oppose = c.genetics.some((x) => !x.agree);
+    xs.push(`<span class="chip ${agree && !oppose ? "ev2" : oppose && !agree ? "risk" : "neutral"}" title="${esc(t("gen_help"))}">${t(agree && !oppose ? "gen_agrees" : oppose && !agree ? "gen_opposes" : "gen_mixed")}</span>`);
+  }
   return xs.join(" ");
 }
 
@@ -215,6 +220,12 @@ function candidateDetail(c, disease) {
     ${cli.length ? `<h4>${t("h_clinical")}</h4>${ul(cli)}` : ""}
     ${c.risk ? `<h4>${t("h_risk")}</h4><ul>${r.contraindicated ? `<li>${t("r_contra").replace("{c}", r.contraindicated).replace("{i}", r.indicated || 0)}</li>` : ""}${r.checkpoint ? `<li>${t("r_checkpoint")}</li>` : ""}</ul>` : ""}
     ${ctx.length ? `<h4>${t("h_context")}</h4>${ul(ctx)}` : ""}
+    ${(c.genetics || []).length ? `<h4>${t("h_genetics")}</h4><ul>${c.genetics.map((x) => `<li>${t("gen_line")
+      .replace("{g}", `<span class="gen">${esc(x.g)}</span>`).replace("{risk}", t(x.s > 0 ? "gen_higher" : "gen_lower"))
+      .replace("{act}", t(x.a < 0 ? "gen_lowers" : "gen_raises"))} → <b>${t(x.agree ? "gen_agrees" : "gen_opposes")}</b>
+      <span class="muted">(${esc(x.q)}, ${ext(`https://platform.opentargets.org/target/${esc(x.e)}`, "Open Targets")})</span></li>`).join("")}</ul>
+      <p class="muted small">${t("gen_note")}</p>` : ""}
+    ${(c.pgx || []).length ? `<h4>${t("h_pgx")}</h4><ul>${c.pgx.map((x) => `<li><span class="gen">${esc(x.g)}</span> · CPIC ${esc(x.l)}${x.u ? " · " + ext(x.u, t("guideline")) : ""}</li>`).join("")}</ul>` : ""}
     <p class="links">${drugLinks(c, disease)}</p>
     <p class="feedback small">${t("fb_ask")} ${feedbackLinks(c, disease)}</p></div>`;
 }
@@ -438,7 +449,7 @@ async function showDisease(id) {
     <h2>${esc(d.name)}</h2>
     <div class="meta">${mondo(d.mondo, d.name)} · ${d.n_genes} ${t("genes")}${sources ? ` <span class="muted">(${sources})</span>` : ""} ·
       ${ext(`https://platform.opentargets.org/search?q=${name}`, "Open Targets")} ·
-      ${ext(`https://clinicaltrials.gov/search?cond=${name}`, "ClinicalTrials.gov")}</div>
+      ${ext(`https://clinicaltrials.gov/search?cond=${name}`, "ClinicalTrials.gov")}${d.prevalence ? ` · <span title="${esc(t("prev_help"))}">${t("prevalence")}: ${esc(d.prevalence.c)}</span> (${ext(`https://www.orpha.net/en/disease/detail/${esc(d.prevalence.o)}`, "Orphanet")})` : ""}</div>
     ${hierarchy}
     ${broad ? `<p class="warning broad">${t("broad_term")}</p>` : ""}
     ${(d.markers || []).length ? `<p class="markers"><b>${t("markers")}:</b> ${d.markers.map(([m, st]) => `${esc(m)} ${t("marker_" + st)}`).join(", ")}</p>` : ""}

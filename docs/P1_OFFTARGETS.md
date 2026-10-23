@@ -16,11 +16,23 @@ Off-targets outside the graph's targets (zero-shot 1 training graph): 1,832 drug
 
 **Gate:** does not pass → (b) not run; not adopted.
 
-## Reading (23-10-2026)
+## P1b: with the Repurposing Hub's targets, on the benchmark and the temporal 2015 set
 
-The feature ranks no-prior-use positives about three times better than random (0.042 vs 0.013), but on 47 diseases
-the interval of the difference includes 0, so the registered gate stops here and the feature is not tested in the
-model (P59). For comparison, network proximity (N2) passed the same kind of gate (0.178 vs 0.020) and still added
-nothing as a feature (P51). Coverage is the limit: 1,832 drugs have a measured target outside their known ones, and
-only 30 of the 47 diseases have a candidate with a non-zero value. A later version could add the Repurposing Hub (licence
-to check) or a lower potency threshold, registered anew.
+Off-targets outside the graph's targets (2015 graph): 2,060 drugs, 10,999 pairs.
+
+| Set | Diseases | Feature | Random | Difference |
+|---|---|---|---|---|
+| benchmark | 47 | 0.049 (0.007–0.104) | 0.013 (0.013–0.013) | +0.036 (-0.005 to +0.087) |
+| temporal | 383 | 0.036 (0.022–0.053) | 0.013 (0.013–0.013) | +0.024 (+0.009 to +0.040) |
+
+**P1b gate:** passes → (b) run.
+
+## (b) As an added LambdaRank feature
+
+| Group | Recall@100, all (production → with) | Difference | Recall@100, no prior use | Difference |
+|---|---|---|---|---|
+| benchmark (zero-shot 1-5) | 0/5 tasks done | | | |
+| areas | 0/9 tasks done | | | |
+
+**Decision (rule fixed before running):** not adopted.
+

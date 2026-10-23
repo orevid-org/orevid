@@ -286,6 +286,37 @@ def load_ot_approvals(g, new):
     return _named(pd.read_parquet(EXT / "ot_approvals.parquet"), "x_index", "y_index", "approval", "status")
 
 
+def load_prism(g, new):
+    p = pd.read_parquet(EXT / "prism_lineage.parquet")
+    p["y"] = [new("cancer lineage", l, l.replace("_", " ")) for l in p.lineage]
+    return _named(p, "drug", "y", "cell_line_sensitivity", "median AUC (PRISM)", auc="auc", cell_lines="cell_lines")
+
+
+def load_civic(g, new):
+    c = pd.read_parquet(EXT / "civic.parquet").dropna(subset=["drug", "disease"])
+    return _named(c, "drug", "disease", "clinical_evidence", "significance", evidence_type="evidence_type",
+                  direction="direction", level="level", gene="gene", molecular_profile="molecular_profile", url="url")
+
+
+def load_hub(g, new):
+    return _named(pd.read_parquet(EXT / "repurposing_hub.parquet"), "drug", "gene", "annotated_target", "moa", phase="phase")
+
+
+def load_cpic(g, new):
+    return _named(pd.read_parquet(EXT / "cpic.parquet"), "drug", "gene", "pharmacogenomic_pair", "cpic_level",
+                  guideline="guideline", url="url")
+
+
+def load_pharmgkb(g, new):
+    return _named(pd.read_parquet(EXT / "pharmgkb.parquet"), "drug", "gene", "pharmacogenomic_annotation", "level",
+                  category="category", n_annotations="n_annotations", url="url")
+
+
+def load_trials(g, new):
+    return _named(pd.read_parquet(EXT / "ctgov_trials.parquet"), "drug", "disease", "trial_result", "outcome",
+                  nct="nct", phase="phase", status="status", min_p="min_p")
+
+
 LAYERS = [
     Layer("gencc", "gene_disease_validity", "GenCC", "data/raw/gencc/VERSION", "CC0 1.0", "yes",
           "tested for the shared-genes line, not adopted (P54)", load_gencc),
@@ -313,12 +344,23 @@ LAYERS = [
           "EMA reuse with acknowledgement", "check", "N4: not released (P55)", load_labels(True)),
     Layer("verified_negations", "label_negation_verified", "OREVID check of DailyMed / EMA", "resources/n4_verified_negations.csv",
           "quotes from DailyMed / EMA", "check", "curated list, shown only if the author agrees (P55)", load_verified_negations),
+    Layer("prism", "cell_line_sensitivity", "PRISM Repurposing 19Q4 secondary screen", "figshare 10.6084/m9.figshare.9393293",
+          "CC BY 4.0", "yes", "O2 (P63)", load_prism),
+    Layer("civic", "clinical_evidence", "CIViC", "nightly 23-10-2026", "CC0 1.0", "yes", "O1 oncology exam (P64)", load_civic),
+    Layer("repurposing_hub", "annotated_target", "Broad Drug Repurposing Hub", "20200324",
+          "CC BY 4.0 on the website; «non-commercial use only» in the file", "check", "P1b (P65)", load_hub),
+    Layer("cpic", "pharmacogenomic_pair", "CPIC", "API 23-10-2026", "CC0 1.0", "yes", "X1 display (P67)", load_cpic),
+    Layer("pharmgkb", "pharmacogenomic_annotation", "PharmGKB / ClinPGx clinical annotations", "2025-07-05", "CC BY-SA 4.0",
+          "yes", "internal graph (X1 uses CPIC for display)", load_pharmgkb),
+    Layer("trials", "trial_result", "ClinicalTrials.gov API v2", "23-10-2026 (phase 2–3, posted results)", "Public domain",
+          "yes", "T1 validation, claim not supported (P68)", load_trials),
     Layer("ot_approvals", "approval", "Open Targets 26.06 (classified, sources/ot_approvals.py)", "26.06", "CC0 1.0", "yes",
           "evaluation and display of approvals", load_ot_approvals),
 ]
 
 NODE_ATTRIBUTES = {  # file: (source, licence, redistribution, status)
     "drug_status": ("openFDA, DailyMed, EMA", "US public domain; EMA reuse with acknowledgement", "check", "N4 part b shown (P55)"),
+    "orphadata_prevalence": ("Orphadata product 9", "CC BY 4.0", "yes", "R4 display (P66)"),
     "practical": ("Orange Book, Purple Book, EMA", "US public domain; EMA reuse with acknowledgement", "check", "shown (P44)"),
 }
 

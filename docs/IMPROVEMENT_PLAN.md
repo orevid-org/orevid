@@ -687,6 +687,64 @@ databases and the G6PD / myasthenia lists (no open licence). Implementation: `so
 
 ---
 
+## Registered 23-10-2026, evening, before any download: T1 (trial outcomes; roadmap item 6)
+
+AACT snapshots now need an account (not created); the same registry is read from the **ClinicalTrials.gov API v2**
+(public domain): interventional studies with posted results. Kept: phase 2, 2/3 or 3; exactly one drug or biological
+intervention that is not a placebo; conditions and interventions by their MeSH terms (`derivedSection`), MeSH → MONDO
+(SSSOM exact) → graph disease, intervention names → graph drugs (moieties, synonyms). Outcome per trial: **met** if
+any analysis of a primary outcome reports a p-value < 0.05, **not met** if primary analyses exist and all are ≥ 0.05,
+otherwise unknown. The trials enter the internal graph as a layer (drug–disease, phase, outcome, NCT id).
+
+**Test (validation of OREVID's lists, no model change).** For drug–disease pairs with a met / not-met trial, from the
+website's lists as built: is the share of «met» higher among the **shown candidates** (extensions and shared-genes
+candidates) than among the drugs ranked 1–25 and not shown, and than among ranks 26–100? Difference of shares with a
+95 % interval resampling diseases. **Claim** («shown candidates with a posted trial met their primary endpoint more
+often») only if the interval of shown − not shown is above 0. Reported: the same by phase, and approved indications
+left out. Implementation: `sources/ctgov.py`, `evaluation/t1_trials.py` → `docs/T1_TRIALS.md`; DECISIONS P68.
+
+---
+
+## Registered 23-10-2026, evening, before any download: P2 (Perturb-seq knockdown reversal; roadmap item 14)
+
+**Data.** Replogle et al. 2022 genome-wide Perturb-seq, K562, normalised pseudo-bulk (`K562_gwps_normalized_bulk_01.h5ad`,
+figshare 20029387, CC BY 4.0): per knocked-down gene, the expression z-scores of every measured gene. Per knockdown,
+its signature = the 100 most increased and the 100 most decreased genes. Disease signatures: CREEDS (as P45).
+**Score** for (drug, disease): over the drug's targets that it **lowers** (M1's action types) and that were knocked
+down, the mean reversal of the disease signature (P45's formula: disease-up ∩ knockdown-down + disease-down ∩
+knockdown-up − same-direction overlaps); missing otherwise. **Gate**, as P1b: Recall@100 against random on the
+benchmark no-prior-use positives and on the temporal 2015 no-prior-use positives, difference with a 95 % interval
+resampling diseases; **passes** if the interval is above 0 on either set, and then the model test of P1 (b) is run
+with this column. Implementation: `sources/perturbseq.py`, `evaluation/p2_perturbseq.py` → `docs/P2_PERTURBSEQ.md`;
+DECISIONS P69. Not feasible on this PC and not downloaded: the single-cell files (66 GB), Tahoe-100M and the CELLxGENE
+census (terabytes).
+
+---
+
+## Registered 23-10-2026, night, after the R4 check: R4b (prevalence through single-MONDO nodes only)
+
+R4's check (50 shown values against orpha.net, read on 23-10): every value matched its Orphanet page, but **3 of 50
+were on the wrong disease** (gate ≤ 2): a PrimeKG *grouped* node (several MONDO ids, named after the group) received the
+prevalence of one subtype (dystrophic epidermolysis bullosa ← nails-only form; «intellectual developmental disorder,
+autosomal recessive» ← a cataract–aciduria syndrome; «SEMD with joint laxity» ← Isidor type). An earlier sample drawn
+before «Unknown» classes were hidden also showed a broader node with a narrower Orphanet entity (proximal spinal
+muscular atrophy ← its autosomal dominant adult-onset form). Also decided: only known classes are shown.
+**R4b:** an Orphanet prevalence is attached only to graph disease nodes that carry exactly **one** MONDO id, mapped
+exactly (SSSOM) to that ORPHA code. New check: 50 new random shown values (other seed), the same criteria, ≤ 2 wrong.
+
+---
+
+## Registered 23-10-2026, night, before running: O2b (PRISM as a model column) and P1b (b)
+
+O2's gate passed (P63) and P1b's gate passed on the temporal set (P65), so their model tests are run now, both
+against the current production model (`extra_qtl`). **O2b column:** 1.5 − the drug's median PRISM AUC in the lineage
+of the disease (`resources/prism_lineages.csv`, descendants), 0 when not screened or no lineage. **Rule: M2's**
+(Recall@100 on all positives up with a 95 % interval above 0 on the benchmark or the areas, the other not below
+−0.005, no-prior-use not down by more than 0.01). **P1b (b):** P1's registered rule (N2's), with the ChEMBL + GtoPdb +
+Repurposing Hub off-targets. Implementation: `evaluation/o2_feature.py`, `evaluation/p1_offtargets.py`.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
