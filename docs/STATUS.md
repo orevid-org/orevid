@@ -362,6 +362,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    - **A rule for the shared-genes outliers** that R1b does not remove (insulin for MS through 36 ordinary genes
      shared with type 1 diabetes; paclitaxel for Castleman through IL6, JAK1, NOTCH1); R1a failed.
    - NeDRex as a benchmark baseline: comparable but not run (≥ 1,300 remote jobs).
+   - **New sources and directions, ranked by potential: `docs/ROADMAP.md`** (23-10; nothing registered yet). Top five:
+     gene–disease validity (GenCC / ClinGen / PanelApp), «drugs that may worsen this disease» (drugs-to-avoid
+     lists, OnSIDES), OREVID-bench as an open leaderboard, drug-target MR with pQTL, full polypharmacology (ChEMBL
+     bioactivities, IUPHAR, Repurposing Hub). Each one is registered in `docs/IMPROVEMENT_PLAN.md` before running.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
    (permuting pathway sets) in a new pre-registered test.
