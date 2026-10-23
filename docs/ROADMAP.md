@@ -184,6 +184,10 @@ sense.
 
 **What to test.** R2 again, registered anew, with the approved pairs as the check that nothing right is removed.
 
+**State 23-10-2026:** registered and run as R3 (P57, `docs/R3_INFECTIONS.md`): the MONDO classes and ATC codes work, but
+the rule removes one approved pair (sulfanilamide, vulvovaginal candidiasis) and too few candidates to show a gain.
+Rejected. ChEMBL target organisms were not used.
+
 ## 9. Oncology: PRISM / DepMap repurposing screen and CIViC
 
 **What.** The PRISM repurposing screen measured the effect of ~4,500 drugs (most non-oncology) on ~580 cancer cell
