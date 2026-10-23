@@ -387,7 +387,7 @@ edges (`docs/GRAPH_LAYERS.md`).
 |---|---|---|
 | **L1** DrugCentral + MED-RT indications not in PrimeKG / Open Targets | 863 diseases: OREVID 0.391 vs popularity 0.125, **+0.27** (+0.24 to +0.30) | claim supported (P73) |
 | **L2** EMA orphan designations | +0.15 (+0.10 to +0.21); designations from 2023 on **+0.08** (+0.01 to +0.16) | claim supported (P74) |
-| L3 Orphadata genes and phenotypes | 438 rare diseases gain genes | layers; model test L3b (P75) |
+| L3 Orphadata genes and phenotypes | 438 rare diseases gain genes; as a model column (L3b) areas +0.008 (−0.0004 to +0.018), +0.047 where it applies | layers (P75); L3b not adopted by the rule, borderline — **author to decide** (P79) |
 | L4 HPA tissue specificity, TCRD target levels | 20,297 genes | attributes (P76) |
 | L5 DepMap CRISPR by lineage | AUROC 0.47 | gate fails (P77) |
 | L6 OFFSIDES for «may worsen» | worse than baseline | not adopted (P78) |

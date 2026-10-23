@@ -118,6 +118,7 @@ Rules (since 11-10):
 | P76 | L4: Human Protein Atlas tissue specificity and TCRD / Pharos target development level (via DrugCentral) | 20,297 genes with attributes (743 Tclin, 1,147 Tchem, 10,348 Tbio, 6,698 Tdark); 17,409 tissue-enriched gene–tissue pairs | Attributes and layer added (for target prioritisation) |
 | P77 | L5: DepMap CRISPR (Public 24Q2 from figshare; the portal now has a bot check) dependency of approved oncology targets by lineage | Mean AUROC 0.471 (0.424–0.505) over 21 lineages | **Gate fails**; layer (dependencies ≤ −0.5) added |
 | P78 | L6: D1's S2 with OFFSIDES (FAERS-derived) instead of OnSIDES | 833,248 graph pairs; confirmation half 3.9 % vs baseline 5.4 %, −1.4 (−1.8 to −1.1) | **Does not pass** (as OnSIDES: confounding by indication); layer added, licence to check |
+| P79 | L3b: Orphanet genes as a model column (log(1 + drug targets among the disease's Orphanet genes); `evaluation/l3b_feature.py`, `docs/L3B_FEATURE.md`) | Benchmark +0.002 (−0.004 to +0.010), no prior use −0.005; areas **+0.008 (−0.0004 to +0.018)**, no prior use +0.012; where the column applies (46 area diseases) +0.047 (0.000 to +0.112) | **Not adopted by the registered rule** (the areas interval touches 0 by 0.0004); borderline like M2 — adoption left to the author |
 
 ## Errors detected in this session (and how)
 

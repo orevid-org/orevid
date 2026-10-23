@@ -52,6 +52,7 @@ def run(split, seed, kg, types):
     if f.exists():
         return json.loads(f.read_text())
     t0 = time.time()
+    STATE["G"] = None  # rebuilt on each split's training graph
     xc.OUT = OUT / "rows"
     d = xc.build(kg, types, split, seed)
     X, Y, G = d["X"], d["Y"], d["groups"]
