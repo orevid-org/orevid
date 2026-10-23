@@ -381,6 +381,20 @@ answer from the home PC). New layers: PRISM, CIViC, Repurposing Hub (licence «c
 Orphanet prevalence, Perturb-seq. Internal graph now 69 layers, 14.2 M edges; publishable 60 layers, 11.8 M
 edges (`docs/GRAPH_LAYERS.md`).
 
+## 24 October 2026, early morning (home PC): more open sources (L1–L6)
+
+| Item | Result | Decision |
+|---|---|---|
+| **L1** DrugCentral + MED-RT indications not in PrimeKG / Open Targets | 863 diseases: OREVID 0.391 vs popularity 0.125, **+0.27** (+0.24 to +0.30) | claim supported (P73) |
+| **L2** EMA orphan designations | +0.15 (+0.10 to +0.21); designations from 2023 on **+0.08** (+0.01 to +0.16) | claim supported (P74) |
+| L3 Orphadata genes and phenotypes | 438 rare diseases gain genes | layers; model test L3b (P75) |
+| L4 HPA tissue specificity, TCRD target levels | 20,297 genes | attributes (P76) |
+| L5 DepMap CRISPR by lineage | AUROC 0.47 | gate fails (P77) |
+| L6 OFFSIDES for «may worsen» | worse than baseline | not adopted (P78) |
+
+Internal graph: 161,949 nodes, 15.2 M edges, 77 layers; publishable 66 layers, 12.0 M edges. FDA orphan designations
+(the OOPD site moved) and the current DepMap portal (bot check) were not obtainable; DepMap 24Q2 from figshare used.
+
 ## Next steps
 
 **Publishing and adoption: `docs/LAUNCH_PLAN.md`.** Model work: `docs/ROADMAP.md` and `docs/IMPROVEMENT_PLAN.md`.

@@ -24,7 +24,8 @@ B = 5000
 ANGELMAN = 29997
 
 
-def main():
+def main(source="onsides"):
+    """source: onsides (D1) or offsides (L6, the same test with FAERS-derived signals)."""
     sys.stdout.reconfigure(encoding="utf-8")
     from evaluation.direction import Direction
     from evaluation.twins import twins
@@ -49,7 +50,7 @@ def main():
     parents = defaultdict(list)
     for a_, b_ in zip(h.parent.astype(int), h.child.astype(int)):
         parents[b_].append(a_)
-    ons = pd.read_parquet(ROOT / "data" / "ext" / "onsides.parquet")
+    ons = pd.read_parquet(ROOT / "data" / "ext" / f"{source}.parquet")
     ade = defaultdict(set)  # disease -> drugs with a label adverse event naming it
     for f, d in zip(ons.drug.astype(int), ons.disease.astype(int)):
         ade[d].add(f)
@@ -104,7 +105,8 @@ def main():
                                      "diff": [float((h.sum() - b.sum()) / max(n.sum(), 1)), float(np.percentile(diff, 2.5)), float(np.percentile(diff, 97.5))]}
     out = {"results": res, "test_diseases": len(df), "angelman": angel,
            "onsides_pairs": int(len(ons)), "base_rate": float(df.positives.sum() / df.candidates.sum())}
-    (ROOT / "data" / "eval" / "d1_worsen.json").write_text(json.dumps(out, indent=1), "utf-8")
+    out["source"] = source
+    (ROOT / "data" / "eval" / ("d1_worsen.json" if source == "onsides" else f"d1_worsen_{source}.json")).write_text(json.dumps(out, indent=1), "utf-8")
     report(out)
 
 
@@ -137,9 +139,12 @@ def report(out=None):
     for k, v in out.get("angelman", {}).items():
         L.append(f"- {k}: {', '.join(v[:25]) if v else 'none'}{' …' if len(v) > 25 else ''}")
     text = "\n".join(L) + "\n"
-    (ROOT / "docs" / "D1_WORSEN.md").write_text(text, "utf-8")
+    src = out.get("source", "onsides")
+    if src != "onsides":
+        text = text.replace("OnSIDES", src.upper()).replace("# D1. Drugs that may worsen a disease", f"# L6. D1 with {src.upper()} (FAERS-derived)")
+    (ROOT / "docs" / ("D1_WORSEN.md" if src == "onsides" else f"L6_{src.upper()}.md")).write_text(text, "utf-8")
     print(text)
 
 
 if __name__ == "__main__":
-    report() if sys.argv[1:] == ["report"] else main()
+    report() if sys.argv[1:] == ["report"] else main(sys.argv[1] if sys.argv[1:] else "onsides")

@@ -1,0 +1,24 @@
+# DepMap OncotreeLineage -> PRISM lineage of resources/prism_lineages.csv (L5, docs/IMPROVEMENT_PLAN.md).
+# Written on 24-10-2026 from Model.csv only, before any gene effect was read. Blood lineages have no PRISM lineage.
+depmap,lineage
+Lung,lung
+CNS/Brain,central_nervous_system
+Skin,skin
+Breast,breast
+Esophagus/Stomach,esophagus
+Esophagus/Stomach,gastric
+Bowel,colorectal
+Head and Neck,upper_aerodigestive
+Bone,bone
+Ovary/Fallopian Tube,ovary
+Kidney,kidney
+Soft Tissue,soft_tissue
+Pancreas,pancreas
+Peripheral Nervous System,peripheral_nervous_system
+Biliary Tract,bile_duct
+Uterus,uterus
+Bladder/Urinary Tract,urinary_tract
+Pleura,mesothelioma
+Liver,liver
+Thyroid,thyroid
+Prostate,prostate

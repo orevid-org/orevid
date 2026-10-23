@@ -321,6 +321,46 @@ def load_perturbseq(g, new):
     return _named(pd.read_parquet(EXT / "perturbseq.parquet"), "knockdown", "gene", "knockdown_effect", "direction", z="z")
 
 
+def load_drugcentral(g, new):
+    return _named(pd.read_parquet(EXT / "drugcentral_relations.parquet"), "drug", "disease", "drugcentral_relation", "relation",
+                  concept="concept")
+
+
+def load_medrt(g, new):
+    return _named(pd.read_parquet(EXT / "medrt.parquet"), "drug", "disease", "medrt_relation", "relation", mesh="mesh")
+
+
+def load_orphan(g, new):
+    o = pd.read_parquet(EXT / "orphan_ema.parquet")
+    o["date"] = o.date.astype(str)
+    return _named(o, "drug", "disease", "orphan_designation", "status", date="date", designation="designation", url="url")
+
+
+def load_orpha_genes(g, new):
+    return _named(pd.read_parquet(EXT / "orphadata_genes.parquet"), "disease", "gene", "orphanet_gene", "type", status="status")
+
+
+def load_orpha_phen(g, new):
+    return _named(pd.read_parquet(EXT / "orphadata_phenotypes.parquet"), "disease", "phenotype", "orphanet_phenotype", "frequency")
+
+
+def load_hpa(g, new):
+    h = pd.read_parquet(EXT / "hpa_tissue.parquet")
+    h["y"] = [new("tissue (HPA)", s, s) for s in h.tissue]
+    return _named(h, "gene", "y", "tissue_enriched", "RNA enriched (HPA)", ntpm="ntpm")
+
+
+def load_depmap(g, new):
+    d = pd.read_parquet(EXT / "depmap_lineage.parquet")
+    d = d[d.effect <= -0.5]  # dependencies only (Chronos ≤ −0.5); the full matrix stays in data/ext
+    d["y"] = [new("cancer lineage (DepMap)", l, l) for l in d.lineage]
+    return _named(d, "gene", "y", "crispr_dependency", "median Chronos effect ≤ −0.5", effect="effect", cell_lines="cell_lines")
+
+
+def load_offsides(g, new):
+    return _named(pd.read_parquet(EXT / "offsides.parquet"), "drug", "disease", "faers_signal", "OFFSIDES", prr="prr", reports="reports")
+
+
 LAYERS = [
     Layer("gencc", "gene_disease_validity", "GenCC", "data/raw/gencc/VERSION", "CC0 1.0", "yes",
           "tested for the shared-genes line, not adopted (P54)", load_gencc),
@@ -360,6 +400,21 @@ LAYERS = [
           "yes", "T1 validation, claim not supported (P68)", load_trials),
     Layer("perturbseq", "knockdown_effect", "Replogle et al. 2022 genome-wide Perturb-seq (K562 pseudo-bulk)",
           "figshare 20029387", "CC BY 4.0", "yes", "P2, gate failed (P69)", load_perturbseq),
+    Layer("drugcentral", "drugcentral_relation", "DrugCentral", "dump 02-09-2026", "CC BY-SA 4.0", "yes",
+          "L1 exam: OREVID +0.27 over popularity on indications only DrugCentral / MED-RT know (P73)", load_drugcentral),
+    Layer("medrt", "medrt_relation", "MED-RT (VA / NLM)", "2026.10.05", "Public domain", "yes", "L1 exam (P73)", load_medrt),
+    Layer("orphan_ema", "orphan_designation", "EMA orphan designations", "report of 23-10-2026", "EMA reuse with acknowledgement",
+          "check", "L2 exam: +0.15; designations from 2023 on +0.08 (P74)", load_orphan),
+    Layer("orphanet_genes", "orphanet_gene", "Orphadata product 6", "downloaded 24-10-2026", "CC BY 4.0", "yes",
+          "L3: 438 rare diseases gain genes (P75); not in the model", load_orpha_genes),
+    Layer("orphanet_phenotypes", "orphanet_phenotype", "Orphadata product 4 (HPO, frequency)", "downloaded 24-10-2026",
+          "CC BY 4.0", "yes", "L3 (P75); not in the model", load_orpha_phen),
+    Layer("hpa_tissue", "tissue_enriched", "Human Protein Atlas", "downloaded 24-10-2026", "CC BY-SA 4.0", "yes",
+          "L4 target attributes (P76)", load_hpa),
+    Layer("depmap", "crispr_dependency", "DepMap Public 24Q2 CRISPR", "figshare 25880521", "CC BY 4.0", "yes",
+          "L5 gate failed (P77)", load_depmap),
+    Layer("offsides", "faers_signal", "OFFSIDES (nSIDES)", "S3 download 24-10-2026", "to check", "check",
+          "L6: worse than the naive baseline, as OnSIDES (P78)", load_offsides),
     Layer("ot_approvals", "approval", "Open Targets 26.06 (classified, sources/ot_approvals.py)", "26.06", "CC0 1.0", "yes",
           "evaluation and display of approvals", load_ot_approvals),
 ]
@@ -367,6 +422,8 @@ LAYERS = [
 NODE_ATTRIBUTES = {  # file: (source, licence, redistribution, status)
     "drug_status": ("openFDA, DailyMed, EMA", "US public domain; EMA reuse with acknowledgement", "check", "N4 part b shown (P55)"),
     "orphadata_prevalence": ("Orphadata product 9", "CC BY 4.0", "yes", "R4 display (P66)"),
+    "drugcentral_approvals": ("DrugCentral", "CC BY-SA 4.0", "yes", "first approvals with dates (L1, P73)"),
+    "gene_attributes": ("Human Protein Atlas, TCRD / Pharos via DrugCentral", "CC BY-SA 4.0", "yes", "L4 (P76)"),
     "practical": ("Orange Book, Purple Book, EMA", "US public domain; EMA reuse with acknowledgement", "check", "shown (P44)"),
 }
 

@@ -9,6 +9,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -52,5 +53,64 @@ def build():
     return out
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and not sys.argv[1:]:
     build()
+
+
+def orpha_nodes(g):
+    """ORPHA code -> graph disease node, through single-MONDO nodes only (as R4b)."""
+    from sources.ids import xref_to_mondo
+    to_mondo = xref_to_mondo()
+    mondo_node = {f"MONDO:{int(i)}": int(k) for k, i, t in zip(g.nodes.node_index, g.nodes.node_id, g.nodes.node_type)
+                  if t == "disease" and str(i).isdigit()}
+
+    def node(code):
+        ns = {mondo_node[m] for m in to_mondo.get(f"ORPHANET:{code}", ()) if m in mondo_node}
+        return ns.pop() if len(ns) == 1 else None
+    return node
+
+
+def build_genes_phenotypes():
+    """L3 (docs/IMPROVEMENT_PLAN.md, «Registered 24-10-2026: L1–L6»): disease–gene (product 6, gene by symbol) and
+    disease–phenotype with frequency (product 4, HPO id) -> data/ext/orphadata_genes.parquet, orphadata_phenotypes.parquet."""
+    from graph import DISEASE_GENE, Graph
+    g = Graph()
+    node = orpha_nodes(g)
+    sym = {str(s).upper(): int(k) for k, s, t in zip(g.nodes.node_index, g.nodes.node_name, g.nodes.node_type) if t == "gene/protein"}
+    hpo = {int(i): int(k) for k, i, t in zip(g.nodes.node_index, g.nodes.node_id, g.nodes.node_type)
+           if t == "effect/phenotype" and str(i).isdigit()}
+    rows = []
+    for d in ET.parse(RAW.with_name("en_product6.xml")).getroot().iter("Disorder"):
+        dn = node(d.findtext("OrphaCode"))
+        if dn is None:
+            continue
+        for a in d.iter("DisorderGeneAssociation"):
+            gn = sym.get(str(a.findtext("Gene/Symbol")).upper())
+            if gn is not None:
+                rows.append({"disease": dn, "gene": gn, "type": a.findtext("DisorderGeneAssociationType/Name"),
+                             "status": a.findtext("DisorderGeneAssociationStatus/Name")})
+    genes = pd.DataFrame(rows).drop_duplicates(["disease", "gene"])
+    genes.to_parquet(ROOT / "data" / "ext" / "orphadata_genes.parquet", index=False)
+    rows = []
+    for d in ET.parse(RAW.with_name("en_product4.xml")).getroot().iter("Disorder"):
+        dn = node(d.findtext("OrphaCode"))
+        if dn is None:
+            continue
+        for a in d.iter("HPODisorderAssociation"):
+            h = a.findtext("HPO/HPOId")
+            p = hpo.get(int(h.split(":")[1])) if h else None
+            if p is not None:
+                rows.append({"disease": dn, "phenotype": p, "frequency": a.findtext("HPOFrequency/Name")})
+    phen = pd.DataFrame(rows).drop_duplicates(["disease", "phenotype"])
+    phen.to_parquet(ROOT / "data" / "ext" / "orphadata_phenotypes.parquet", index=False)
+    G = g.M(DISEASE_GENE).tocsr()
+    has = np.diff(G.indptr)
+    new_dis = genes[[has[d] == 0 for d in genes.disease]].disease.nunique()
+    known = set(zip(*G.nonzero()))
+    novel = sum((d, gn) not in known for d, gn in zip(genes.disease, genes.gene))
+    print(f"Orphadata genes: {len(genes):,} disease–gene pairs ({genes.disease.nunique():,} diseases), {novel:,} not in PrimeKG; "
+          f"{new_dis:,} diseases had no PrimeKG gene. Phenotypes: {len(phen):,} pairs ({phen.disease.nunique():,} diseases)")
+
+
+if __name__ == "__main__" and sys.argv[1:] == ["genes"]:
+    build_genes_phenotypes()
