@@ -330,8 +330,9 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    `docs/preprint/OREVID_preprint_v2.docx` (A4, continuous line numbers) and `OREVID_preprint_v2.pdf` (made from it
    with Word), graphical abstract = the new `figures/figure1.png`; abstract updated (temporal-validation sentence);
    the `supplementary.docx` Preprints.org had carried over from v1 was removed (the Word holds Tables S1–S5).
-   **v2 online on 22-10** (DOI `…1918.v2`); README, website and `CITATION.cff` point to it (see 22-10). Left: check
-   that v2 appears in ORCID (Crossref permission), or add it by hand.
+   **v2 online on 22-10** (DOI `…1918.v2`); README, website and `CITATION.cff` point to it (see 22-10). ORCID: v2 added
+   by Crossref (checked 22-10); the Zenodo v1.2.0 record (10.5281/zenodo.23545853) was not there yet: DataCite usually
+   adds it, otherwise by hand.
    Then choose a journal (independent authors are accepted by journals).
    **Journal plan (14-10):** first PCI Mathematical and Computational Biology (free, open reviews; then Peer
    Community Journal, free), Briefings in Bioinformatics as the fallback; BOSC 2027 abstract (talk or poster);
@@ -348,12 +349,19 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
    no non-financial one); the Word export has continuous line numbers. Post v2 on Preprints.org (same server)
    before submitting to PCI. Figure 3 was fixed on 21-10 (see that day): put the new image in the Claude Doc.
 1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: optional TxGNN on the temporal cutoffs;
-   pathway overlap with its own null (P46) as a new pre-registered test. **Next candidates, not registered yet**
-   (`docs/IMPROVEMENT_PLAN.md`, «Next candidates»): N4 drug status audit against current FDA / EMA / DrugCentral
-   data (display only; fixes the approval errors of item 9; its checks are already fixed in the plan),
-   N1 DrugMechDB as an evaluation set for the evidence shown,
-   N2 network proximity with NeDRex as an external reference, N3 Bioteque embeddings without drug–disease edges.
-   Each needs its own section with fixed criteria, committed before running (home PC).
+   pathway overlap with its own null (P46) as a new pre-registered test. **R1, R2, N1–N4: registered and run on
+   22–23 October** (see «Night of 22–23 October», P48–P53). Left over:
+   - **N4 second version** (`docs/DRUG_STATUS.md`, `docs/IMPROVEMENT_PLAN.md` «Added 23-10-2026»): better disease and
+     drug matching, then release in parts: negated pairs (griseofulvin), withdrawn / revoked medicines (olaratumab),
+     Open Targets approvals a label confirms (ublituximab, butoconazole, terconazole). **The first run's manual check
+     was done by an AI agent without web search, not against the source pages as registered: it does not count as
+     the release check.** The next check is done against DailyMed / EMA / Orange Book pages, by a person or by an
+     agent that opens them and keeps the URL of each verdict. Until then the website shows the approvals as before,
+     including the errors of item 9.
+   - **N3 Bioteque**: when the IRB websites are back (terms from Patrick Aloy in the plan).
+   - **A rule for the shared-genes outliers** that R1b does not remove (insulin for MS through 36 ordinary genes
+     shared with type 1 diabetes; paclitaxel for Castleman through IL6, JAK1, NOTCH1); R1a failed.
+   - NeDRex as a benchmark baseline: comparable but not run (≥ 1,300 remote jobs).
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
    (permuting pathway sets) in a new pre-registered test.
@@ -365,7 +373,9 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 7. Collect expert feedback from the website (GitHub issues) as new validation labels.
 8. Open problems: drugs with no prior indication (Precision@K 0–2 %); wrong gene–disease
    associations and comorbidities that read as shared biology (lupus–endocarditis, RA–Graves).
-9. **Corrections from a review of the visited pages (22-10, work PC; nothing changed on the website).** The eight
+9. **Corrections from a review of the visited pages (22-10, work PC; nothing changed on the website).** *State on 23-10:* belimumab trials fixed (display); hub genes removed (R1b) but the
+   insulin / paclitaxel examples remain; R2 (pathogen class) rejected; the approval errors wait for N4's second
+   version (item 1b). The eight
    disease pages visitors opened (GoatCounter) were read from the published `gh-pages` data and checked by hand:
    candidiasis (35873, also oral 83958 and vulvovaginal 83986), multiple sclerosis (37722; GoatCounter shows it
    with the home-page title), angiosarcoma (33713), systemic sclerosis (33225), Angelman syndrome (29997),

@@ -57,6 +57,15 @@ pharmacologist, without web search; its verdicts below).
 **Decision: not released** (23 % wrong against the 5 % gate). The website keeps the approvals as before; nothing of
 N4 is shown.
 
+**Deviation from the registered check (noted 23-10-2026, work PC).** The plan (`docs/IMPROVEMENT_PLAN.md`, N4,
+«Checks before release») asked for a manual check «against the source pages». This one was done by an AI agent
+without web search, from its own knowledge and the label sentence the sample carried. Its verdicts can be wrong in
+both directions (some «wrong» may be right and the other way round). It does not change tonight's decision (nothing
+was released, and 23 % is far above the gate), but **it does not count as the release check**: before anything of
+N4 reaches the website, each sample is checked by a person with the source pages open (the current FDA label on
+DailyMed, the EMA product page, the Orange / Purple Book entry), or at least by an agent that opens those pages and
+quotes the sentence it relies on; the record of each verdict keeps the URL of the page used.
+
 ### Where it goes wrong
 
 - **Synonyms missed** (largest group): hypertensive disorder / hypertension, ocular / intraocular hypertension,

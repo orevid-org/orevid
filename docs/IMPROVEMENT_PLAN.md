@@ -338,6 +338,16 @@ comparable and not run. Reported in `docs/PROXIMITY.md`.
 the sources allow; the release gate (≤ 5 % wrong in the two manual checks of 50 pairs, none of the 22-10 cases
 still wrong) applies before anything reaches the website.
 
+*Added 23-10-2026, after the first run (P53, not released), before any second run.* The second version follows
+`docs/DRUG_STATUS.md` («What a second version needs»): disease matching with MONDO / UMLS synonyms, plurals and all
+descendants of the label term; only indication sentences, with qualifiers such as the diabetes type; drugs matched by
+UNII / RxNorm ingredient. Release in parts, each with its own check and the same gate (≤ 5 % wrong, none of the
+22-10 cases wrong): first (a) «negated» pairs (all 62 reviewed), (b) withdrawn / revoked / refused EU medicines and
+discontinued-only US drugs, (c) «unconfirmed» Open Targets approvals that a current label confirms (ublituximab,
+butoconazole, terconazole); the full «not found in a current label» flag only after its own check. **The check is
+done against the source pages**, by a person or by an agent that opens them and quotes the sentence it relies on,
+with the URL kept for every verdict; a check from memory, without the pages, does not count (the first run's did not).
+
 ---
 
 ## What to update after each item
