@@ -12,8 +12,9 @@ NAMES = {"popularity": "Popularity (baseline, ignores the disease)",
          "kge_rotate": "RotatE (knowledge-graph embedding, PyKEEN; settings chosen on zero-shot seed 1, see docs/KGE.md)",
          "orevid_no_popularity": "OREVID, graph only (logistic regression, no popularity)",
          "orevid_lambdarank": "OREVID (LambdaRank over meta-paths)",
-         "orevid_lambdarank_train_only": "OREVID, training labels only (as TxGNN; see FAIR_COMPARISON.md)"}
-ORDER = ["popularity", "txgnn", "kge_rotate", "orevid_no_popularity", "orevid_lambdarank", "orevid_lambdarank_train_only"]
+         "orevid_lambdarank_train_only": "OREVID, training labels only (as TxGNN; see FAIR_COMPARISON.md)",
+         "trustrank": "TrustRank on the protein network, as in NeDRex (local implementation, trustrank.py)"}
+ORDER = ["popularity", "txgnn", "kge_rotate", "trustrank", "orevid_no_popularity", "orevid_lambdarank", "orevid_lambdarank_train_only"]
 # Accepted outside submissions (SUBMITTING.md): submissions/<model>/submission.json, results in predictions/<model>/
 for f in sorted((HERE / "submissions").glob("*/submission.json")):
     meta = json.loads(f.read_text("utf-8"))

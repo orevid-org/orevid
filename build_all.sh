@@ -40,6 +40,7 @@ $PY -m evaluation.temporal report
 $PY -m evaluation.calibration
 step "website"
 $PY -m web.build
+$PY -m web.annotate      # released information that does not change the ranking (P66, P67)
 $PY -m web.panel
 step "tests"
 $PY -m pytest tests -q

@@ -365,14 +365,15 @@ graph whatever its result (P60). Results in DECISIONS P61–P69:
 | Item | Result | Decision |
 |---|---|---|
 | **M2** genetic direction as a model column | applies to few benchmark diseases; after the rebuild zero-shot 0.811 → 0.811, areas 0.617 → 0.620, external 0.359 → 0.361 (non-obvious 0.178 → 0.183) | **adopted by the author's decision** (P61): production feature set `extra_qtl`; all evaluations, benchmark files and leaderboard rebuilt |
-| O2 PRISM sensitivity by lineage | AUROC 0.64 (0.59–0.68), but lineage-specific 0.51 | gate passes (P63); model test O2b running |
-| P1b off-targets + Repurposing Hub, with the temporal set | temporal +0.024 (+0.009 to +0.040) | gate passes (P65); model test running |
+| O2 PRISM sensitivity by lineage | AUROC 0.64 (0.59–0.68), but lineage-specific 0.51 | gate passes; model test O2b **not adopted** (±0.00; P63) |
+| P1b off-targets + Repurposing Hub, with the temporal set | temporal +0.024 (+0.009 to +0.040) | gate passes; model test **not adopted** (benchmark −0.004, areas +0.008, intervals include 0; P65) |
 | T1 posted trial outcomes (ClinicalTrials.gov API; AACT needs an account) | shown candidates met their endpoint 65.9 % vs 81.3 % for ranked-not-shown; without approved pairs −6.9 (−19.4 to +6.0) | claim not supported (P68) |
 | R4 / R4b Orphanet prevalence | R4 3/50 on the wrong disease (grouped nodes); R4b 1/50 | **R4b released** (P66) |
 | X1 CPIC guidelines | 0/50 wrong | **released** (P67); PharmGKB in the internal graph |
 | P2 Perturb-seq knockdown reversal | +0.004 / +0.009, intervals include 0 | not adopted (P69) |
 | **O1** CIViC oncology exam | 47 cancers: Recall@100 0.55 vs popularity 0.21, +0.34 (+0.17 to +0.50) | **claim supported** (P64) |
-| G2 genetic line on the pages | release check after the website rebuild | — |
+| G2 genetic line on the pages | 9/50 lines not supported by the current Open Targets release (26.09; single-study eQTL colocalisations change between releases) | not released (P62) |
+| B1 TrustRank (NeDRex method, local) | zero-shot 0.141, areas 0.151, external 0.068 | added to the leaderboard (P70) |
 
 Not obtainable: AACT snapshots and CredibleMeds (accounts), Genebass (requester-pays cloud bucket), porphyria / G6PD /
 myasthenia lists (no open licence; CPIC covers G6PD), single-cell atlases (66 GB to terabytes), Bioteque (server does not

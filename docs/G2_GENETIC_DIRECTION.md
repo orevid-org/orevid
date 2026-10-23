@@ -1,0 +1,18 @@
+# G2. Genetic direction shown on the pages — release check
+
+Protocol: `docs/IMPROVEMENT_PLAN.md`, «Registered 23-10-2026, before any change to the website: G2». 50 random lines of
+the rebuilt pages (365 lines on 141 pages with the `extra_qtl` model), checked with `evaluation/release_checks.py g2`
+against the Open Targets GraphQL API (`data/eval/g2_check.jsonl`, queries and answers kept). **Deviation:** the API
+serves release 26.09, while OREVID's data are 26.06 (26.09 is not used because of its multiple sclerosis merge).
+
+| Check | Lines failing |
+|---|---|
+| (1) a colocalisation (h4 ≥ 0.8) of a cis QTL of the gene with a GWAS of the disease, with the stated direction | 9 of 50 (7 with no such colocalisation at all in 26.09; 2 with direction 0) |
+| (2) the drug's mechanism on the gene is of the stated kind | 0 of 50 |
+
+**Not released** (gate ≤ 2). The failing lines are eQTL colocalisations from a single study that are present in 26.06
+and absent or undirected in 26.09 (e.g. MTTP – fatty liver disease, SLx-4090: no colocalisation at all with that
+disease in 26.09; flecainide – Brugada syndrome, SCN5A, a correct «disagrees» biologically, also missing). Single-study
+eQTL colocalisations are not stable between Open Targets releases, so a line on a page cannot cite them as a source.
+The direction stays in the ranking model (author's decision, P61) and in the internal graph; showing it would need a
+rule restricted to stable signals (e.g. pQTL, or support in two releases), registered and checked anew.

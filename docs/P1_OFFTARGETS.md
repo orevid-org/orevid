@@ -31,8 +31,8 @@ Off-targets outside the graph's targets (2015 graph): 2,060 drugs, 10,999 pairs.
 
 | Group | Recall@100, all (production → with) | Difference | Recall@100, no prior use | Difference |
 |---|---|---|---|---|
-| benchmark (zero-shot 1-5) | 0/5 tasks done | | | |
-| areas | 0/9 tasks done | | | |
+| benchmark (zero-shot 1-5) | 0.811 → 0.807 | -0.004 (-0.009 to +0.000; 335 diseases) | 0.168 → 0.171 | +0.002 (-0.004 to +0.011; 47 diseases) |
+| areas | 0.620 → 0.624 | +0.008 (-0.002 to +0.020; 345 diseases) | 0.157 → 0.219 | +0.007 (-0.019 to +0.036; 127 diseases) |
 
 **Decision (rule fixed before running):** not adopted.
 

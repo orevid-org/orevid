@@ -745,6 +745,18 @@ Repurposing Hub off-targets. Implementation: `evaluation/o2_feature.py`, `evalua
 
 ---
 
+## Registered 23-10-2026, night, before running: B1 (NeDRex-style TrustRank baseline in OREVID-bench; roadmap item 16)
+
+NeDRex's web service would need ≥ 1,300 remote jobs (one per test disease and task); instead its published
+drug-ranking method is implemented locally, on exactly the benchmark's data, and labelled as such («TrustRank, as in
+NeDRex», not NeDRex itself). **Method, fixed now:** for each task and test disease, personalised PageRank (damping
+0.85, 50 iterations) on the PrimeKG protein–protein network of the task's training edges, restarting at the disease's
+genes (training `disease_protein` edges); a drug's score = the sum of the TrustRank of its targets
+(`drug_protein`, training edges), so drugs with no target score 0. It goes to `benchmark/predictions/trustrank/`
+and the leaderboard as a baseline; no decision depends on it. Implementation: `benchmark/trustrank.py`; DECISIONS P70.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
