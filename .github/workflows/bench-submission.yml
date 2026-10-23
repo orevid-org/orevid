@@ -1,0 +1,60 @@
+# OREVID-bench submissions (benchmark/SUBMITTING.md): evaluates the prediction zip a pull request points to, with the
+# code and tasks of main, and attaches the results to the run. Nothing from the pull request is executed: only its
+# submission.json is read, as data.
+name: bench-submission
+
+on:
+  pull_request:
+    paths:
+      - "benchmark/submissions/**"
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out main (code and tasks)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Take only the submission file from the pull request
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          git fetch origin "pull/$PR/head:pr"
+          changed=$(git diff --name-only origin/main...pr)
+          echo "$changed"
+          n=$(echo "$changed" | grep -c . || true)
+          file=$(echo "$changed" | grep -E '^benchmark/submissions/[a-z0-9_]+/submission\.json$' || true)
+          if [ "$n" != "1" ] || [ -z "$file" ]; then
+            echo "A submission pull request must add exactly one file: benchmark/submissions/<model_id>/submission.json"
+            exit 1
+          fi
+          mkdir -p "$(dirname "$file")"
+          git show "pr:$file" > "$file"
+          echo "SUBMISSION=$file" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install numpy pandas scipy scikit-learn pyarrow
+
+      - name: Download, validate and evaluate
+        working-directory: benchmark
+        run: python submission_check.py "../$SUBMISSION" --out check_out
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-results
+          path: |
+            benchmark/check_out/summary.txt
+            benchmark/check_out/predictions/results.json
+          if-no-files-found: ignore

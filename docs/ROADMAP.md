@@ -110,6 +110,17 @@ Cure, Bioteque) to compare. Low effort: the dataset, `bench.py` and six models a
 **What to decide.** Automatic evaluation (a space running `bench.py`) or reviewed pull requests; rules against
 using test labels (the submitter declares the training data; the external exam stays hidden-label if possible).
 
+**State 23-10-2026 (home PC): submission route ready, nothing published.** Chosen as the first step: pull requests
+evaluated automatically (no hosting, every result auditable in the repository). `benchmark/SUBMITTING.md` fixes the
+rules (training edges only, no outside drug–disease relations, settings on validation or `zero_shot_1`, open code and
+DOI for the predictions; the external exam is honour-based because its labels are public), `bench.py validate`
+checks a prediction folder, `submission_check.py` downloads the zip, checks its MD5, extracts only task files and
+evaluates with the `main` code, and `.github/workflows/bench-submission.yml` runs it on any pull request that adds one
+`benchmark/submissions/<model>/submission.json` (nothing from the pull request is executed). `leaderboard.py` lists
+accepted submissions. Tested locally with the popularity predictions (same numbers as the leaderboard). **Author's
+decisions:** announce it (Hugging Face dataset card, README of the dataset, preprint), and whether to add a Hugging
+Face Space later; a hidden-label track would be a prospective round like the 12-10 snapshot.
+
 ## 4. Drug-target Mendelian randomisation with protein QTLs
 
 **What.** For each drug target, genetic variants near its gene that change the protein's level (cis-pQTL: UK

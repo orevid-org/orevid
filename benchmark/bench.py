@@ -313,6 +313,40 @@ def evaluate_task(task, S):
     return out
 
 
+def validate(task_dir, pred_dir):
+    """Checks a prediction folder before evaluation: one file per task, columns, ids, finite scores, no duplicates,
+    every drug scored for every test disease. Returns the list of problems (empty = valid)."""
+    task_dir, pred_dir = Path(task_dir), Path(pred_dir)
+    problems = []
+    for tf in sorted(task_dir.glob("*.json")):
+        task = json.loads(tf.read_text())
+        name = task["name"]
+        pf = next((p for p in [pred_dir / f"{name}.parquet", pred_dir / f"{name}.csv"] if p.exists()), None)
+        if pf is None:
+            problems.append(f"{name}: no file")
+            continue
+        d = pd.read_parquet(pf) if pf.suffix == ".parquet" else pd.read_csv(pf)
+        if missing := {"disease", "drug", "score"} - set(d.columns):
+            problems.append(f"{name}: missing columns {sorted(missing)}")
+            continue
+        score = pd.to_numeric(d.score, errors="coerce")
+        if not np.isfinite(score).all():
+            problems.append(f"{name}: {int((~np.isfinite(score)).sum())} scores not finite")
+        if n := int(d.duplicated(["disease", "drug"]).sum()):
+            problems.append(f"{name}: {n} duplicated (disease, drug) pairs")
+        drugs, dis = set(task["drugs"]), {r["disease"] for r in task["diseases"]}
+        if n := int((~d.drug.isin(drugs)).sum()):
+            problems.append(f"{name}: {n} rows with a drug not in the task's drugs")
+        if n := int((~d.disease.isin(dis)).sum()):
+            problems.append(f"{name}: {n} rows with a disease not among the test diseases")
+        ok = d[d.drug.isin(drugs) & d.disease.isin(dis)].drop_duplicates(["disease", "drug"])
+        if (n := len(drugs) * len(dis) - len(ok)) > 0:
+            problems.append(f"{name}: {n:,} of {len(drugs) * len(dis):,} (disease, drug) pairs not scored "
+                            f"({len(dis - set(ok.disease))} test diseases with no score at all)")
+    print("\n".join(problems) if problems else f"valid: every task in {task_dir} has a complete prediction file")
+    return problems
+
+
 def evaluate(task_dir, pred_dir):
     task_dir, pred_dir = Path(task_dir), Path(pred_dir)
     res = {}
@@ -364,11 +398,14 @@ def main():
     b = s.add_parser("baseline"); b.add_argument("--tasks", default=str(HERE / "tasks"))
     b.add_argument("--out", default=str(HERE / "predictions" / "popularity"))
     b = s.add_parser("evaluate"); b.add_argument("--tasks", default=str(HERE / "tasks")); b.add_argument("--pred", required=True)
+    b = s.add_parser("validate"); b.add_argument("--tasks", default=str(HERE / "tasks")); b.add_argument("--pred", required=True)
     a = p.parse_args()
     if a.cmd == "build":
         build(a.kg, a.nodes, a.out)
     elif a.cmd == "baseline":
         baseline_popularity(a.tasks, a.out)
+    elif a.cmd == "validate":
+        sys.exit(1 if validate(a.tasks, a.pred) else 0)
     else:
         res = evaluate(a.tasks, a.pred)
         print(summary(res).round(3).to_string(index=False))

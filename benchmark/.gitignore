@@ -1,2 +1,3 @@
 predictions/*/*.parquet
 __pycache__/
+check_out/

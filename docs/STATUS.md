@@ -345,7 +345,9 @@ All items registered before running; results in DECISIONS P54–P56.
 | **D1** drugs that may worsen a disease (OnSIDES v3.1.1 + the P15 rule) | S1 (P15) beats «contraindicated somewhere» (+2.1, CI +1.6 to +2.5) but flags ~190 drugs per disease and fails the label check (first 3 of 50 wrong); OnSIDES adverse events do worse than the baseline (−4.2) | **not released** (P56) |
 | Preprint v3 text | R1b, recomputed hit rates and null, N1, N2, G1, N4; refs DrugMechDB, GenCC, Guney (Claude Doc rev. 137) | exported to `docs/preprint/` (A4 draft); **the author regenerates figure 4** with `evaluation/figures.py`, then the final Word with line numbers, Preprints.org v3, PCI |
 
-Website rebuilt in full with N4 part b and deployed (orevid commit `6f154ed`).
+Website rebuilt in full with N4 part b and deployed (orevid commit `6f154ed`). **Roadmap 3 (open leaderboard)**: submission route ready, not
+announced (`benchmark/SUBMITTING.md`, `bench.py validate`, `benchmark/submission_check.py`, workflow
+`bench-submission`; `docs/ROADMAP.md` §3); announcing it on Hugging Face and in the preprint is the author's decision.
 
 ## Next steps
 
@@ -398,8 +400,8 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      gene–disease validity (GenCC / ClinGen / PanelApp), «drugs that may worsen this disease» (drugs-to-avoid
      lists, OnSIDES), OREVID-bench as an open leaderboard, drug-target MR with pQTL, full polypharmacology (ChEMBL
      bioactivities, IUPHAR, Repurposing Hub). Each one is registered in `docs/IMPROVEMENT_PLAN.md` before running.
-     **Done on 23-10:** item 1 (G1, GenCC) not adopted (P54); item 2 (D1, «may worsen») not released (P56). Next in
-     the proposed order: 3 open leaderboard on Hugging Face (files only; publishing is the author's decision), 8 infections,
+     **Done on 23-10:** item 1 (G1, GenCC) not adopted (P54); item 2 (D1, «may worsen») not released (P56); item 3
+     (leaderboard) submission route ready, to announce. Next in the proposed order: 8 infections,
      4 pQTL MR, 5 polypharmacology — each registered before running. The curated drugs-to-avoid lists (porphyria,
      Brugada, long QT, G6PD, myasthenia) were left out of D1 and still need their licences checked.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The

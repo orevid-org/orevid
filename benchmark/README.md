@@ -18,7 +18,7 @@ TxGNN (Huang et al., *Nature Medicine* 2024), with three things that published e
 
 ## Results
 
-See [LEADERBOARD.md](LEADERBOARD.md). Summary (Recall@100, mean over diseases):
+See [LEADERBOARD.md](LEADERBOARD.md). **To add your model, see [SUBMITTING.md](SUBMITTING.md)** (rules, `bench.py validate`, a pull request with one `submission.json`, evaluated automatically). Summary (Recall@100, mean over diseases):
 
 | Model | Zero-shot | Zero-shot, hard | Disease areas | External (not in PrimeKG) |
 |---|---|---|---|---|
@@ -66,6 +66,7 @@ python bench.py build --kg kg.csv --nodes node.csv
 
 # 3. Train your model on each task's training edges (see below) and write predictions
 # 4. Evaluate
+python bench.py validate --pred predictions/my_model   # format and coverage check
 python bench.py evaluate --pred predictions/my_model
 python bench.py baseline          # popularity baseline -> predictions/popularity
 ```

@@ -1,0 +1,15 @@
+{
+  "model": "Short model name (as shown on the leaderboard)",
+  "team": "Authors or group",
+  "contact": "e-mail or GitHub handle",
+  "date": "YYYY-MM-DD",
+  "code_url": "https://github.com/...",
+  "predictions_doi": "10.5281/zenodo....",
+  "predictions_url": "https://zenodo.org/records/.../files/predictions.zip?download=1",
+  "predictions_md5": "md5 of the zip",
+  "data_beyond_training_edges": ["source and version, or empty"],
+  "settings_chosen_on": "validation edges | zero_shot_1",
+  "external_exam_eligible": true,
+  "paper": "",
+  "accepted": false
+}
