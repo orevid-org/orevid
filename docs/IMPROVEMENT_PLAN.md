@@ -466,6 +466,51 @@ Implementation: `sources/onsides.py`, `evaluation/d1_worsen.py` → `docs/D1_WOR
 
 ---
 
+## Registered 23-10-2026, before any run: R3 (infections by pathogen class; roadmap item 8)
+
+Written on the home PC and pushed before MONDO or ChEMBL is downloaded or any number computed. R2 (P49) failed for
+two reasons this item removes: PrimeKG's ontology merges «bacterial» and «viral infectious disease», and the DrugBank
+ATC *texts* mix classes (corticosteroids read as antibacterial through combination products).
+
+**Disease class.** From the current MONDO release (`mondo.obo`, version recorded in `data/raw/mondo/VERSION`): the
+MONDO ids each graph disease node carries (PrimeKG groups several), their `is_a` ancestors, and the classes
+«bacterial infectious disease», «viral infectious disease», «fungal infectious disease» and «parasitic infection»
+(ids reported; a label not found is reported). A node with more than one class, or none, is left alone.
+Pneumocystosis (any disease whose name contains «pneumocyst») is left alone, stated now: *Pneumocystis* is a fungus
+treated with antibacterial and antiparasitic drugs.
+
+**Drug class.** From ATC **codes** in ChEMBL (`molecule.atc_classifications`, ChEMBL release recorded), mapped to
+graph drugs through Open Targets' ChEMBL → DrugBank cross-references (`sources/ids.py`, salts and parents
+included). Classes by code prefix, nothing else: antibacterial J01, J04; antifungal J02, D01; antiviral J05, D06BB,
+S01AD; antiparasitic P01, P02, P03. Combination and mixed groups (A07A, G01, D06A, S01A except S01AD, D07C, S01C …)
+give no class. A drug belongs to every class its codes give.
+
+**Which classes count as wrong**, fixed now from standard practice (cross-class uses that are standard are allowed):
+in a viral disease, antibacterial, antifungal and antiparasitic drugs; in a bacterial disease, antiviral and
+antifungal drugs; in a fungal disease, antiviral and antibacterial drugs; in a parasitic disease, antiviral drugs
+only (antibacterials such as doxycycline, clindamycin or metronidazole and antifungals such as amphotericin B are
+standard there).
+
+**Exemption.** A drug indicated for any disease of the same class in the graph the model sees (the training graph in
+the evaluation, the full graph on the website) is never out of class (e.g. a sulfonamide with a fungal indication).
+
+**Rule.** In a disease with one class, a direct-extension or shared-genes candidate that has an anti-infective class,
+none of them the disease's, whose classes are all «wrong» for that disease class, and that is not exempt, becomes
+hidden. Other drugs are untouched.
+
+**Test and decision rule, the same as R2.** Same top 25, sections and sets as `evaluation/evidence_ci.py` (benchmark
+seeds 1–5, nine areas, external exam). Adopted only if (i) the P29 rule holds (removed candidates hit < 5 % on the
+benchmark and the areas; a set with fewer than 20 removed candidates counts as uninformative, and then the external
+exam must also show the removed candidates below 5 %), and (ii) **no removed pair is an approved indication** of that
+disease in the full graph (PrimeKG indication or confirmed Open Targets approval). Reported first: classes found,
+drugs per class, test diseases per class; then every removed pair for a manual check. Expected conflicts, stated now:
+sulfanilamide for vulvovaginal candidiasis (P49; exempt only if it has another fungal indication in the training
+graph); any approved pair removed rejects the rule. If adopted, the website applies it with the full graph and the
+Method page says so. Implementation: `sources/infections.py`, `evaluation/r3_infections.py` → `docs/R3_INFECTIONS.md`;
+DECISIONS P57.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
