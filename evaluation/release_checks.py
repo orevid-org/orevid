@@ -51,7 +51,7 @@ def coloc_rows(ensg, size=10):
     while True:
         q = (f'query {{ target(ensemblId:"{ensg}") {{ credibleSets(page:{{index:{page},size:{size}}}) {{ count rows {{ '
              'studyType isTransQtl study { id } colocalisation(studyTypes:[gwas], page:{index:0,size:200}) { rows { h4 '
-             'betaRatioSignAverage otherStudyLocus { study { id diseases { id } } } } } } } } }')
+             'betaRatioSignAverage otherStudyLocus { study { id traitFromSource diseases { id } } } } } } } } }')
         cs = ot(q)["target"]["credibleSets"]
         rows += cs["rows"]
         page += 1
@@ -100,6 +100,42 @@ def g2():
     return out
 
 
+def g2b():
+    """G2b: every genetic line of the pages, kept only if release 26.09 has a colocalisation with the stated direction and
+    none with the opposite one (same QTL type, cis, h4 ≥ 0.8, a GWAS mapped to one of the line's diseases)."""
+    a = pd.read_json(OUT / "annotations.jsonl", lines=True)
+    a = a[a.kind == "genetics"].drop_duplicates(["disease", "drug", "g"])
+    cache, out = {}, []
+    for r in a.itertuples():
+        if r.e not in cache:
+            cache[r.e] = coloc_rows(r.e)
+        types, ids_ = {x.lower() for x in r.q.split("+")}, set(r.ot)
+        same, opposite = [], []
+        for cs in cache[r.e]:
+            if cs["studyType"] not in types or cs["isTransQtl"]:
+                continue
+            for c in cs["colocalisation"]["rows"]:
+                st = c["otherStudyLocus"]["study"]
+                if {d["id"] for d in st["diseases"]} & ids_ and c["h4"] is not None and c["h4"] >= 0.8:
+                    h = {"qtl_study": cs["study"]["id"], "gwas_study": st["id"], "trait": st["traitFromSource"],
+                         "h4": round(c["h4"], 3)}
+                    if c["betaRatioSignAverage"] == r.s:
+                        same.append(h)
+                    elif c["betaRatioSignAverage"] == -r.s:
+                        opposite.append(h)
+        out.append({"disease_id": int(r.disease), "disease": r.disease_name, "drug_id": int(r.drug), "drug": r.drug_name,
+                    "gene": r.g, "ensg": r.e, "sign": int(r.s), "action": int(r.a), "qtl": r.q, "support": same,
+                    "opposite": opposite, "stable": bool(same) and not opposite})
+    (OUT / "g2b_lines.jsonl").write_text("\n".join(json.dumps(x, ensure_ascii=False) for x in out) + "\n", "utf-8")
+    ok = [x for x in out if x["stable"]]
+    print(f"{len(out)} lines, {len(ok)} stable, {sum(bool(x['opposite']) for x in out)} with an opposite colocalisation, "
+          f"{sum(not x['support'] for x in out)} without support in 26.09")
+    import random
+    random.Random(71).shuffle(ok)
+    (OUT / "g2b_sample.json").write_text(json.dumps(ok[:N], ensure_ascii=False, indent=1), "utf-8")
+    return out
+
+
 def x1():
     s = sample("pgx")
     pairs = json.loads(urllib.request.urlopen("https://api.cpicpgx.org/v1/pair", timeout=120).read())
@@ -130,4 +166,4 @@ def r4_sample():
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
-    {"g2": g2, "x1": x1, "r4-sample": r4_sample}[sys.argv[1]]()
+    {"g2": g2, "g2b": g2b, "x1": x1, "r4-sample": r4_sample}[sys.argv[1]]()

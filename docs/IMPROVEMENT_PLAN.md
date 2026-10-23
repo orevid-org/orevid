@@ -773,6 +773,18 @@ if ≤ 2 of 50 are wrong. Implementation: `evaluation/release_checks.py` (`g2b`)
 
 ---
 
+## Registered 24-10-2026, after the G2b check and before any new query: G2c (case–control GWAS of the page's disease only)
+
+G2b failed (P71): stable lines, but 7 of 50 supported by a GWAS that is not the page's disease (quantitative traits,
+questionnaires, combined phenotypes, Open Targets mapping). **G2c** keeps a line only if, besides G2b's stability, at
+least one supporting 26.09 GWAS study (i) has cases (`nCases` > 0: a case–control study, not a quantitative trait or a
+questionnaire item) and (ii) has **every** one of its disease ids among the page's disease ids (no combined or
+extra phenotypes). **Check:** 50 new random lines that pass (other seed), read by the assistant with the same three
+criteria as G2b (trait = the page's disease or a form of it; QTL of the gene; drug mechanism), ≤ 2 wrong. If it fails,
+no further version tonight: the genetic line stays off the pages. DECISIONS P72.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

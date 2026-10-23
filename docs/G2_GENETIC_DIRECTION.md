@@ -16,3 +16,7 @@ disease in 26.09; flecainide – Brugada syndrome, SCN5A, a correct «disagrees�
 eQTL colocalisations are not stable between Open Targets releases, so a line on a page cannot cite them as a source.
 The direction stays in the ranking model (author's decision, P61) and in the internal graph; showing it would need a
 rule restricted to stable signals (e.g. pQTL, or support in two releases), registered and checked anew.
+
+## G2b: only lines stable between 26.06 and 26.09 (24-10-2026)
+
+Of the 365 lines of the pages, 262 are stable (26.09 has a colocalisation with the stated direction and none with the opposite one); 64 have an opposite colocalisation in 26.09 and 39 no support. Check of 50 stable lines read by the assistant (`data/eval/g2b_check.json`): the drug's mechanism right in 50/50, but in **7 of 50 the supporting GWAS is not the page's disease**: neuroticism mapped to «neurotic disorder» (twice), a medication questionnaire on the diabetes page, «asthma or reflux» on the reflux page, mood traits on the anxiety-disorder page, cardiac arrhythmias on the COPD page, and Barrett's oesophagus / adenocarcinoma on the adenosquamous-carcinoma page. **Not released** (gate ≤ 2): the weak point is now Open Targets' mapping of some GWAS traits (quantitative traits, questionnaires, combined phenotypes) to diseases.
