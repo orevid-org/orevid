@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 23-10-2026)
+# Project status and how to continue (updated 23-10-2026, evening)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -334,6 +334,19 @@ Preprint: not changed tonight; a v3 would add R1b (new hit rates), N1 and the N2
   bots (575 clones, 247 cloners, 6 page views in two weeks).
 - **GitHub two-factor authentication** is required on `quimqu` before 27-11-2026 (the author does it).
 
+## Done on 23-10-2026, afternoon and evening (home PC)
+
+All items registered before running; results in DECISIONS P54–P56.
+
+| Item | Result | Decision |
+|---|---|---|
+| **G1** GenCC (CC0, 11,015 pairs, 420 diseases) for the shared-genes line | G1c closest: external exam 4.4 → 4.8 %, but the candidates it removes hit 19.2 % (benchmark) / 5.4 % (areas) | not adopted (P54) |
+| **N4 v2** drug status by parts, checked by opening DailyMed / EMA pages (URL and quote kept) | (a) negated pairs 31/61 wrong; (b) current status 3/50, then **0/50** after the DailyMed fix; (c) label-confirmed Open Targets approvals 4/50, then 4 + 1 unsure /50 | **(b) released** (P55): pages show «no US product · EU: withdrawn / revoked …» (olaratumab, daclizumab…); (a) and (c) not; 25 negations verified one by one kept in `resources/n4_verified_negations.csv`, **shown only if the author agrees** |
+| **D1** drugs that may worsen a disease (OnSIDES v3.1.1 + the P15 rule) | S1 (P15) beats «contraindicated somewhere» (+2.1, CI +1.6 to +2.5) but flags ~190 drugs per disease and fails the label check (first 3 of 50 wrong); OnSIDES adverse events do worse than the baseline (−4.2) | **not released** (P56) |
+| Preprint v3 text | R1b, recomputed hit rates and null, N1, N2, G1, N4; refs DrugMechDB, GenCC, Guney (Claude Doc rev. 137) | exported to `docs/preprint/` (A4 draft); **the author regenerates figure 4** with `evaluation/figures.py`, then the final Word with line numbers, Preprints.org v3, PCI |
+
+Website rebuilt in full with N4 part b and deployed (orevid commit `6f154ed`).
+
 ## Next steps
 
 **Publishing and adoption: `docs/LAUNCH_PLAN.md`.** Model work: `docs/ROADMAP.md` and `docs/IMPROVEMENT_PLAN.md`.
@@ -373,13 +386,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
 1b. **Improvement plan**: done (I1–I6, P42–P47). Left over: optional TxGNN on the temporal cutoffs;
    pathway overlap with its own null (P46) as a new pre-registered test. **R1, R2, N1–N4: registered and run on
    22–23 October** (see «Night of 22–23 October», P48–P53). Left over:
-   - **N4 second version** (`docs/DRUG_STATUS.md`, `docs/IMPROVEMENT_PLAN.md` «Added 23-10-2026»): better disease and
-     drug matching, then release in parts: negated pairs (griseofulvin), withdrawn / revoked medicines (olaratumab),
-     Open Targets approvals a label confirms (ublituximab, butoconazole, terconazole). **The first run's manual check
-     was done by an AI agent without web search, not against the source pages as registered: it does not count as
-     the release check.** The next check is done against DailyMed / EMA / Orange Book pages, by a person or by an
-     agent that opens them and keeps the URL of each verdict. Until then the website shows the approvals as before,
-     including the errors of item 9.
+   - **N4 second version: done 23-10** (P55). Part b (current status) released; parts a (negated pairs, e.g.
+     griseofulvin) and c (Open Targets approvals a label confirms) failed their checks against the source pages and stay
+     off: a third version would need a person or a better sentence parser. Pending author decision: show the 25
+     verified negations (`resources/n4_verified_negations.csv`) as a curated list.
    - **N3 Bioteque**: when the IRB websites are back (terms from Patrick Aloy in the plan).
    - **A rule for the shared-genes outliers** that R1b does not remove (insulin for MS through 36 ordinary genes
      shared with type 1 diabetes; paclitaxel for Castleman through IL6, JAK1, NOTCH1); R1a failed.
@@ -388,8 +398,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      gene–disease validity (GenCC / ClinGen / PanelApp), «drugs that may worsen this disease» (drugs-to-avoid
      lists, OnSIDES), OREVID-bench as an open leaderboard, drug-target MR with pQTL, full polypharmacology (ChEMBL
      bioactivities, IUPHAR, Repurposing Hub). Each one is registered in `docs/IMPROVEMENT_PLAN.md` before running.
-     **G1 (GenCC) registered on 23-10** (work PC; criteria fixed, nothing downloaded): run it on the home PC with
-     `sources/gencc.py` and `evaluation/g1_gencc.py`, results in `docs/G1_GENCC.md` and DECISIONS P54.
+     **Done on 23-10:** item 1 (G1, GenCC) not adopted (P54); item 2 (D1, «may worsen») not released (P56). Next in
+     the proposed order: 3 open leaderboard on Hugging Face (files only; publishing is the author's decision), 8 infections,
+     4 pQTL MR, 5 polypharmacology — each registered before running. The curated drugs-to-avoid lists (porphyria,
+     Brugada, long QT, G6PD, myasthenia) were left out of D1 and still need their licences checked.
 2. Shared genes (P38): the line works as a selection of drugs used in comparable diseases, not as biology. The
    three pre-registered replacements failed (P46); pathway overlap came closest and would need its own null
    (permuting pathway sets) in a new pre-registered test.
