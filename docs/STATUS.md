@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 22-10-2026)
+# Project status and how to continue (updated 23-10-2026)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -288,7 +288,8 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
   - **Open Targets community forum**: first post (announcement) held for moderation, the account «temporarily on
     hold» (automatic: new account with many links); a short note was sent to the moderators. **Approved on 23-10**:
     the topic is online, https://community.opentargets.org/t/2098 (do not repost; answer replies; add the v3 there
-    as a reply when it is out).
+    as a reply when it is out)). Helena Cornu (`hcornu`, Open Targets community) approved it and welcomed the
+    author: it had been flagged for being typed too fast (pasted from a draft), not for its links; the author replied.
   - **Bluesky**: introduction post published (22-10).
   - Planned: launch day with the r/bioinformatics post (to be drafted) and the Bluesky thread together;
     **BOSC 2027** (Open Bioinformatics Foundation, within ISMB; abstracts usually due around April).
@@ -316,7 +317,26 @@ diabetes and paclitaxel reaches Castleman disease through IL6, JAK1 and NOTCH1 (
 those cases is still to find (R1a, the obvious one for Castleman's 3 genes, failed).
 Preprint: not changed tonight; a v3 would add R1b (new hit rates), N1 and the N2 / N4 results.
 
+## Done on 23-10-2026 (work PC)
+
+- **Night's work checked** (commits `389458a`–`c140ad4`): the registered plan was not edited after the runs; the
+  website build is deployed (belimumab now shows its trial). The four commits carry a Claude co-author line: the
+  author's rule (21-10) lives only in the work PC's assistant memory, which the home PC does not see. A `CLAUDE.md`
+  with the rule was offered and declined for now.
+- **N4 review deviation recorded** (`docs/DRUG_STATUS.md`, plan «Added 23-10-2026», DECISIONS P53): the manual check
+  was made by an AI agent without web search; the next check is done against the source pages.
+- **`docs/ROADMAP.md`**: 17 new sources and directions ranked by potential (none registered); **G1 (GenCC)
+  registered** in `docs/IMPROVEMENT_PLAN.md` before any download.
+- **`docs/LAUNCH_PLAN.md`**: how to publish and get OREVID used, in four phases (fix the visible errors and post
+  the v3 first, PCI with the v3, launch day, leaderboard and follow-ups, long-term checks), with what to measure.
+- Outreach: Open Targets forum post approved (topic 2098); Patrick Aloy answered (Bioteque terms, in the plan, N3);
+  the three awesome-list pull requests have no review yet; GitHub repository: 0 stars, 0 forks; clone counts are
+  bots (575 clones, 247 cloners, 6 page views in two weeks).
+- **GitHub two-factor authentication** is required on `quimqu` before 27-11-2026 (the author does it).
+
 ## Next steps
+
+**Publishing and adoption: `docs/LAUNCH_PLAN.md`.** Model work: `docs/ROADMAP.md` and `docs/IMPROVEMENT_PLAN.md`.
 
 **On a computer without `data/`** (the work PC): posting the preprint (step 1), the biomarker table (3: editing the CSV; checking it needs `data/`) and
 anything that only reads the benchmark prediction files (`benchmark/`, release zip). **Needs the home PC**
