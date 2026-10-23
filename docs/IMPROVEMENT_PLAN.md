@@ -511,6 +511,46 @@ DECISIONS P57.
 
 ---
 
+## Registered 23-10-2026, before any run: M1 (direction from protein QTL colocalisation; roadmap item 4, first step)
+
+Written on the home PC and pushed before the colocalisation files are downloaded (one 100 MB part was opened to read
+the columns: `betaRatioSignAverage` is ±1, the left side is always a GWAS, the method is COLOC with eCAVIAR).
+
+**Question.** When a protein's genetically higher level goes with higher risk of a disease, do drugs that lower that
+protein treat the disease more often than drugs that raise it (and the reverse)? This is the sign of a
+single-instrument Mendelian randomisation, as Open Targets computes it; a full MR (several instruments, pleiotropy
+tests) is a later step only if this one passes.
+
+**Data, fixed now.** Open Targets 26.06 `colocalisation` (all 200 parts, streamed; only rows whose right side is a
+`pqtl` or `eqtl` kept), `credible_set` light table (study, type, `isTransQtl`) and `study` (QTL gene, GWAS
+`diseaseIds`). Kept: h4 ≥ 0.8, `betaRatioSignAverage` = ±1, **cis** QTL only. GWAS disease ids → graph disease nodes
+by the Open Targets disease id of the graph node or its MONDO cross-reference (`sources/ids.py`), exact ids only, no
+propagation. Per (gene, disease) the sign is kept only if all its colocalisations agree. Drug mechanisms: Open
+Targets `drug_mechanism_of_action` (ChEMBL), drugs → graph by `sources/ids.py`; action types that **lower** the
+target (inhibitor, antagonist, blocker, negative allosteric modulator, inverse agonist, degrader, antisense,
+RNAi inhibitor, disrupting agent) or **raise** it (agonist, activator, positive allosteric modulator, opener,
+stabiliser, partial agonist); others ignored. A drug with targets of both kinds for one (gene, disease) is dropped.
+
+**Signal.** For (drug, disease): **agrees** if the drug lowers a target whose higher level raises the disease risk, or
+raises one whose higher level lowers it; **opposes** otherwise. Primary: pQTL. Reported, not deciding: eQTL, and both.
+
+**Test (a), deciding.** Positives: the drug's indications for that disease in the full graph (PrimeKG indication or
+confirmed Open Targets approval). Statistic: indication rate among «agrees» pairs ÷ rate among «opposes» pairs,
+95 % interval by resampling diseases. **Direction validated** only if the lower bound is > 1 and there are at least
+30 indication pairs among the directed pairs. Reported: coverage first (genes, drugs, diseases, pairs, positives),
+the same ratio on the Open Targets approvals absent from PrimeKG (the external exam's out-of-graph positives), and
+per therapeutic area if ≥ 10 positives.
+
+**Test (b), deciding for a risk warning.** Positives: PrimeKG contraindications. Statistic: contraindication rate
+among «opposes» ÷ rate among «agrees», same interval and thresholds.
+
+**What follows.** Nothing changes on the website from this item. If (a) passes, a display line («human genetics
+agrees with the direction of this drug») and a model feature are registered separately (I4 rule); if (b) passes, a
+risk warning is registered separately with the D1 release check. Implementation: `sources/coloc.py`,
+`evaluation/m1_direction.py` → `docs/M1_DIRECTION.md`; DECISIONS P58.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
