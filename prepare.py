@@ -4,7 +4,7 @@ Each relation is saved as a symmetric N x N matrix (scipy .npz). If a relation
 has subtypes (e.g. drug_protein -> target / enzyme / transporter / carrier),
 each subtype is also saved as "relation:subtype".
 
-If there are external sources in data/ext/ (sources/*.py), they are merged by canonical
+The external sources of CORE_EXT (data/ext/<name>_nodes|_edges.parquet, sources/*.py) are merged by canonical
 key (sources/ids.py): nodes that do not exist in PrimeKG are appended at the
 end, and the attributes of the external edges (phase, year, score…) are saved
 to data/prep/attributes.parquet.
@@ -26,6 +26,9 @@ ROOT = Path(__file__).parent
 RAW = ROOT / "data" / "raw"
 EXT = ROOT / "data" / "ext"
 PREP = ROOT / "data" / "prep"
+# A fixed list: other tables in data/ext go to the internal graph (layers.py), never here, so that a new source
+# cannot add nodes and shift the indices every model and cache relies on.
+CORE_EXT = ["ctd", "direction", "gwas_direction", "opentargets", "pubmed", "pubtator", "string", "structure"]
 
 
 def file_name(rel):
@@ -47,7 +50,7 @@ def merge_external(nodes, edges):
         for c in primekg_keys(t, nid):
             index.setdefault(c, i)
 
-    new = [pd.read_parquet(f) for f in sorted(EXT.glob("*_nodes.parquet"))]
+    new = [pd.read_parquet(f) for f in (EXT / f"{s}_nodes.parquet" for s in CORE_EXT) if f.exists()]
     if new:
         new = pd.concat(new).drop_duplicates("key")
         new = new[~new.key.isin(index)].reset_index(drop=True)
@@ -57,7 +60,7 @@ def merge_external(nodes, edges):
         nodes = pd.concat([nodes, new[nodes.columns]], ignore_index=True)
 
     external, attributes = [edges], []
-    for f in sorted(EXT.glob("*_edges.parquet")):
+    for f in (f for f in (EXT / f"{s}_edges.parquet" for s in CORE_EXT) if f.exists()):  # pubmed: second pass
         a = pd.read_parquet(f)
         a["x_index"] = a.x.map(index)
         a["y_index"] = a.y.map(index)

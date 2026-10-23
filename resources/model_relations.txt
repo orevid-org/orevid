@@ -1,0 +1,22 @@
+# Relations read by the production ranking model (layers.model_relations()). Change only with a registered test.
+bioprocess_protein
+contraindication
+disease_disease
+disease_phenotype_positive
+disease_protein
+drug_drug
+drug_effect
+drug_protein
+drug_protein:target
+indication
+moa
+off-label use
+ot_assoc:animal_model
+ot_assoc:genetic_association
+ot_assoc:genetic_literature
+ot_assoc:rna_expression
+ot_assoc:somatic_mutation
+pathway_protein
+phenotype_protein
+protein_protein
+string

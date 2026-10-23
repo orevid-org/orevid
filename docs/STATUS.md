@@ -347,7 +347,10 @@ All items registered before running; results in DECISIONS P54–P56.
 | **P1** measured off-targets (roadmap 5): ChEMBL 37 + GtoPdb, 14,722 drug–gene pairs | standalone on no-prior-use positives 0.042 vs random 0.013, +0.029 (−0.009 to +0.081), 47 diseases | gate failed, not adopted (P59) |
 | Preprint v3 text | R1b, recomputed hit rates and null, N1, N2, G1, N4; refs DrugMechDB, GenCC, Guney (Claude Doc rev. 137) | exported to `docs/preprint/` (A4 draft); **the author regenerates figure 4** with `evaluation/figures.py`, then the final Word with line numbers, Preprints.org v3, PCI |
 
-Website rebuilt in full with N4 part b and deployed (orevid commit `6f154ed`). **Roadmap 3 (open leaderboard)**: submission route ready, not
+**Two graphs (P60, author's request):** `layers.py` keeps every source, also the ones not adopted, as a layer of an
+internal graph (`data/graph/internal/`, 61 layers) and exports the redistributable ones as a publishable graph
+(`data/graph/public/`, 53 layers, not published); `docs/GRAPH_LAYERS.md` lists source, licence, status and decision of each.
+The model's relations are frozen by a test. Website rebuilt in full with N4 part b and deployed (orevid commit `6f154ed`). **Roadmap 3 (open leaderboard)**: submission route ready, not
 announced (`benchmark/SUBMITTING.md`, `bench.py validate`, `benchmark/submission_check.py`, workflow
 `bench-submission`; `docs/ROADMAP.md` §3); announcing it on Hugging Face and in the preprint is the author's decision.
 

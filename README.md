@@ -118,6 +118,11 @@ Other documents: [`docs/TARGETS.md`](docs/TARGETS.md) (which gene to target),
 | **FDA Orange Book and Purple Book** | US public domain | Generic / biosimilar status, US patent or exclusivity date and routes, display only (P44) |
 | **EMA medicines table** | © European Medicines Agency, reuse with acknowledgement | EU generic / biosimilar status (centralised procedure only), display only (P44) |
 
+Sources tested and not adopted (GenCC, OnSIDES, ChEMBL activities, GtoPdb, DrugMechDB, LINCS, MONDO infection
+classes, label checks, QTL colocalisations…) are kept as layers of an **internal graph** beside the model's, with
+their provenance and licence; only the layers that may be redistributed form a publishable graph (not published yet).
+See [`docs/GRAPH_LAYERS.md`](docs/GRAPH_LAYERS.md) and `layers.py`.
+
 Pitfalls found in the data and how they are handled are recorded in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 Two were reported upstream to Open Targets: multiple sclerosis merged into a measurement term in 26.09
 (that is why 26.06 is used), and approvals derived from multi-drug labels or abbreviations (handled by
@@ -157,7 +162,8 @@ built data and are skipped without it). Publishing the website: [`docs/DEPLOY.md
 | Path | Content |
 |---|---|
 | `download.py`, `sources/` | Downloads and converts each source to `data/ext/` |
-| `prepare.py`, `graph.py` | Merges everything into the graph (`data/prep/`) and computes metapath features |
+| `prepare.py`, `graph.py` | Merges the core sources into the model's graph (`data/prep/`) and computes metapath features |
+| `layers.py` | Internal graph with every layer (`data/graph/internal/`) and the publishable one (`data/graph/public/`) |
 | `predictor.py` | Production model and drug status/filters |
 | `evaluation/` | Comparison with TxGNN, novelty tests, external exam, evidence rules, targets, direction |
 | `benchmark/` | OREVID-bench: tasks, evaluation code, predictions' metrics, leaderboard |
