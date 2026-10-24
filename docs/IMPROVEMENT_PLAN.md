@@ -851,6 +851,23 @@ P80–P82.
 
 ---
 
+## Registered 24-10-2026, before running: T2 (temporal test with dated drugs)
+
+The temporal test (I1, P42) leaves the 80 % of PrimeKG indications that Open Targets does not date in the training
+graph. **T2** dates drugs with DrugCentral's first approval (any agency; `data/ext/drugcentral_approvals.parquet`, P73):
+in the cutoff graph at year C, every PrimeKG drug–disease edge (indication, contraindication, off-label use) of a drug
+first approved in C or later is also removed, as such a drug could not have them at C. Everything else as I1
+(production model `extra_qtl_orpha`, C1 = 2012 development, C2 = 2015 confirmation, the same positives, candidates
+and metrics). **Decision rule (as P42):** the claim «OREVID ranks later phase 3 / approved uses above popularity»
+holds under T2 if, at C2, the paired Recall@100 difference OREVID − popularity has a 95 % interval above 0.
+Reported: the residual share of PrimeKG indications with neither an Open Targets year nor a dated drug; the same
+analysis for the drugs first approved at C or later («new drugs», which have no use at C) against random ranking;
+the I1 numbers of the same model for comparison. Caveat stated now: the QTL and Orphanet columns and the undated
+gene–disease data use 2026 knowledge. Implementation: `evaluation/temporal.py` (`dated`); `docs/TEMPORAL.md`
+(section T2); DECISIONS P83.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
