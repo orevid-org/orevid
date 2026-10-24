@@ -33,11 +33,13 @@ Nodes: 161,949 (157,822 core, 4,033 ATC class, 37 tissue (HPA), 30 cancer lineag
 | drugcentral | drugcentral_relation | DrugCentral (dump 02-09-2026) | CC BY-SA 4.0 | yes | 23,935 | L1 exam: OREVID +0.27 over popularity on indications only DrugCentral / MED-RT know (P73) |
 | medrt | medrt_relation | MED-RT (VA / NLM) (2026.10.05) | Public domain | yes | 13,702 | L1 exam (P73) |
 | orphan_ema | orphan_designation | EMA orphan designations (report of 23-10-2026) | EMA reuse with acknowledgement | check | 1,418 | L2 exam: +0.15; designations from 2023 on +0.08 (P74) |
-| orphanet_genes | orphanet_gene | Orphadata product 6 (downloaded 24-10-2026) | CC BY 4.0 | yes | 4,598 | L3: 438 rare diseases gain genes (P75); not in the model |
+| orphanet_genes | orphanet_gene | Orphadata product 6 (downloaded 24-10-2026) | CC BY 4.0 | yes | 4,598 | used by the ranking model, column «orphanet genes» (author's decision, P79) |
 | orphanet_phenotypes | orphanet_phenotype | Orphadata product 4 (HPO, frequency) (downloaded 24-10-2026) | CC BY 4.0 | yes | 73,427 | L3 (P75); not in the model |
 | hpa_tissue | tissue_enriched | Human Protein Atlas (downloaded 24-10-2026) | CC BY-SA 4.0 | yes | 17,409 | L4 target attributes (P76) |
 | depmap | crispr_dependency | DepMap Public 24Q2 CRISPR (figshare 25880521) | CC BY 4.0 | yes | 50,108 | L5 gate failed (P77) |
 | offsides | faers_signal | OFFSIDES (nSIDES) (S3 download 24-10-2026) | to check | check | 833,248 | L6: worse than the naive baseline, as OnSIDES (P78) |
+| hpo_current | hpo_annotation | HPO annotations (phenotype.hpoa) (2026-09-02) | HPO licence (attribution) | yes | 159,615 | N5 column not adopted (P80) |
+| mgi | mouse_model_gene | MGI mouse models of human disease (MGI_DO.rpt 24-10-2026) | CC BY 4.0 | yes | 2,933 | N6 column not adopted (P81) |
 | ot_approvals | approval | Open Targets 26.06 (classified, sources/ot_approvals.py) (26.06) | CC0 1.0 | yes | 10,215 | evaluation and display of approvals |
 
 ## Core layers (data/prep)
@@ -101,6 +103,7 @@ Nodes: 161,949 (157,822 core, 4,033 ATC class, 37 tissue (HPA), 30 cancer lineag
 | orphadata_prevalence | Orphadata product 9 | CC BY 4.0 | yes | R4 display (P66) |
 | drugcentral_approvals | DrugCentral | CC BY-SA 4.0 | yes | first approvals with dates (L1, P73) |
 | gene_attributes | Human Protein Atlas, TCRD / Pharos via DrugCentral | CC BY-SA 4.0 | yes | L4 (P76) |
+| b3db | B3DB | CC0 1.0 | yes | N7 not adopted (P82) |
 | practical | Orange Book, Purple Book, EMA | US public domain; EMA reuse with acknowledgement | check | shown (P44) |
 
 ## Not layers
@@ -110,4 +113,4 @@ Nodes: 161,949 (157,822 core, 4,033 ATC class, 37 tissue (HPA), 30 cancer lineag
 
 ## Relations read by the ranking model
 
-`bioprocess_protein`, `contraindication`, `disease_disease`, `disease_phenotype_positive`, `disease_protein`, `drug_drug`, `drug_effect`, `drug_protein`, `drug_protein:target`, `indication`, `layer:qtl_coloc`, `moa`, `off-label use`, `ot_assoc:animal_model`, `ot_assoc:genetic_association`, `ot_assoc:genetic_literature`, `ot_assoc:rna_expression`, `ot_assoc:somatic_mutation`, `pathway_protein`, `phenotype_protein`, `protein_protein`, `string`
+`bioprocess_protein`, `contraindication`, `disease_disease`, `disease_phenotype_positive`, `disease_protein`, `drug_drug`, `drug_effect`, `drug_protein`, `drug_protein:target`, `indication`, `layer:orphanet_genes`, `layer:qtl_coloc`, `moa`, `off-label use`, `ot_assoc:animal_model`, `ot_assoc:genetic_association`, `ot_assoc:genetic_literature`, `ot_assoc:rna_expression`, `ot_assoc:somatic_mutation`, `pathway_protein`, `phenotype_protein`, `protein_protein`, `string`

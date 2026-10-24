@@ -14,8 +14,8 @@ internal graph (`docs/GRAPH_LAYERS.md`) whatever their result; decisions are in 
 ## Tested as model columns, not adopted
 
 ChEMBL 37 + GtoPdb + Broad Repurposing Hub off-targets (P59, P65), network proximity (P51), LINCS / CREEDS reversal (P45),
-Perturb-seq knockdown reversal (P69), PRISM lineage sensitivity (P63), RotatE embeddings (P47). Running now: current
-HPO phenotypes (N5), MGI mouse models (N6), B3DB blood–brain barrier (N7).
+Perturb-seq knockdown reversal (P69), PRISM lineage sensitivity (P63), RotatE embeddings (P47). Also current HPO phenotypes (N5,
+P80; it harmed new drugs), MGI mouse models (N6, P81) and B3DB blood–brain barrier (N7, P82).
 
 ## Used as exams (independent validation of OREVID)
 

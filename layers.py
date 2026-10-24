@@ -365,6 +365,14 @@ def load_offsides(g, new):
     return _named(pd.read_parquet(EXT / "offsides.parquet"), "drug", "disease", "faers_signal", "OFFSIDES", prr="prr", reports="reports")
 
 
+def load_hpo_current(g, new):
+    return _named(pd.read_parquet(EXT / "hpo_current.parquet"), "disease", "phenotype", "hpo_annotation", "frequency", source="source")
+
+
+def load_mgi(g, new):
+    return _named(pd.read_parquet(EXT / "mgi_models.parquet"), "disease", "gene", "mouse_model_gene", "MGI mouse model", mgi="mgi")
+
+
 LAYERS = [
     Layer("gencc", "gene_disease_validity", "GenCC", "data/raw/gencc/VERSION", "CC0 1.0", "yes",
           "tested for the shared-genes line, not adopted (P54)", load_gencc),
@@ -419,6 +427,10 @@ LAYERS = [
           "L5 gate failed (P77)", load_depmap),
     Layer("offsides", "faers_signal", "OFFSIDES (nSIDES)", "S3 download 24-10-2026", "to check", "check",
           "L6: worse than the naive baseline, as OnSIDES (P78)", load_offsides),
+    Layer("hpo_current", "hpo_annotation", "HPO annotations (phenotype.hpoa)", "2026-09-02", "HPO licence (attribution)", "yes",
+          "N5 column not adopted (P80)", load_hpo_current),
+    Layer("mgi", "mouse_model_gene", "MGI mouse models of human disease", "MGI_DO.rpt 24-10-2026", "CC BY 4.0", "yes",
+          "N6 column not adopted (P81)", load_mgi),
     Layer("ot_approvals", "approval", "Open Targets 26.06 (classified, sources/ot_approvals.py)", "26.06", "CC0 1.0", "yes",
           "evaluation and display of approvals", load_ot_approvals),
 ]
@@ -428,6 +440,7 @@ NODE_ATTRIBUTES = {  # file: (source, licence, redistribution, status)
     "orphadata_prevalence": ("Orphadata product 9", "CC BY 4.0", "yes", "R4 display (P66)"),
     "drugcentral_approvals": ("DrugCentral", "CC BY-SA 4.0", "yes", "first approvals with dates (L1, P73)"),
     "gene_attributes": ("Human Protein Atlas, TCRD / Pharos via DrugCentral", "CC BY-SA 4.0", "yes", "L4 (P76)"),
+    "b3db": ("B3DB", "CC0 1.0", "yes", "N7 not adopted (P82)"),
     "practical": ("Orange Book, Purple Book, EMA", "US public domain; EMA reuse with acknowledgement", "check", "shown (P44)"),
 }
 

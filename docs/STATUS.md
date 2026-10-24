@@ -392,7 +392,9 @@ edges (`docs/GRAPH_LAYERS.md`).
 | L5 DepMap CRISPR by lineage | AUROC 0.47 | gate fails (P77) |
 | L6 OFFSIDES for «may worsen» | worse than baseline | not adopted (P78) |
 
-Internal graph: 161,949 nodes, 15.2 M edges, 77 layers; publishable 66 layers, 12.0 M edges. FDA orphan designations
+Then (24-10, morning): Orphanet genes adopted into the model by the author (P79; external exam 0.361 → 0.355, areas 0.620 → 0.627);
+current HPO phenotypes, MGI mouse models and B3DB tested as columns and not adopted (P80–P82); sources review in
+`docs/SOURCES_REVIEW.md`. Internal graph: 79 layers; publishable 68 layers. FDA orphan designations
 (the OOPD site moved) and the current DepMap portal (bot check) were not obtainable; DepMap 24Q2 from figshare used.
 
 ## Next steps
