@@ -1,5 +1,5 @@
 # Relations read by the production ranking model (layers.model_relations()). Change only with a registered test or a recorded author decision.
-# layer:qtl_coloc = column «qtl direction», added 23-10-2026 (P61).
+# layer:qtl_coloc = column «qtl direction» (P61); layer:orphanet_genes = column «orphanet genes» (P79).
 bioprocess_protein
 contraindication
 disease_disease
@@ -10,6 +10,7 @@ drug_effect
 drug_protein
 drug_protein:target
 indication
+layer:orphanet_genes
 layer:qtl_coloc
 moa
 off-label use

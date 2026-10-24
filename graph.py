@@ -77,6 +77,9 @@ METAPATHS = {
     # QTL colocalisation direction (M1, P58; in the model by the author's decision, P61): targets the drug moves the
     # way human genetics asks minus those it moves the other way; 0 without a directed target
     "qtl direction": ("qtl_direction", None, None, "moves its targets in the direction human genetics (QTL colocalisation) asks"),
+    # Orphanet genes (L3b, P79; in the model by the author's decision): log(1 + the drug's targets that are Orphanet genes
+    # of the disease), from data/ext/orphadata_genes.parquet; no drug–disease edge
+    "orphanet genes": ("orphanet_genes", "drug_protein|moa", None, "acts on a gene that Orphanet lists for the disease"),
     "dir genetics ✓": ("agrees", "all", "dir_genetic", "activates/inhibits the gene as genetics asks"),
     "dir genetics ✗": ("contradicts", "all", "dir_genetic", "does to the gene the opposite of what genetics asks"),
     "dir all ✓": ("agrees", "all", DIR_ALL, "does to the gene what genetics, mouse or expression ask"),
@@ -112,6 +115,18 @@ WEIGHT_DIRECTION = {"dir_genetic": 0.4}
 # if none says so, 43 %. See the README.
 WEIGHT_CAUSE = 2.0
 MIN_ARTICLES_CAUSE = 6
+
+
+_ORPHA = {}
+
+
+def orphanet_genes(n):
+    """gene × disease matrix of Orphanet's disease genes (data/ext/orphadata_genes.parquet), built once."""
+    if n not in _ORPHA:
+        o = pd.read_parquet(PREP.parent / "ext" / "orphadata_genes.parquet")
+        o = o[(o.disease < n) & (o.gene < n)]
+        _ORPHA[n] = sp.csc_matrix((np.ones(len(o), np.float32), (o.gene, o.disease)), shape=(n, n))
+    return _ORPHA[n]
 
 
 _QTL = []
@@ -281,6 +296,9 @@ class Graph:
                 if strict:
                     continue
                 m = self.W(rel) @ self.W(ONTOLOGY)[:, diseases]
+            elif kind == "orphanet_genes":
+                res[name] = np.log1p((self.M(rel)[f] > 0).astype(np.float32) @ orphanet_genes(self.N)[:, diseases]).toarray()
+                continue
             elif kind == "qtl_direction":
                 # no drug–disease edge: the same in every graph; 0 when no directed target (the logistic model needs
                 # finite values; M2 tested NaN with LightGBM only)

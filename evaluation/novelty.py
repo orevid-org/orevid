@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from evaluation.txgnn import CACHE, AREAS
+from evaluation.txgnn import AREAS, CACHE, PRODUCTION
 
 MODELS = {"popularity": "Popularity", "graph_only_model": "Ours without popularity",
           "gbm_+_masked_training": "Ours", "LambdaRank_+_masked": "Ours (ranking)",
@@ -74,7 +74,7 @@ def analyse(f):
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
-    suffix = sys.argv[1] if len(sys.argv) > 1 else "extra_qtl_r5_rank"
+    suffix = sys.argv[1] if len(sys.argv) > 1 else f"{PRODUCTION}_r5_rank"
     files = sorted((CACHE / "scores").glob(f"*_{suffix}.npz"))
     tables = []
     for f in files:
@@ -114,7 +114,7 @@ def main():
         v = e[e["split"] == p_].groupby("model")["Recall@100"].mean().reindex(order)
         n = int((e[(e["split"] == p_) & (e.model == "Ours")]).shape[0])
         L.append(f"| {p_} | {n} | " + " | ".join(f"{x:.2f}" for x in v) + " |")
-    dest = Path(__file__).resolve().parent.parent / "docs" / ("NOVELTY.md" if suffix == "extra_qtl_r5_rank" else f"NOVELTY_{suffix}.md")
+    dest = Path(__file__).resolve().parent.parent / "docs" / ("NOVELTY.md" if suffix == f"{PRODUCTION}_r5_rank" else f"NOVELTY_{suffix}.md")
     dest.write_text("\n".join(L) + "\n", "utf-8")
     print("\n".join(L))
 

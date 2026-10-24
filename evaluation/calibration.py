@@ -17,6 +17,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from evaluation.txgnn import PRODUCTION
+
 ROOT = Path(__file__).resolve().parent.parent
 FEATURES = ["section", "rank", "size", "hard", "specific"]
 WEBSITE_RATES = {"extension": 0.126, "shared genes": 0.043, "hidden": 0.015}  # external exam, docs/EVIDENCE_CI.md
@@ -50,7 +52,7 @@ def scores(y, p):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     from evaluation.temporal import pairs
-    load = lambda C: dict(np.load(ROOT / "data" / "eval" / f"temporal_C{C}_extra_qtl.npz", allow_pickle=True))
+    load = lambda C: dict(np.load(ROOT / "data" / "eval" / f"temporal_C{C}_{PRODUCTION}.npz", allow_pickle=True))
     tr, te = pairs(load(2012)), pairs(load(2015))
     full, model, cols = fit(tr, FEATURES)
     sect, _, _ = fit(tr, ["section"])

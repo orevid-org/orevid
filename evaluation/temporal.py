@@ -16,7 +16,7 @@ Secondary: confirmed approvals only (sources/ot_approvals.py) and phase ≥ 2.
 Candidates: every PrimeKG drug except those with a drug–disease edge in the cutoff graph or an Open Targets
 clinical record (any phase) before C or without a year.
 
-    py -3 -m evaluation.temporal run 2012 [extra_qtl|extra_no_ot]   # -> data/eval/temporal_C2012_<fs>.npz
+    py -3 -m evaluation.temporal run 2012 [<PRODUCTION>|extra_no_ot]   # -> data/eval/temporal_C2012_<fs>.npz
     py -3 -m evaluation.temporal report                                # -> docs/TEMPORAL.md
 """
 import json
@@ -27,6 +27,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+
+from evaluation.txgnn import PRODUCTION
 
 ROOT = Path(__file__).resolve().parent.parent
 CUTOFFS = {"C1 (development)": 2012, "C2 (confirmation)": 2015}
@@ -73,7 +75,8 @@ def cutoff_graph(kg, types, keep, attrs, C, extra=True):
     return g
 
 
-def run(C, feature_set="extra_qtl", rounds=5, n_train=1500, seed=1):
+def run(C, feature_set=None, rounds=5, n_train=1500, seed=1):
+    feature_set = feature_set or PRODUCTION
     from evaluation.evidence import _transform
     from evaluation.evidence_ci import Genes
     from evaluation.external_exam import N_PKG
@@ -244,7 +247,8 @@ def pairs(z, key="primary"):
     return pd.DataFrame(rows)
 
 
-def analyse(C, feature_set="extra_qtl"):
+def analyse(C, feature_set=None):
+    feature_set = feature_set or PRODUCTION
     z = dict(np.load(ROOT / "data" / "eval" / f"temporal_C{C}_{feature_set}.npz", allow_pickle=True))
     rng = np.random.default_rng(0)
     res = {"C": C, "feature_set": feature_set, "diseases": len(z["D"]), "leak": float(z["leak"]),
@@ -277,7 +281,7 @@ def report():
     sys.stdout.reconfigure(encoding="utf-8")
     out = {}
     for label, C in CUTOFFS.items():
-        for fs in ("extra_qtl", "extra_no_ot"):
+        for fs in (PRODUCTION, "extra_no_ot"):
             f = ROOT / "data" / "eval" / f"temporal_C{C}_{fs}.npz"
             if f.exists():
                 out[f"{label}|{fs}"] = analyse(C, fs)
@@ -306,7 +310,7 @@ def report():
         for k, v in r["sections"].items():
             L.append(f"| {k} | " + " | ".join(pct(v[s]) for s in ("extension", "shared genes", "hidden", "top 25")) + " |")
         L.append("")
-    c2 = out.get("C2 (confirmation)|extra_qtl")
+    c2 = out.get(f"C2 (confirmation)|{PRODUCTION}")
     if c2:
         lo, hi = c2["paired"]["primary"][1:3]
         verdict = ("above" if lo > 0 else ("below" if hi < 0 else "not distinguishable from"))
@@ -320,6 +324,6 @@ def report():
 if __name__ == "__main__":
     if sys.argv[1] == "run":
         sys.stdout.reconfigure(encoding="utf-8")
-        run(int(sys.argv[2]), sys.argv[3] if len(sys.argv) > 3 else "extra_qtl")
+        run(int(sys.argv[2]), sys.argv[3] if len(sys.argv) > 3 else PRODUCTION)
     elif sys.argv[1] == "report":
         report()

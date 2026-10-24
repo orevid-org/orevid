@@ -831,6 +831,26 @@ DECISIONS P79.
 
 ---
 
+## Registered 24-10-2026, before any model run: N5–N7 (three more sources as model columns)
+
+Coverage was counted before registering (no result looked at): current HPO annotations add 34,063 disease–phenotype
+pairs to 3,061 graph diseases (248 had none); MGI mouse models add 1,104 disease–gene pairs (477 diseases); B3DB
+gives blood–brain-barrier permeability for 1,996 graph drugs. Each column is tested alone against the production model
+of the time (`extra_qtl_orpha`, P79) with **M2's rule** (P61). All three enter the internal graph whatever the result.
+
+- **N5. Current HPO phenotypes** (`phenotype.hpoa` 2026-09-02; OMIM / ORPHA → MONDO, SSSOM exact): column
+  log(1 + Σ over diseases *m* where the drug is indicated in the split's graph of the number of phenotypes *m* shares
+  with the disease), phenotypes = PrimeKG's ∪ current HPO ∪ Orphanet product 4; the disease itself and its twins excluded.
+- **N6. MGI mouse models** (`MGI_DO.rpt`; DOID → MONDO, mouse symbol → human symbol): column log(1 + the drug's targets
+  among the disease's mouse-model genes).
+- **N7. B3DB** (CC0): for diseases under MONDO «nervous system disorder» or «psychiatric disorder» (mondo.obo), +1 if
+  the drug crosses the blood–brain barrier (BBB+), −1 if not (BBB−), 0 unknown; 0 for every other disease.
+
+Implementation: `sources/hpo_current.py`, `sources/mgi.py`, `sources/b3db.py`, `evaluation/n_columns.py`; DECISIONS
+P80–P82.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

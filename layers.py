@@ -57,6 +57,10 @@ def model_relations():
         if kind == "qtl_direction":  # reads a layer of the internal graph, not data/prep (P61)
             out.add("layer:qtl_coloc")
             return
+        if kind == "orphanet_genes":  # drug targets × the Orphanet genes layer (P79)
+            out.add("layer:orphanet_genes")
+            add(a)
+            return
         add(a)
         add(b)
         if rest[1:]:
@@ -406,7 +410,7 @@ LAYERS = [
     Layer("orphan_ema", "orphan_designation", "EMA orphan designations", "report of 23-10-2026", "EMA reuse with acknowledgement",
           "check", "L2 exam: +0.15; designations from 2023 on +0.08 (P74)", load_orphan),
     Layer("orphanet_genes", "orphanet_gene", "Orphadata product 6", "downloaded 24-10-2026", "CC BY 4.0", "yes",
-          "L3: 438 rare diseases gain genes (P75); not in the model", load_orpha_genes),
+          "used by the ranking model, column «orphanet genes» (author's decision, P79)", load_orpha_genes),
     Layer("orphanet_phenotypes", "orphanet_phenotype", "Orphadata product 4 (HPO, frequency)", "downloaded 24-10-2026",
           "CC BY 4.0", "yes", "L3 (P75); not in the model", load_orpha_phen),
     Layer("hpa_tissue", "tissue_enriched", "Human Protein Atlas", "downloaded 24-10-2026", "CC BY-SA 4.0", "yes",

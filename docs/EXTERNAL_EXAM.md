@@ -6,12 +6,12 @@ Positives: 3718 approved indications in 645 diseases (158 with first trial ≥ 2
 
 | Subset | Metric | Popularity | TxGNN | Ours without popularity | Ours | Ours (ranking) |
 |---|---|---|---|---|---|---|
-| all (645 diseases) | Recall@100 | 0.13 | 0.12 | **0.37** | 0.32 | 0.36 |
+| all (645 diseases) | Recall@100 | 0.13 | 0.12 | **0.36** | 0.33 | 0.36 |
 | all (645 diseases) | Precision@K | 0.03 | 0.00 | 0.08 | 0.08 | **0.09** |
 | all (645 diseases) | Avg Rank | 0.74 | 0.56 | 0.79 | 0.87 | **0.87** |
-| recent (≥ 2018) (99 diseases) | Recall@100 | 0.10 | 0.12 | 0.32 | 0.31 | **0.35** |
-| recent (≥ 2018) (99 diseases) | Precision@K | 0.03 | 0.00 | **0.02** | 0.01 | 0.01 |
+| recent (≥ 2018) (99 diseases) | Recall@100 | 0.10 | 0.12 | 0.30 | 0.30 | **0.34** |
+| recent (≥ 2018) (99 diseases) | Precision@K | 0.03 | 0.00 | 0.02 | 0.01 | **0.03** |
 | recent (≥ 2018) (99 diseases) | Avg Rank | 0.77 | 0.57 | 0.82 | 0.88 | **0.89** |
-| non-obvious (563 diseases) | Recall@100 | 0.08 | 0.08 | **0.20** | 0.13 | 0.18 |
+| non-obvious (563 diseases) | Recall@100 | 0.08 | 0.08 | **0.19** | 0.14 | 0.18 |
 | non-obvious (563 diseases) | Precision@K | 0.02 | 0.00 | 0.01 | 0.01 | **0.01** |
 | non-obvious (563 diseases) | Avg Rank | 0.68 | 0.55 | 0.74 | 0.83 | **0.84** |

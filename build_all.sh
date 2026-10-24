@@ -6,6 +6,7 @@
 set -e
 export PY="${PY:-python}"  # e.g. PY="py -3" on Windows
 cd "$(dirname "$0")"
+FS=$($PY -c "from evaluation.txgnn import PRODUCTION; print(PRODUCTION)")  # production feature set
 mkdir -p data/eval
 step() { echo "== $1 $(date +%T)"; }
 
@@ -34,7 +35,7 @@ $PY -m evaluation.direction train
 step "evaluations"
 bash evaluation/rebuild_all.sh
 $PY -m evaluation.evidence > data/eval/log_evidence.txt
-$PY -m evaluation.temporal run 2012 extra_qtl && $PY -m evaluation.temporal run 2015 extra_qtl
+$PY -m evaluation.temporal run 2012 $FS && $PY -m evaluation.temporal run 2015 $FS
 $PY -m evaluation.temporal run 2012 extra_no_ot && $PY -m evaluation.temporal run 2015 extra_no_ot
 $PY -m evaluation.temporal report
 $PY -m evaluation.calibration
