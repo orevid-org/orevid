@@ -868,6 +868,27 @@ gene–disease data use 2026 knowledge. Implementation: `evaluation/temporal.py`
 
 ---
 
+## Registered 24-10-2026, before running: T3 (TxGNN on the dated temporal test)
+
+**Question.** With the leakage-corrected temporal test (T2, P83), would TxGNN have ranked the uses that later reached
+phase 3 or approval better or worse than OREVID?
+
+**Setup, fixed now.** TxGNN's official code and the benchmark's hyperparameters (`evaluation/txgnn_wsl.py`), trained
+on exactly T2's cutoff graph: every PrimeKG edge that T2 removes at year C (first trial at C or later, or a drug first
+approved at C or later) is marked «test» in TxGNN's own split column, so TxGNN never trains on it (the same mechanism
+as the disease-area splits). TxGNN then scores all drugs for T2's test diseases, and the scores are evaluated with
+T2's candidates and positives (`data/eval/temporal_C<C>_<PRODUCTION>_dated.npz`). C1 = 2012 development, C2 = 2015
+confirmation. TxGNN uses PrimeKG only, as in every comparison; OREVID's `extra_no_ot` (no Open Targets feature) is
+also run on T2 so that a same-data comparison is reported.
+
+**Decision rule.** At C2, primary positives: the claim «OREVID ranks later phase 3 / approved uses above TxGNN» if
+the paired Recall@100 difference OREVID − TxGNN has a 95 % interval above 0 (and «below» if under 0). Reported:
+TxGNN − popularity, the confirmed approvals, non-obvious uses and the new drugs (first approved at C or later), and
+the same with `extra_no_ot`. Implementation: `evaluation/t3_txgnn.py`, `evaluation/txgnn_wsl.py` (`--label`,
+`--tag`); `docs/T3_TXGNN_TEMPORAL.md`; DECISIONS P84.
+
+---
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
