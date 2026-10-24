@@ -59,9 +59,11 @@ paired difference with TxGNN is +0.40 (95% CI 0.35–0.44) on zero-shot and +0.2
 
 **Test against the future** ([`docs/TEMPORAL.md`](docs/TEMPORAL.md), pre-registered in
 [`docs/IMPROVEMENT_PLAN.md`](docs/IMPROVEMENT_PLAN.md)): with the graph and the model as known in 2015, the uses
-that later reached phase 3 or approval are ranked well above popularity (Recall@100 0.322 vs 0.174, paired
-+0.148, 95% CI 0.123–0.173; development cutoff 2012 agrees). The advantage on non-obvious uses is small (+0.043),
-and 80 % of PrimeKG indications are undated, so some leakage remains. A calibrated probability per candidate was
+that later reached phase 3 or approval are ranked above popularity. With every drug dated by its first approval
+(DrugCentral), so that only 11 % of PrimeKG indications stay undated (80 % in the first design), Recall@100 is 0.283
+vs 0.181 (paired +0.102, 95% CI 0.078–0.126; the first design gave +0.148, inflated by leakage); the advantage on
+non-obvious uses is not shown (+0.018, −0.004 to +0.040). Drugs first approved after 2015 have 8.6 % of their later
+uses in the top 100, against 1.3 % by chance. A calibrated probability per candidate was
 tested and not adopted ([`docs/CALIBRATION.md`](docs/CALIBRATION.md)). Each candidate on the website also shows
 whether a generic or biosimilar exists and how much the pair has been studied, as information only
 ([`docs/PRACTICAL.md`](docs/PRACTICAL.md)).

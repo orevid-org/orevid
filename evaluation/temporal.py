@@ -16,7 +16,7 @@ Secondary: confirmed approvals only (sources/ot_approvals.py) and phase ≥ 2.
 Candidates: every PrimeKG drug except those with a drug–disease edge in the cutoff graph or an Open Targets
 clinical record (any phase) before C or without a year.
 
-    py -3 -m evaluation.temporal run 2012 [<PRODUCTION>|extra_no_ot]   # -> data/eval/temporal_C2012_<fs>.npz
+    py -3 -m evaluation.temporal run 2012 [<PRODUCTION>|extra_no_ot] [dated]   # -> data/eval/temporal_C2012_<fs>[_dated].npz
     py -3 -m evaluation.temporal report                                # -> docs/TEMPORAL.md
 """
 import json
@@ -44,17 +44,32 @@ def clinical():
     return c[["drug", "disease", "phase", "year"]], a
 
 
-def cutoff_mask(kg, clin, C):
-    """kg rows kept in the cutoff training graph (PrimeKG drug–disease edges first tried at C or later removed)."""
+def drug_years():
+    """T2: first approval year (any agency) of each graph drug, from DrugCentral (sources/drugcentral.py)."""
+    ap = pd.read_parquet(ROOT / "data" / "ext" / "drugcentral_approvals.parquet")
+    ap["year"] = pd.to_datetime(ap.date, errors="coerce").dt.year
+    return ap.dropna(subset=["year"]).groupby("drug").year.min().astype(int).to_dict()
+
+
+def cutoff_mask(kg, clin, C, dated=None):
+    """kg rows kept in the cutoff training graph (PrimeKG drug–disease edges first tried at C or later removed; with
+    `dated` (drug -> first approval year, T2) also every drug–disease edge of a drug first approved at C or later)."""
     from evaluation.txgnn import DD
     first = {(int(d), int(m)): y for d, m, y in zip(clin.drug, clin.disease, clin.year) if y == y}
     dd = kg.relation.isin(DD).to_numpy()
-    years = np.array([first.get((int(x), int(y)), first.get((int(y), int(x)), np.nan)) if r else np.nan
-                      for x, y, r in zip(kg.x_index.to_numpy(), kg.y_index.to_numpy(), dd)])
-    keep = ~(dd & (years >= C))
+    x, y = kg.x_index.to_numpy(), kg.y_index.to_numpy()
+    years = np.array([first.get((int(a), int(b)), first.get((int(b), int(a)), np.nan)) if r else np.nan
+                      for a, b, r in zip(x, y, dd)])
+    drop = dd & (years >= C)
     ind = (kg.relation == "indication").to_numpy()
-    leak = float(np.isnan(years[ind]).mean())
-    return keep, leak, int((dd & (years >= C)).sum())
+    if dated is not None:
+        late = np.array([dated.get(int(a), dated.get(int(b), 0)) >= C if r else False for a, b, r in zip(x, y, dd)])
+        drop |= late
+        has_date = np.array([int(a) in dated or int(b) in dated for a, b in zip(x[ind], y[ind])])
+        leak = float((np.isnan(years[ind]) & ~has_date).mean())  # neither an Open Targets year nor a dated drug
+    else:
+        leak = float(np.isnan(years[ind]).mean())
+    return ~drop, leak, int(drop.sum())
 
 
 def cutoff_graph(kg, types, keep, attrs, C, extra=True):
@@ -75,8 +90,9 @@ def cutoff_graph(kg, types, keep, attrs, C, extra=True):
     return g
 
 
-def run(C, feature_set=None, rounds=5, n_train=1500, seed=1):
+def run(C, feature_set=None, rounds=5, n_train=1500, seed=1, dated=False):
     feature_set = feature_set or PRODUCTION
+    years_by_drug = drug_years() if dated else None
     from evaluation.evidence import _transform
     from evaluation.evidence_ci import Genes
     from evaluation.external_exam import N_PKG
@@ -86,7 +102,7 @@ def run(C, feature_set=None, rounds=5, n_train=1500, seed=1):
     kg = load_kg()
     types = node_types(kg)
     clin, attrs = clinical()
-    keep, leak, removed = cutoff_mask(kg, clin, C)
+    keep, leak, removed = cutoff_mask(kg, clin, C, years_by_drug)
     g = cutoff_graph(kg, types, keep, attrs, C)
     paths = FEATURE_SETS[feature_set]
     drugs = g.drugs
@@ -154,6 +170,9 @@ def run(C, feature_set=None, rounds=5, n_train=1500, seed=1):
            "confirmed approvals": positives(after[(after.phase == 4).to_numpy() & np.array(
                [(d, m) in confirmed for d, m in zip(after.drug, after.disease)], bool)]),
            "phase 2 or later": positives(after[after.phase >= 2])}
+    if dated:  # T2: every PrimeKG indication of a drug first approved at C or later («new drugs», no use at C)
+        late = [(int(a), int(b)) for a, b, r in zip(x, y, ind) if r and years_by_drug.get(int(a), 0) >= C]
+        pos["new drugs (first approved at C or later)"] = positives(pd.DataFrame(late, columns=["drug", "disease"]))
     # test diseases: at least one primary positive left among the candidates
     keep_d = np.array([len(v) > 0 for v in pos["primary"]])
     D, cand = D[keep_d], cand[:, keep_d]
@@ -184,7 +203,7 @@ def run(C, feature_set=None, rounds=5, n_train=1500, seed=1):
     T = gn.table("base")
     Ts = gn.table("base+specific3")
     hard = near_duplicates(g, D, pos["primary"], drug_pos) < 0.5
-    out = ROOT / "data" / "eval" / f"temporal_C{C}_{feature_set}.npz"
+    out = ROOT / "data" / "eval" / f"temporal_C{C}_{feature_set}{'_dated' if dated else ''}.npz"
     np.savez_compressed(out, D=D, drugs=drugs, degree=degree, cand=cand, S_rank=S_rank, S_logit=S_logit,
                         S_spec=_transform(S_rank.astype(float)).astype(np.float32), V=V, T=T, Ts=Ts,
                         sizes=gn.ng[D], hard=hard, leak=leak, removed=removed,
@@ -281,7 +300,7 @@ def report():
     sys.stdout.reconfigure(encoding="utf-8")
     out = {}
     for label, C in CUTOFFS.items():
-        for fs in (PRODUCTION, "extra_no_ot"):
+        for fs in (PRODUCTION, f"{PRODUCTION}_dated", "extra_no_ot"):
             f = ROOT / "data" / "eval" / f"temporal_C{C}_{fs}.npz"
             if f.exists():
                 out[f"{label}|{fs}"] = analyse(C, fs)
@@ -317,6 +336,14 @@ def report():
         L += [f"**Decision rule at C2 (primary positives):** the paired OREVID − popularity difference in Recall@100 has a "
               f"95 % interval of {lo:.3f} to {hi:.3f}, so OREVID ranks later phase 3 / approved uses **{verdict}** the "
               "popularity baseline.\n"]
+    t2 = out.get(f"C2 (confirmation)|{PRODUCTION}_dated")
+    if t2:
+        lo, hi = t2["paired"]["primary"][1:3]
+        verdict = ("above" if lo > 0 else ("below" if hi < 0 else "not distinguishable from"))
+        L += [f"**T2 (drugs dated by DrugCentral, P83) at C2:** OREVID − popularity {t2['paired']['primary'][0]:.3f} "
+              f"({lo:.3f} to {hi:.3f}): OREVID ranks later phase 3 / approved uses **{verdict}** popularity with the drugs "
+              f"first approved at C or later removed from the training graph; residual undated indications "
+              f"{100 * t2['leak']:.0f} %.\n"]
     (ROOT / "docs" / "TEMPORAL.md").write_text("\n".join(L) + "\n", "utf-8")
     print("\n".join(L))
 
@@ -324,6 +351,7 @@ def report():
 if __name__ == "__main__":
     if sys.argv[1] == "run":
         sys.stdout.reconfigure(encoding="utf-8")
-        run(int(sys.argv[2]), sys.argv[3] if len(sys.argv) > 3 else PRODUCTION)
+        args = [a for a in sys.argv[3:] if a != "dated"]
+        run(int(sys.argv[2]), args[0] if args else PRODUCTION, dated="dated" in sys.argv[3:])
     elif sys.argv[1] == "report":
         report()

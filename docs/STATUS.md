@@ -47,7 +47,7 @@ per split). Its predictions are in `data/eval/txgnn_predictions/` and in the ben
 - OREVID-bench: `benchmark/` (leaderboard with popularity, TxGNN, RotatE and OREVID; fair comparison with TxGNN in
   `benchmark/FAIR_COMPARISON.md`; disease-level intervals in `benchmark/CLUSTER_CI.md`).
 - Key numbers (Recall@100): zero-shot 0.811 vs TxGNN 0.412 (RotatE 0.289); areas 0.617 vs 0.237; external exam
-  0.359 vs 0.121 (RotatE 0.156); temporal test at 2015 0.322 vs popularity 0.174 (`docs/TEMPORAL.md`). Hit rate on
+  0.359 vs 0.121 (RotatE 0.156); temporal test at 2015 with dated drugs 0.283 vs popularity 0.181 (T2, P83; the first design gave 0.322 vs 0.174) (`docs/TEMPORAL.md`). Hit rate on
   unseen approvals: direct extensions 12.6 %, shared genes 4.3 %.
 - Preprint: v1 online on Preprints.org since 20-10 (preprints-238326, DOI 10.20944/preprints202610.1918.v1), v2
   online since 22-10 (preprints-239415, DOI 10.20944/preprints202610.1918.v2); README, `CITATION.cff` and website
@@ -394,7 +394,8 @@ edges (`docs/GRAPH_LAYERS.md`).
 
 Then (24-10, morning): Orphanet genes adopted into the model by the author (P79; external exam 0.361 → 0.355, areas 0.620 → 0.627);
 current HPO phenotypes, MGI mouse models and B3DB tested as columns and not adopted (P80–P82); sources review in
-`docs/SOURCES_REVIEW.md`. Internal graph: 79 layers; publishable 68 layers. FDA orphan designations
+`docs/SOURCES_REVIEW.md`. Internal graph: 79 layers; publishable 68 layers. **T2 (P83):** the temporal claim holds with drugs dated by DrugCentral
+(+0.10 at 2015, was +0.15 with leakage); non-obvious advantage not shown; new drugs 8.6 % vs 1.3 % by chance. Bioteque still offline. FDA orphan designations
 (the OOPD site moved) and the current DepMap portal (bot check) were not obtainable; DepMap 24Q2 from figshare used.
 
 ## Next steps
