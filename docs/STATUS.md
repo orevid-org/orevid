@@ -396,7 +396,10 @@ Then (24-10, morning): Orphanet genes adopted into the model by the author (P79;
 current HPO phenotypes, MGI mouse models and B3DB tested as columns and not adopted (P80–P82); sources review in
 `docs/SOURCES_REVIEW.md`. Internal graph: 79 layers; publishable 68 layers. **T2 (P83):** the temporal claim holds with drugs dated by DrugCentral
 (+0.10 at 2015, was +0.15 with leakage); non-obvious advantage not shown; new drugs 8.6 % vs 1.3 % by chance. **T3 (P84):** TxGNN on the same dated 2015 graph 0.117, below
-popularity 0.181; OREVID 0.283 (+0.167, 0.142–0.192; same data +0.155). Bioteque still offline. FDA orphan designations
+popularity 0.181; OREVID 0.283 (+0.167, 0.142–0.192; same data +0.155). Bioteque still offline.
+**Preprint v3 (Claude Doc rev. 140, exported to `docs/preprint/`)** now reports T2 and T3 with the v3 model (`extra_no_ctd`):
+at 2015 OREVID 0.286, popularity 0.181 (+0.105), TxGNN 0.117 (+0.169); reference 24 DrugCentral added. Its other numbers
+are still those of the v3 model (the website now runs `extra_qtl_orpha`, P61/P79). FDA orphan designations
 (the OOPD site moved) and the current DepMap portal (bot check) were not obtainable; DepMap 24Q2 from figshare used.
 
 ## Next steps
