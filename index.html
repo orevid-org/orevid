@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OREVID — open, evidence-based drug repurposing</title>
+<meta name="description" content="Research tool: drug-repurposing candidates and targets for each disease, with explanations. Not medical advice.">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=34">
+</head>
+<body>
+<!-- Static texts are the English defaults; app.js replaces every [data-t] element from i18n/<lang>.json -->
+<header class="header">
+  <a class="brand" href="#/" aria-label="OREVID: Open Repurposing Evidence"><span aria-hidden="true">OR</span><svg class="brand-e" viewBox="0 0 130 147" aria-hidden="true"><rect width="130" height="16" rx="4"/><rect y="65.5" width="130" height="16" rx="4"/><rect y="131" width="130" height="16" rx="4"/></svg><span aria-hidden="true">VID</span><span class="brand-meaning" aria-hidden="true"><b>O</b>pen <b>RE</b>purposing <b>EVID</b>ence</span></a>
+  <nav>
+    <a href="#/method" data-t="nav_method">Method and validation</a>
+    <a href="#/about" data-t="nav_about">About</a>
+    <span id="langs" class="langs" role="group" aria-label="Language">
+      <button class="lang-button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" data-lang="ca" aria-pressed="false">CA</button>
+    </span>
+  </nav>
+</header>
+
+<div class="disclaimer" role="note" data-t="disclaimer">
+  Research tool for generating hypotheses. <strong>Not medical advice</strong>; do not use it to make
+  treatment decisions. Suggestions may be wrong or harmful.
+</div>
+
+<main id="content">
+  <section class="search">
+    <h1 data-t="title">Which existing drugs could work for a disease?</h1>
+    <p class="subtitle" data-t="subtitle">Search a disease to see repurposing candidates, why they were proposed,
+      and which targets could be hit.</p>
+    <div class="search-box">
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="multiple sclerosis, Parkinson disease…" aria-label="Disease">
+      <ul id="suggestions" role="listbox"></ul>
+    </div>
+    <p class="examples"><span data-t="examples">Examples:</span>
+      <a href="#/d/37722">multiple sclerosis</a> ·
+      <a href="#/d/28714">cystic fibrosis</a> ·
+      <a href="#/d/27248">amyotrophic lateral sclerosis</a> · <a href="#/d/30661">idiopathic pulmonary fibrosis</a>
+    </p>
+  </section>
+  <section id="view"></section>
+</main>
+
+<footer class="footer">
+  <a href="#/legal" data-t="nav_legal">Legal notice and terms of use</a> ·
+  <a href="https://github.com/orevid-org/orevid" rel="noopener">GitHub</a> ·
+  <a href="https://github.com/orevid-org/orevid/tree/main/benchmark" rel="noopener">OREVID-bench</a> ·
+  <a href="https://doi.org/10.5281/zenodo.23323226" rel="noopener">Cite (DOI)</a> ·
+  <a href="mailto:contact@orevid.org">contact@orevid.org</a>
+  <div><span data-t="footer">OREVID</span></div>
+</footer>
+
+<!-- Shown once per browser on the first visit, whatever page it starts on (app.js, «first-visit notice») -->
+<dialog id="notice" class="notice" aria-labelledby="notice-title">
+  <div class="notice-langs langs" role="group" aria-label="Language">
+    <button class="lang-button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" data-lang="ca" aria-pressed="false">CA</button>
+  </div>
+  <h2 id="notice-title" data-t="notice_title">A research tool, not medical advice</h2>
+  <div data-t="notice_body"></div>
+  <div class="notice-actions">
+    <button id="notice-ok" class="button" data-t="notice_ok">I understand</button>
+    <a href="#/legal" id="notice-legal" data-t="notice_legal">Legal notice and terms of use</a>
+  </div>
+</dialog>
+<script>
+  // Visit counter (GoatCounter: no cookies, no personal data; see the legal notice). Every #/ route counts as a page,
+  // sent once the page has set its title (app.js sets it after loading the data), or after 3 s.
+  window.goatcounter = {no_onload: true};
+  function countPage() {
+    const path = location.pathname + location.hash;
+    let sent = false;
+    const send = () => {
+      if (sent) return;
+      if (!window.goatcounter.count) return setTimeout(send, 300);  // count.js is loaded async
+      sent = true;
+      obs.disconnect();
+      window.goatcounter.count({path, title: document.title});
+    };
+    const obs = new MutationObserver(send);
+    obs.observe(document.querySelector("title"), {childList: true, characterData: true, subtree: true});
+    setTimeout(send, 3000);
+  }
+  countPage();
+  window.addEventListener("hashchange", countPage);
+</script>
+<script data-goatcounter="https://orevid.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script src="app.js?v=40"></script>
+</body>
+</html>
