@@ -48,6 +48,23 @@ def prepare_area(data, split, splits, repo):
         shutil.copytree(os.path.join(repo, "data", "disease_files"), files)
 
 
+def prepare_custom(data, folder, label_path, repo):
+    """T3: kg_directed.csv with our own split column (label 2 = test, i.e. never trained on), in TxGNN's
+    disease-area folder layout (<area>_kg_frac<test_size>), so TxGNN's area-split code reads it unchanged."""
+    dest = os.path.join(data, folder, "kg_directed.csv")
+    if os.path.exists(dest):
+        return
+    df = pd.read_csv(os.path.join(data, "kg_directed.csv"))
+    label = np.load(label_path)
+    assert len(df) == len(label), (len(df), len(label))
+    df["split"] = np.where(label == 2, "test", "train")
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    df.to_csv(dest, index=False)
+    files = os.path.join(data, "disease_files")
+    if not os.path.exists(files):
+        shutil.copytree(os.path.join(repo, "data", "disease_files"), files)
+
+
 def _id(x):
     """TxGNN's convert2str."""
     x = str(x)
@@ -81,6 +98,9 @@ def main():
     p.add_argument("--repo", default=os.path.expanduser("~/TxGNN"))
     p.add_argument("--epochs", type=int, default=500)
     p.add_argument("--test", action="store_true", help="no pretraining and 1 epoch (to test the pipeline)")
+    p.add_argument("--label", help="T3: .npy split column (2 = test) for a custom split, read through the area mechanism")
+    p.add_argument("--test-size", type=float, default=0.05, help="T3: only names TxGNN's cache folders (distinct per cutoff)")
+    p.add_argument("--tag", help="T3: model / output name (TxGNN_<tag>)")
     p.add_argument("--diseases", help="CSV (node_index,node_id): score these diseases with the already trained model "
                                       "(external exam, evaluation/external_exam.py) instead of the test ones")
     a = p.parse_args()
@@ -91,11 +111,30 @@ def main():
     # TxData downloads edges.csv if it is missing, but only the areas with TxGNN's own split
     # use it (which we do not use here).
     open(os.path.join(a.data, "edges.csv"), "a").close()
-    if a.split in AREAS:
+    if a.label:  # T3: custom split through the area mechanism (any area name; the folder is set by test_size)
+        a.split = "anemia"
+        prepare_custom(a.data, f"{a.split}_kg_frac{a.test_size}", a.label, a.repo)
+    elif a.split in AREAS:
         prepare_area(a.data, a.split, a.splits, a.repo)
+    if a.label:
+        # T3: TxGNN's own end-of-training test pass (finetune -> «Testing...») builds a graph from its test edges, which in a
+        # custom split may lack an edge type and makes DGL fail after training; it only prints numbers we do not use (the
+        # model is chosen on validation and T3 scores the diseases separately), so it is skipped when it fails.
+        txgnn_module = sys.modules["txgnn.TxGNN"]  # the module (the package exports a class of the same name)
+        _evaluate_fb = txgnn_module.evaluate_fb
+
+        def evaluate_fb(*args, mode="valid", **kw):
+            try:
+                return _evaluate_fb(*args, mode=mode, **kw)
+            except Exception as e:  # noqa: BLE001 — only the unused test pass
+                if mode != "test":
+                    raise
+                print(f"test pass skipped ({e})", flush=True)
+                return ({}, {}, float("nan"), float("nan"), float("nan"), float("nan")), float("nan"), None, None
+        txgnn_module.evaluate_fb = evaluate_fb
     data = TxData(data_folder_path=a.data)
-    data.prepare_split(split=a.split, seed=a.seed, no_kg=False)
-    name = f"TxGNN_{a.seed}_{a.split}" + ("_test" if a.test else "")
+    data.prepare_split(split=a.split, seed=a.seed, no_kg=False, test_size=a.test_size)
+    name = (f"TxGNN_{a.tag}" if a.tag else f"TxGNN_{a.seed}_{a.split}") + ("_test" if a.test else "")
     model = TxGNN(data=data, weight_bias_track=False, proj_name="TxGNN", exp_name=name, device="cuda:0")
     saved = os.path.join(a.data, "models", name)
     if os.path.exists(os.path.join(saved, "model.pt")):

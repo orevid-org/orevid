@@ -63,7 +63,9 @@ that later reached phase 3 or approval are ranked above popularity. With every d
 (DrugCentral), so that only 11 % of PrimeKG indications stay undated (80 % in the first design), Recall@100 is 0.283
 vs 0.181 (paired +0.102, 95% CI 0.078–0.126; the first design gave +0.148, inflated by leakage); the advantage on
 non-obvious uses is not shown (+0.018, −0.004 to +0.040). Drugs first approved after 2015 have 8.6 % of their later
-uses in the top 100, against 1.3 % by chance. A calibrated probability per candidate was
+uses in the top 100, against 1.3 % by chance. TxGNN, trained on exactly the same 2015 graph, reaches 0.117 —
+below popularity — against OREVID's 0.283 (0.271 without Open Targets, on the same data;
+[`docs/T3_TXGNN_TEMPORAL.md`](docs/T3_TXGNN_TEMPORAL.md)). A calibrated probability per candidate was
 tested and not adopted ([`docs/CALIBRATION.md`](docs/CALIBRATION.md)). Each candidate on the website also shows
 whether a generic or biosimilar exists and how much the pair has been studied, as information only
 ([`docs/PRACTICAL.md`](docs/PRACTICAL.md)).

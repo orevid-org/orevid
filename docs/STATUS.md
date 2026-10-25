@@ -395,7 +395,8 @@ edges (`docs/GRAPH_LAYERS.md`).
 Then (24-10, morning): Orphanet genes adopted into the model by the author (P79; external exam 0.361 → 0.355, areas 0.620 → 0.627);
 current HPO phenotypes, MGI mouse models and B3DB tested as columns and not adopted (P80–P82); sources review in
 `docs/SOURCES_REVIEW.md`. Internal graph: 79 layers; publishable 68 layers. **T2 (P83):** the temporal claim holds with drugs dated by DrugCentral
-(+0.10 at 2015, was +0.15 with leakage); non-obvious advantage not shown; new drugs 8.6 % vs 1.3 % by chance. Bioteque still offline. FDA orphan designations
+(+0.10 at 2015, was +0.15 with leakage); non-obvious advantage not shown; new drugs 8.6 % vs 1.3 % by chance. **T3 (P84):** TxGNN on the same dated 2015 graph 0.117, below
+popularity 0.181; OREVID 0.283 (+0.167, 0.142–0.192; same data +0.155). Bioteque still offline. FDA orphan designations
 (the OOPD site moved) and the current DepMap portal (bot check) were not obtainable; DepMap 24Q2 from figshare used.
 
 ## Next steps
