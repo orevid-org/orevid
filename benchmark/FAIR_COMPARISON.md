@@ -12,8 +12,8 @@ Diseases with degenerate TxGNN scores: 8 of 335 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.358 | 0.097 | 0.807 |
 | TxGNN (official code, same splits) | 0.412 | 0.079 | 0.910 |
-| OREVID (standard: training + validation labels) | 0.811 | 0.573 | 0.952 |
-| OREVID (training labels only, like TxGNN) | 0.803 | 0.575 | 0.952 |
+| OREVID (standard: training + validation labels) | 0.812 | 0.580 | 0.952 |
+| OREVID (training labels only, like TxGNN) | 0.807 | 0.567 | 0.950 |
 
 **all, without degenerate TxGNN**
 
@@ -21,8 +21,8 @@ Diseases with degenerate TxGNN scores: 8 of 335 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.360 | 0.096 | 0.806 |
 | TxGNN (official code, same splits) | 0.421 | 0.081 | 0.913 |
-| OREVID (standard: training + validation labels) | 0.825 | 0.585 | 0.955 |
-| OREVID (training labels only, like TxGNN) | 0.809 | 0.587 | 0.954 |
+| OREVID (standard: training + validation labels) | 0.827 | 0.593 | 0.954 |
+| OREVID (training labels only, like TxGNN) | 0.815 | 0.579 | 0.952 |
 
 **hard**
 
@@ -30,8 +30,8 @@ Diseases with degenerate TxGNN scores: 8 of 335 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.203 | 0.039 | 0.692 |
 | TxGNN (official code, same splits) | 0.258 | 0.046 | 0.837 |
-| OREVID (standard: training + validation labels) | 0.539 | 0.298 | 0.868 |
-| OREVID (training labels only, like TxGNN) | 0.530 | 0.314 | 0.865 |
+| OREVID (standard: training + validation labels) | 0.544 | 0.310 | 0.869 |
+| OREVID (training labels only, like TxGNN) | 0.545 | 0.313 | 0.860 |
 
 **hard, without degenerate TxGNN**
 
@@ -39,8 +39,8 @@ Diseases with degenerate TxGNN scores: 8 of 335 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.196 | 0.035 | 0.680 |
 | TxGNN (official code, same splits) | 0.275 | 0.049 | 0.847 |
-| OREVID (standard: training + validation labels) | 0.555 | 0.307 | 0.869 |
-| OREVID (training labels only, like TxGNN) | 0.528 | 0.325 | 0.866 |
+| OREVID (standard: training + validation labels) | 0.563 | 0.323 | 0.869 |
+| OREVID (training labels only, like TxGNN) | 0.544 | 0.326 | 0.862 |
 
 ## Disease areas (9, one seed)
 
@@ -52,8 +52,8 @@ Diseases with degenerate TxGNN scores: 3 of 345 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.185 | 0.120 | 0.609 |
 | TxGNN (official code, same splits) | 0.237 | 0.057 | 0.866 |
-| OREVID (standard: training + validation labels) | 0.617 | 0.408 | 0.897 |
-| OREVID (training labels only, like TxGNN) | 0.619 | 0.396 | 0.889 |
+| OREVID (standard: training + validation labels) | 0.627 | 0.415 | 0.898 |
+| OREVID (training labels only, like TxGNN) | 0.619 | 0.396 | 0.891 |
 
 **all, without degenerate TxGNN**
 
@@ -61,8 +61,8 @@ Diseases with degenerate TxGNN scores: 3 of 345 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.188 | 0.122 | 0.612 |
 | TxGNN (official code, same splits) | 0.238 | 0.057 | 0.867 |
-| OREVID (standard: training + validation labels) | 0.625 | 0.413 | 0.898 |
-| OREVID (training labels only, like TxGNN) | 0.627 | 0.401 | 0.891 |
+| OREVID (standard: training + validation labels) | 0.635 | 0.420 | 0.900 |
+| OREVID (training labels only, like TxGNN) | 0.627 | 0.401 | 0.893 |
 
 **hard**
 
@@ -70,8 +70,8 @@ Diseases with degenerate TxGNN scores: 3 of 345 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.141 | 0.071 | 0.573 |
 | TxGNN (official code, same splits) | 0.141 | 0.017 | 0.846 |
-| OREVID (standard: training + validation labels) | 0.490 | 0.280 | 0.862 |
-| OREVID (training labels only, like TxGNN) | 0.495 | 0.266 | 0.854 |
+| OREVID (standard: training + validation labels) | 0.504 | 0.280 | 0.864 |
+| OREVID (training labels only, like TxGNN) | 0.499 | 0.262 | 0.857 |
 
 **hard, without degenerate TxGNN**
 
@@ -79,6 +79,6 @@ Diseases with degenerate TxGNN scores: 3 of 345 (summed over tasks).
 |---|---|---|---|
 | Popularity (baseline) | 0.145 | 0.075 | 0.578 |
 | TxGNN (official code, same splits) | 0.141 | 0.017 | 0.846 |
-| OREVID (standard: training + validation labels) | 0.502 | 0.289 | 0.866 |
-| OREVID (training labels only, like TxGNN) | 0.505 | 0.273 | 0.860 |
+| OREVID (standard: training + validation labels) | 0.515 | 0.288 | 0.869 |
+| OREVID (training labels only, like TxGNN) | 0.510 | 0.269 | 0.863 |
 

@@ -21,7 +21,7 @@ P80; it harmed new drugs), MGI mouse models (N6, P81) and B3DB blood–brain bar
 
 | Source | Result |
 |---|---|
-| CIViC oncology evidence (P64) | 0.55 vs popularity 0.21 |
+| CIViC oncology evidence (P64) | 0.53 vs popularity 0.21 (production model; 0.55 before the Orphanet column) |
 | DrugCentral + MED-RT indications (P73) | 0.39 vs 0.13 on 863 diseases |
 | EMA orphan designations (P74) | +0.15; from 2023 on +0.08 |
 | ClinicalTrials.gov posted results (P68) | shown candidates do not meet endpoints more often (claim not supported) |

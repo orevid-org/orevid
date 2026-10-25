@@ -134,7 +134,7 @@ DEVICE = None
 
 def build(kg, types, split, seed):
     """Training rows (with masked rounds), test features and labels for one split; cached."""
-    f = OUT / f"{split}_{seed}.npz"
+    f = OUT / f"{split}_{seed}_{PRODUCTION}.npz"  # keyed by the feature set: a stale cache must not be reused
     if f.exists():
         z = np.load(f, allow_pickle=True)
         return {k: z[k] for k in z.files}

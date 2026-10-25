@@ -168,12 +168,12 @@ def website_top(kg, types, t):
     from evaluation.external_exam import SEED, SPLIT
     from evaluation.twins import drug_family, twin_neighbors, twins
     from evaluation.txgnn import CACHE, FEATURE_SETS, PRODUCTION, GENES_EXTRA, drug_degrees, score_paths
-    from evaluation.xgboost_compare import CONFIGS, OUT, _fit
+    from evaluation.xgboost_compare import CONFIGS, OUT, _fit, build
     from graph import CONTRA, INDICATION, OFF_LABEL, Graph
     from predictor import diagnostic_drugs, drug_status
     g = t["g"]
     # 1. specificity over 2,000 reference diseases of the seed-1 training graph, production model
-    data = np.load(OUT / f"{SPLIT}_{SEED}.npz", allow_pickle=True)  # training rows (xgboost_compare)
+    data = build(kg, types, SPLIT, SEED)  # training rows (xgboost_compare, cached per feature set)
     model = _fit("lgb_rank_n300_l31", data["X"], data["Y"], data["groups"], SEED)
     assert np.allclose(model(np.column_stack([data["F_ext"][:, 0, :].astype(np.float64), data["degree"], data["gf"]])),
                        t["raw"][:, 0], atol=1e-6), "the retrained model does not reproduce the published scores"

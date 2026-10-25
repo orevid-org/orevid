@@ -6,17 +6,18 @@ Cancers: 47; positive pairs: 80 (CIViC pairs already known as indications, left 
 
 | Set | OREVID Recall@100 | Popularity | Difference (95 % CI) |
 |---|---|---|---|
-| all positives (deciding) | 0.551 | 0.211 | +0.340 (+0.173 to +0.495; 47 diseases) |
-| without an Open Targets clinical record for the pair (28 positives) | 0.375 | 0.167 | +0.208 (-0.021 to +0.438; 24 diseases) |
+| all positives (deciding) | 0.531 | 0.211 | +0.320 (+0.155 to +0.472; 47 diseases) |
+| without an Open Targets clinical record for the pair (28 positives) | 0.354 | 0.167 | +0.188 (-0.042 to +0.417; 24 diseases) |
 
 **Decision:** claim supported.
 
-## Reading (23-10-2026)
 
-**Claim supported:** on 47 cancers, the production model (with the genetic direction, P61) puts 55 % of the
-CIViC-supported single-drug uses (levels A–B, sensitivity / response) in its top 100, against 21 % for popularity
-(+0.34, +0.17 to +0.50). On the stricter subset with no Open Targets clinical record for the pair the gain is +0.21
-with an interval touching 0 (−0.02 to +0.44; 28 positives). None of the 120 CIViC pairs outside the known indications
-is a PrimeKG off-label use of the same disease, so the model did not see them as edges. Caveats: CIViC evidence is
-biomarker-restricted (it supports the drug in a molecular subgroup, not always in the whole cancer), and 72 CIViC
-pairs were already known indications and were left out.
+## Reading (23-10-2026; numbers updated 25-10-2026 with the production model `extra_qtl_orpha`)
+
+**Claim supported:** on 47 cancers, the production model puts 53 % of the CIViC-supported single-drug uses
+(levels A–B, sensitivity / response) in its top 100, against 21 % for popularity (+0.32, +0.16 to +0.47; with the
+model of 23-10, before the Orphanet column: 55 %, +0.34). On the stricter subset with no Open Targets clinical record
+for the pair the gain is +0.19 with an interval touching 0 (−0.04 to +0.42; 28 positives). None of the 120 CIViC
+pairs outside the known indications is a PrimeKG off-label use of the same disease, so the model did not see them as
+edges. Caveats: CIViC evidence is biomarker-restricted (it supports the drug in a molecular subgroup, not always in
+the whole cancer), and 72 CIViC pairs were already known indications and were left out.
