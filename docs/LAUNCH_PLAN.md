@@ -20,8 +20,9 @@ launch day forms an opinion that is hard to change, so the visible errors go fir
    carry some mechanism), N2 / N4 negative results, the fixed figure 3, G1 if done. The v2 no longer matches the
    website.
 4. **Submit v3 to PCI Mathematical and Computational Biology** (preparation of 20-10 holds: figures from
-   `evaluation/figures.py`, PCI conflict-of-interest wording, line numbers). To prepare: cover letter and a list of
-   suitable recommenders.
+   `evaluation/figures.py`, PCI conflict-of-interest wording, line numbers). Cover letter and 8 recommenders
+   drafted on 29-10 (STATUS, that day). First release v1.3.0 on Zenodo (home PC): PCI needs a versioned deposit
+   that matches the v3 model, and v1.2.0 predates it.
 5. Afterwards: v3 in README, `CITATION.cff`, the website and ORCID (as for v2); a reply with the v3 on the Open
    Targets forum topic.
 
