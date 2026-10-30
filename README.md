@@ -33,10 +33,10 @@ Recall@100 = fraction of a disease's correct drugs found among the top 100 of 7,
 
 | Test | Popularity baseline | TxGNN | RotatE (embedding) | OREVID |
 |---|---|---|---|---|
-| Zero-shot diseases (5 seeds) | 0.358 | 0.412 | 0.289 | **0.811** |
-| Same, without near-identical diseases («hard») | 0.203 | 0.258 | 0.162 | **0.539** |
-| Whole disease areas hidden (9) | 0.185 | 0.237 | 0.219 | **0.617** |
-| External: Open Targets approvals not in PrimeKG | 0.130 | 0.121 | 0.156 | **0.359** |
+| Zero-shot diseases (5 seeds) | 0.358 | 0.412 | 0.289 | **0.812** |
+| Same, without near-identical diseases («hard») | 0.203 | 0.258 | 0.162 | **0.544** |
+| Whole disease areas hidden (9) | 0.185 | 0.237 | 0.219 | **0.627** |
+| External: Open Targets approvals not in PrimeKG | 0.130 | 0.121 | 0.156 | **0.355** |
 
 RotatE: knowledge-graph embedding (PyKEEN), settings chosen on zero-shot seed 1 ([`docs/KGE.md`](docs/KGE.md)).
 

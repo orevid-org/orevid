@@ -25,7 +25,7 @@ See [LEADERBOARD.md](LEADERBOARD.md). **To add your model, see [SUBMITTING.md](S
 | Popularity (ignores the disease) | 0.358 | 0.203 | 0.185 | 0.130 |
 | TxGNN (official code, trained on the same splits) | 0.412 | 0.258 | 0.237 | 0.121 |
 | RotatE (knowledge-graph embedding, PyKEEN, tuned on seed 1) | 0.289 | 0.162 | 0.219 | 0.156 |
-| OREVID (LambdaRank over meta-paths) | **0.811** | **0.539** | **0.617** | **0.359** |
+| OREVID (LambdaRank over meta-paths) | **0.812** | **0.544** | **0.627** | **0.355** |
 
 TxGNN was retrained here with its official code and hyper-parameters; on the zero-shot split it
 reproduces its published numbers (Recall@100 0.412 vs 0.405 published; AUPRC 0.910 vs 0.904).
