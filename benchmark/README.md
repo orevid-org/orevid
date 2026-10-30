@@ -87,11 +87,11 @@ clinical-trial databases, drug labels, literature saying «drug treats disease»
 `disease` and `drug` (PrimeKG `node_index`) and `score` (higher = more likely to treat). Score every
 drug in `tasks/<task>.json` → `drugs` for every test disease; missing pairs get the lowest score.
 
-The prediction files of the five models in the leaderboard (popularity, TxGNN, RotatE, OREVID and OREVID without
-the popularity feature) and of OREVID trained with training labels only (every task except the external exam), with
-their `results.json` (not kept in git), are attached to the GitHub release as `orevid-bench-predictions-v1.2.zip`:
-unzip it here to re-evaluate them with `python bench.py evaluate --pred predictions/<model>`. The predictions of the
-first four models are the same as in v1.0 and v1.1.
+The prediction files of the models in the leaderboard and of OREVID trained with training labels only (every task
+except the external exam), with their `results.json`, are attached to the GitHub releases: unzip the zip of a release
+in `benchmark/` to re-evaluate them with `python bench.py evaluate --pred predictions/<model>`. Since v1.3.0 the
+OREVID model has two more gene-level columns (genetic direction and Orphanet genes, P61 and P79), so its predictions
+differ from those in `orevid-bench-predictions-v1.2.zip`; the popularity, TxGNN and RotatE predictions are the same.
 
 ## Caveats
 
