@@ -1,4 +1,4 @@
-# Project status and how to continue (updated 02-11-2026)
+# Project status and how to continue (updated 03-11-2026)
 
 Hand-over document between sessions and computers. Read this first, then `README.md` and
 `docs/DECISIONS.md` (decision log with the validation status of every rule).
@@ -278,7 +278,8 @@ Results and decisions in `docs/REVIEW_RESPONSE.md` (section «Results of the pen
     (Graph ML Methods), [AstraZeneca/awesome-drug-discovery-knowledge-graphs#12](https://github.com/AstraZeneca/awesome-drug-discovery-knowledge-graphs/pull/12)
     (new «Drug Repurposing» section in `chapters/applications.md`; so far only the maintainer's own PRs were merged
     there) and [yboulaamane/awesome-drug-discovery#28](https://github.com/yboulaamane/awesome-drug-discovery/pull/28)
-    (Network Pharmacology). Answer any review comment there. Set aside:
+    (Network Pharmacology). Answer any review comment there. **State on 03-11-2026:** #11 merged (25-10, by
+    piotrkan, Every Cure) and #28 merged (03-11, by Yassir Boulaamane); #12 (AstraZeneca) still open, no comments. Set aside:
     `robert-haas/awesome-biomedical-knowledge-graphs` (downloadable graphs only, no outside contributions); its
     survey gave the three candidates N1–N3 of `docs/IMPROVEMENT_PLAN.md`.
   - **E-mails sent** (22-10, from contact@orevid.org) to ReDO (info@anticancerfund.org, for Pan Pantziarka),
