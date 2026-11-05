@@ -19,7 +19,7 @@ launch day forms an opinion that is hard to change, so the visible errors go fir
 3. **Preprint v3** on Preprints.org: R1b and the new hit rates, N1 positive (first evidence that the shared genes
    carry some mechanism), N2 / N4 negative results, the fixed figure 3, G1 if done. The v2 no longer matches the
    website.
-4. **Submitted to PCI Mathematical and Computational Biology on 02-11-2026** (ArticleID #1378, v3; STATUS). Was: submit v3 to PCI MCB (preparation of 20-10 holds: figures from
+4. **PCI Mathematical and Computational Biology: declined as out of scope on 05-11-2026** (ArticleID #1378, submitted 02-11). Next: a journal (fallback Briefings in Bioinformatics). Was: submit v3 to PCI MCB (preparation of 20-10 holds: figures from
    `evaluation/figures.py`, PCI conflict-of-interest wording, line numbers). Cover letter and 8 recommenders
    drafted on 29-10 (STATUS, that day). Release v1.3.0 (matches v3) on Zenodo since 30-10,
    doi:10.5281/zenodo.23800955; its prediction zip is still to be attached from the home PC.
