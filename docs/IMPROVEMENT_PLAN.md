@@ -919,6 +919,11 @@ disease (weighted kappa), if any. Results are published in aggregate; experts ar
 Implementation: `evaluation/e1_expert_sheet.py` (sheets and key; `analyse` once the sheets are back);
 `docs/E1_EXPERT_RATING.md`; DECISIONS on completion.
 
+**Amendment, 07-11-2026, before anyone was contacted.** The first contact only invites the expert to browse the
+website (a smaller first request); the blind sheet is offered afterwards to those who find it worth it. Pages an
+expert has opened are not blind any more, so the sheet uses diseases of their field whose OREVID pages they say they
+have not opened, and the second e-mail asks which pages they looked at. Everything else is unchanged.
+
 ---
 
 ## What to update after each item
