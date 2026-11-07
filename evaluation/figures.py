@@ -77,7 +77,7 @@ def figure1():
     xs = [2, 26.5, 51, 75.5]
     box(xs[0], top, "Sources", "PrimeKG, Open Targets\n26.06, STRING 12.5")
     box(xs[1], top, "Knowledge graph", "157,822 nodes\n9,457,076 edges")
-    box(xs[2], top, "Features", "22 metapaths and\ndrug degrees")
+    box(xs[2], top, "Features", "22 metapaths, 2 gene\ncolumns, drug degrees")
     box(xs[3], top, "Ranking model", "LambdaRank, trained\non masked diseases")
     for a, b in zip(xs, xs[1:]):
         arrow((a + w, top + h / 2), (b, top + h / 2))
@@ -233,12 +233,64 @@ def figure4():
     save(fig, 4)
 
 
+def temporal_2015():
+    """Recall@100 at the 2015 cutoff, primary positives (docs/T3_TXGNN_TEMPORAL.md, written by evaluation/t3_txgnn.py)."""
+    text = (ROOT / "docs" / "T3_TXGNN_TEMPORAL.md").read_text(encoding="utf-8")
+    block = text[text.index("## Cutoff 2015"):]
+    cells = [c.strip() for c in next(l for l in block.splitlines() if l.startswith("| primary |")).split("|")[1:-1]]
+    orevid, txgnn, pop = (float(c.split()[0]) for c in cells[2:5])
+    return {"popularity": pop, "txgnn": txgnn, "orevid_lambdarank": orevid}
+
+
+def toc():
+    """Table of Contents graphic for JCIM (3.25 × 1.75 in, 300 dpi): Recall@100 on three tests."""
+    tests = [("Unseen\ndiseases", "zero_shot"), ("Approvals missing\nfrom the graph", "external"),
+             ("Trained on 2015,\nlater approvals", None)]
+    later = temporal_2015()
+    vals = {}
+    for key, _, _ in MODELS:
+        res = results(key)
+        row = []
+        for _, prefix in tests:
+            if prefix is None:
+                row.append(later[key])
+                continue
+            tasks = [t for t in res if t.startswith(prefix)]
+            row.append(sum(recall(res, t) for t in tasks) / len(tasks))
+        vals[key] = row
+    fig, ax = plt.subplots(figsize=(3.25, 1.75))
+    width = 0.26
+    for i, (key, label, colour) in enumerate(MODELS):
+        xs = [j + (i - 1) * (width + 0.02) for j in range(len(tests))]
+        bars = ax.bar(xs, vals[key], width, color=colour, label=label.replace(" baseline", ""), zorder=2)
+        for b, v in zip(bars, vals[key]):
+            ax.text(b.get_x() + b.get_width() / 2, v + 0.02, f"{v:.2f}", ha="center", va="bottom", fontsize=5.5,
+                    color=TEXT if key == "orevid_lambdarank" else MUTED)
+    ax.set_xticks(range(len(tests)), [t[0] for t in tests])
+    ax.set_ylim(0, 1.05)
+    ax.set_yticks([])
+    for s in ("top", "right", "left"):
+        ax.spines[s].set_visible(False)
+    ax.tick_params(axis="x", length=0, labelsize=6, labelcolor=TEXT)
+    ax.set_title("Recall@100 (share of correct drugs in the top 100)", loc="left", fontsize=6.5, color=TEXT, pad=12)
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 0.93), ncol=3, frameon=False, fontsize=6, handlelength=0.9,
+              handleheight=0.9, columnspacing=1.2)
+    fig.subplots_adjust(left=0.02, right=0.98, bottom=0.2, top=0.74)
+    OUT.mkdir(parents=True, exist_ok=True)
+    with plt.rc_context({"savefig.bbox": "standard"}):  # exact 3.25 × 1.75 in, as ACS asks
+        for ext in ("png", "tif", "pdf"):
+            fig.savefig(OUT / f"toc.{ext}")
+    plt.close(fig)
+    print("  toc.png / .tif / .pdf")
+
+
 def main():
     print(f"-> {OUT}")
     figure1()
     figure2()
     figure3()
     figure4()
+    toc()
 
 
 if __name__ == "__main__":
