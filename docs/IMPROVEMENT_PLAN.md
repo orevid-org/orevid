@@ -887,6 +887,38 @@ TxGNN − popularity, the confirmed approvals, non-obvious uses and the new drug
 the same with `extra_no_ot`. Implementation: `evaluation/t3_txgnn.py`, `evaluation/txgnn_wsl.py` (`--label`,
 `--tag`); `docs/T3_TXGNN_TEMPORAL.md`; DECISIONS P84.
 
+## Registered 07-11-2026, before any expert sees a candidate: E1 (blind expert rating)
+
+**Question.** Do clinicians and pharmacologists rate the candidates the website shows as more plausible than drugs the
+model ranked as high but hid, and than lower-ranked drugs? First review of OREVID by people, not by data. Volunteer,
+unpaid experts; OREVID is a non-profit personal project and nothing is offered or asked for in exchange.
+
+**Pairs.** From the frozen snapshot of 12-10-2026 (`data/snapshot/2026-10-12/ranking_top100.csv.gz`, the same groups as
+`docs/PROSPECTIVE_PLAN.md`), for each disease the expert chooses in their field (2–3 per expert, among diseases with at
+least 4 shown pairs): 4 shown pairs (sections `extension` and `candidate`, drawn at random), 3 pairs «ranked 1–25, not
+shown» and 3 pairs from ranks 26–100. Controls are restricted to drugs approved for some indication (DrugBank group
+«approved»), so that experts do not reject them for being unknown compounds. Pairs already approved, contraindicated
+or in a registered trial for the disease on the snapshot date are left out, as in the prospective plan. Draws use a
+fixed seed per expert (`evaluation/e1_expert_sheet.py`).
+
+**Blinding.** Each expert gets a spreadsheet with the disease and the drug only, in random order: no rank, score,
+section or evidence line. They are asked not to open the OREVID pages of those diseases until they have finished.
+The key (pair → group) stays with the author until all sheets of a round are back.
+
+**Ratings, per pair.** (1) Plausibility that the drug could benefit patients with the disease, 1 (none) to 5 (strong
+rationale, worth a study); (2) already known for this disease: used in practice / tried in a trial / not that I know /
+can't tell; (3) a safety concern specific to this disease (yes / no); (4) free comment. «Can't judge» is allowed and
+counted apart.
+
+**Analysis.** Primary: mean plausibility of shown pairs minus «ranked 1–25, not shown» pairs, paired by disease, 95 %
+interval resampling diseases (and experts, when there are several). The claim «experts rate the shown candidates as
+more plausible» only if the interval is above 0 **and** at least 10 diseases were rated; with fewer, the result is
+reported as descriptive. Secondary: shown − ranks 26–100; share of pairs already known (by group; known pairs are
+then removed and the primary repeated); share with a safety concern; agreement between experts who rate the same
+disease (weighted kappa), if any. Results are published in aggregate; experts are named only with their consent.
+Implementation: `evaluation/e1_expert_sheet.py` (sheets and key; `analyse` once the sheets are back);
+`docs/E1_EXPERT_RATING.md`; DECISIONS on completion.
+
 ---
 
 ## What to update after each item
