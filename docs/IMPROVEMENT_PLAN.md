@@ -1120,6 +1120,21 @@ non-neoplastic ones (pemphigus, Kabuki syndrome, osteoarthritis, Graves disease,
 syndrome) stay out. Criteria as R8: hidden candidates below 5 % on the benchmark and on the areas; external reported;
 manual check of 20 new random hidden website entries (seed 2), at most 2 wrong. `evaluation/r8_check.py c`.
 
+**Result (08-11-2026): not adopted by the rule.** Hidden candidates hit 9.1 % on the benchmark (3 of 33), 2.3 % on the
+areas (1 of 43), 0 % on the external exam (0 of 98), against 35 %, 30 % and 5.6 % for the other shared-genes
+candidates; 1,288 website candidates on 504 pages would be hidden. The manual check passes (at most 1–2 doubtful of
+20: anagrelide off Glanzmann thrombasthenia, ibrutinib off «immunodeficiency», ramucirumab off microcephaly are right).
+The four hidden hits are all classification misses, not legitimate non-cancer uses: ruxolitinib, uracil mustard and
+mechlorethamine on the general «polycythemia» term (which includes polycythaemia vera, a myeloproliferative neoplasm,
+but is not in MONDO's neoplasm branch) and doxorubicin on Hodgkin's paragranuloma (a lymphoma). Awaiting the
+author's decision.
+
+**S1 result (08-11-2026): not adopted.** 913 drugs would be relabelled (227 of them on the pages, 2,725 entries). Of the
+20 sampled, 16 were confirmed by an independent source (14 well-documented marketed drugs; tenidap approved by
+non-US regulators but never launched; methylpentynol marketed 1956–1960s); 4 were not — serotonin and tramiprosate
+(ChEMBL alone), sulbentine and hachimycin (ATC alone). Criterion 18/20 not met. Every failure rests on a single
+non-agency source.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,

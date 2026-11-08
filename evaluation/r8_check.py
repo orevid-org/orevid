@@ -19,6 +19,32 @@ NAME_WORDS = ("cancer", "carcinoma", "neoplasm", "tumor", "tumour", "leukemia", 
               "carcinoid", "seminoma", "teratoma", "myelodysplastic")
 
 
+def mondo_neoplastic(G):
+    """R8c: graph diseases with a MONDO id under «neoplasm» (MONDO:0005070) or «neoplastic disease or syndrome»
+    (MONDO:0023370) in the full MONDO ontology (is_a)."""
+    import collections
+    children, cur = collections.defaultdict(set), None
+    for line in open(ROOT / "data" / "raw" / "mondo" / "mondo.obo", encoding="utf-8"):
+        if line.startswith("[Term]"):
+            cur = None
+        elif line.startswith("id: MONDO:"):
+            cur = line[4:17]
+        elif cur and line.startswith("is_a: MONDO:"):
+            children[line[6:19]].add(cur)
+    branch, stack = {"MONDO:0005070", "MONDO:0023370"}, ["MONDO:0005070", "MONDO:0023370"]
+    while stack:
+        for c in children[stack.pop()]:
+            if c not in branch:
+                branch.add(c)
+                stack.append(c)
+    out = set()
+    for x in np.flatnonzero(G.types == "disease"):
+        ids = [f"MONDO:{int(p):07d}" for p in str(G.nodes.node_id[int(x)]).split("_") if p.isdigit()]
+        if any(i in branch for i in ids):
+            out.add(int(x))
+    return out
+
+
 def neoplastic_and_cancer_drugs(G, variant="a"):
     from sources.hierarchy import load
     h = load()
@@ -33,6 +59,8 @@ def neoplastic_and_cancer_drugs(G, variant="a"):
             if c not in neo:
                 neo.add(c)
                 stack.append(c)
+    if variant == "c":  # R8c: the full MONDO neoplasm branch
+        neo |= mondo_neoplastic(G)
     if variant == "b":  # R8b: neoplasms also by name
         import re
         pat = re.compile("|".join(NAME_WORDS), re.I)
@@ -69,7 +97,7 @@ def main():
     from evaluation.evidence_ci import Genes, bench_task, external_task
     from evaluation.txgnn import AREAS, load_kg, node_types
     G = Graph()
-    variant = "b" if "b" in sys.argv[1:] else "a"
+    variant = next((v for v in ("b", "c") if v in sys.argv[1:]), "a")
     neo, cancer_drugs = neoplastic_and_cancer_drugs(G, variant)
     print(f"neoplastic diseases: {len(neo)}; L01/L02 drugs: {len(cancer_drugs)}", flush=True)
     kg = load_kg()
@@ -106,7 +134,7 @@ def main():
                 if via and all(m in names_neo for m in via):
                     hidden.append((v["name"], c["name"], ", ".join(via[:3])))
                     pages.add(k)
-    rng = np.random.default_rng(1 if variant == "b" else 0)  # R8b: a new sample
+    rng = np.random.default_rng({"a": 0, "b": 1, "c": 2}[variant])  # a new sample per variant
     sample = [hidden[i] for i in rng.choice(len(hidden), min(20, len(hidden)), replace=False)]
 
     rate = lambda x: f"{100 * x[0] / x[1]:.1f} % ({x[0]} of {x[1]})" if x[1] else "– (0)"
@@ -125,7 +153,7 @@ def main():
           "| Disease | Drug | Shared-genes diseases (neoplastic) |", "|---|---|---|"]
     L += [f"| {a} | {b} | {c} |" for a, b, c in sample]
     text = "\n".join(L) + "\n"
-    (ROOT / "docs" / ("R8B_CANCER_DRUGS.md" if variant == "b" else "R8_CANCER_DRUGS.md")).write_text(text, "utf-8")
+    (ROOT / "docs" / ({"a": "R8_CANCER_DRUGS.md", "b": "R8B_CANCER_DRUGS.md", "c": "R8C_CANCER_DRUGS.md"}[variant])).write_text(text, "utf-8")
     print(text)
 
 
