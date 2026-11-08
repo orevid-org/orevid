@@ -131,7 +131,8 @@ const pval = (p) => {
 // Development status (DrugBank)
 function statusTag(c) {
   const s = c.status || "unknown";
-  const cls = s === "approved" ? "ok" : s === "investigational" ? "warn" : s === "unknown" ? "neutral" : "risk";
+  const cls = s === "approved" || s === "approved in some country" ? "ok" : s === "investigational" ? "warn"
+    : s === "unknown" ? "neutral" : "risk";
   return `<span class="tag ${cls}">${esc((L && L.terms[s]) || s)}</span>${nowTags(c.status_now)}`;
 }
 

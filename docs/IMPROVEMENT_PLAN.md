@@ -1148,6 +1148,16 @@ it: a new random sample of 20 drugs on the pages (seed 1; the 20 drugs of S1's s
 independent public source; adopted if at least 18 are confirmed as approved or marketed in some country.
 `evaluation/s1_status.py b`.
 
+**Result (08-11-2026): adopted** (P92). 20 of 20 confirmed (16 well-documented approved drugs: ensartinib, mitiglinide,
+lobeglitazone, dapoxetine, gepirone, trelagliptin…; four looked up: lonidamine approved in Italy in 1987, dexrabeprazole
+marketed in India, ethadione marketed as Petidion, carbutamide marketed in Germany as Nadisan). Applied to the built
+pages without a rebuild (`evaluation/s1b_apply.py`; `web/build.py` computes the same `status_shown`): 2,086 entries of
+168 drugs now read «approved in some country» (1,121 «investigational», 714 «experimental», 251 «withdrawn» before).
+**Clarification of the wording:** the implementation (and so the checked sample) counts any DrugCentral record,
+including its «year introduced» rows, not only rows naming an agency; nine drugs depend on such a row alone
+(anecortave acetate — approved by the Australian TGA in 2005 —, azapropazone, clomethiazole, roxatidine, loprazolam,
+brotizolam, epalrestat, doxifluridine, lysergide), all of them marketed somewhere, so the code was kept.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,

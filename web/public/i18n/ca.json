@@ -227,7 +227,8 @@
     "revoked": "revocat",
     "suspended": "suspès",
     "expired": "caducat",
-    "lapsed": "caducat"
+    "lapsed": "caducat",
+    "approved in some country": "aprovat en algun país"
   },
   "target_terms": {
     "unknown": "desconeguda"

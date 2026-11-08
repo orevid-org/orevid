@@ -314,6 +314,12 @@ class DiseasePages:
         self.diagnostic = diagnostic_drugs(gc)
         self.developed = list(developed_drugs(gc) - self.diagnostic)
         self.status = drug_status(gc)
+        # S1b (P92): DrugBank misses approvals in single countries; shown as «approved in some country» when DrugCentral
+        # records an agency approval, or ChEMBL (phase «approval») and a WHO ATC code both say so
+        from evaluation.approval import approved_somewhere
+        ok = {f for f, s in approved_somewhere(gc).items() if "DrugCentral" in s or {"ChEMBL", "ATC"} <= set(s)}
+        self.status_shown = {f: ("approved in some country" if s in ("experimental", "investigational", "withdrawn", "unknown")
+                                 and f in ok else s) for f, s in self.status.items()}
         # Twins (same drug or disease in more than one node; DECISIONS.md P22): compared by name.
         self.twins = twins(gc, "disease")
         self.drug_twins = twins(gc, "drug")  # e.g. belimumab: DrugBank node + ChEMBL node holding its trials
@@ -382,7 +388,7 @@ class DiseasePages:
                 reasons["checkpoint"] = 1
             expl = X.explain(f, d, twins=dt)
             return {"node": f, "name": g.name(f), "id": self.ext.get(f, ""), "score": round(float(score), 3),
-                    "status": status.get(f, "unknown"), "status_now": self.status_now.get(f), "atc": self.atc.get(f, ""),
+                    "status": self.status_shown.get(f, "unknown"), "status_now": self.status_now.get(f), "atc": self.atc.get(f, ""),
                     "mechanism": self.mechanism(f), "indications": self.indications(f),
                     "lines": sorted(evidence_lines(expl)),
                     "risk": bool(risk_f[j]), "risk_reasons": reasons, "contra": f in contra, "expl": expl,
