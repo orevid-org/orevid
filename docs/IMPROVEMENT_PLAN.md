@@ -1013,6 +1013,30 @@ adopted R5 (26 enzyme therapies and chaperones); the 68 other gene-specific ther
 `resources/gene_specific_drugs_not_adopted.csv`. A future version would need a criterion that does not depend on the
 disease's gene set (e.g. the drug's own approvals and trials in related diseases), registered before any run.
 
+## Registered 08-11-2026, before measuring any hit rate: R7 (no direct extension from a parent that is only a feature of a syndrome)
+
+**Problem** (pages likely to be opened by the E1 contacts, 08-11): the general «neurofibromatosis» page shows nine
+antihypertensives as direct extensions, because MONDO classes neurofibromatosis under «hypertension». Of 10,155 direct
+extensions on the website, 4,985 come from a parent; most are right (a carcinoma subtype inherits carcinoma drugs), but
+syndromes classed under one of their features inherit that feature's drugs: Barth syndrome and GM1 gangliosidosis under
+«syndromic dyslipidemia», CHARGE syndrome under «congenital hypogonadotropic hypogonadism», 22q11.2 deletion syndrome
+under «heart disease», Chediak–Higashi syndrome under «constitutional neutropenia».
+
+**Rule.** A parent–child pair (MONDO hierarchy, `sources/hierarchy.py`) is a *feature parent* when the child has at
+least 20 HPO phenotypes (a multi-system syndrome) and the two do not share associated genes significantly
+(hypergeometric p ≥ 10⁻³ over the genes with at least one associated disease, all evidence types). A direct
+extension is dropped when every neighbour disease that makes it an extension is a feature parent of the page's
+disease; it is kept if any other neighbour (a child, a sibling, a non-feature parent) also carries the drug. The two
+thresholds (20 phenotypes, p 10⁻³) were chosen by looking at 14 parent–child pairs (6 judged wrong, 8 right:
+`docs/R7_FEATURE_PARENTS.md` lists them) and at their gene and phenotype overlap only — no hit rate was looked at.
+
+**Criteria, fixed before running** (those of every filter, P27): the dropped extensions must have a hit rate below
+5 % on the benchmark (zero-shot seeds 1–5, top 25 per disease, as `evaluation/evidence_ci.py`) and on the nine areas;
+their external-exam hit rate is reported; plus a manual check of 20 random dropped extensions on the website and a
+count of the pages that change. Adopted only if both hit rates are below 5 % and the manual check finds at most 2
+wrong drops. Implementation: `web/build.py`, `evaluation/r7_check.py` → `docs/R7_FEATURE_PARENTS.md`; DECISIONS on
+completion.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,
