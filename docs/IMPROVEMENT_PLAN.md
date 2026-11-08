@@ -1046,6 +1046,26 @@ neurofibromatosis–hypertension link is a PrimeKG disease–disease edge, not a
 extensions from a feature are mostly «treat the feature» proposals, shown with the neighbour they come from; no change
 to the website. `docs/R7_FEATURE_PARENTS.md` keeps the measurements.
 
+## Registered 08-11-2026, before measuring any hit rate: R8 (cancer drugs carried to non-neoplastic diseases by cancer genes)
+
+**Problem** (scan and page review of 08-11): the shared-genes line brings cancer drugs to non-neoplastic diseases
+through the genes those diseases share with cancers: imatinib and tretinoin on pemphigus, sorafenib and imatinib on
+Kabuki syndrome, doxorubicin on skeletal malformation syndromes (2,143 shown entries of antineoplastic or related
+classes on non-cancer pages, some of them right: everolimus in tuberous sclerosis, tretinoin in skin diseases).
+
+**Rule.** A *neoplastic* disease is one of the MONDO roots «cancer» (MONDO:0004992), «benign neoplasm»
+(MONDO:0005165) and «hereditary neoplastic syndrome» (MONDO:0015356), or a descendant of one of them
+(`sources/hierarchy.py`). On a non-neoplastic disease, a shared-genes candidate (not a direct extension) whose DrugBank
+ATC therapeutic group is «antineoplastic agents» (L01) or «endocrine therapy» (L02) is hidden when every disease
+through which it passes the shared-genes test (indicated there, ≥ 3 shared genes, p < 10⁻⁵) is neoplastic. It stays
+when it also qualifies through a non-neoplastic disease (everolimus through tuberous sclerosis, tretinoin through
+acne).
+
+**Criteria, fixed before running** (those of every filter, P27): hidden candidates must hit below 5 % on the benchmark
+(zero-shot seeds 1–5, top 25) and on the nine areas; external exam reported; manual check of 20 random hidden
+website entries, at most 2 wrong. Implementation: `evaluation/r8_check.py` → `docs/R8_CANCER_DRUGS.md`; `web/build.py`
+only if adopted; DECISIONS on completion.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,
@@ -1063,6 +1083,14 @@ talaporfin in Japan, belotecan in Korea) and keep their label.
 the benchmark (zero-shot seeds 1–5) and on the nine areas, and its external-exam hit rate is reported; plus a manual
 check of the 20 most frequently removed drugs against their current status. Adopted only if both hold.
 Implementation: `web/build.py`, `evaluation/r6_check.py` → `docs/R6_UNAVAILABLE_DRUGS.md`; DECISIONS on completion.
+
+**Result (08-11-2026): not adopted.** 3,650 drugs covered (3,535 DrugBank «experimental», 76 «withdrawn», 39 non-active
+in the US and the EU); 1,945 shown entries on 1,474 pages would go. The removed shown entries hit almost as often as
+the kept ones (benchmark 28.5 % against 37.0 %, areas 30.9 % against 34.4 %, external 6.2 % against 8.1 %), far above
+5 %. The manual check explains it: DrugBank «experimental» is not «never approved» — many of these drugs are approved
+in one country and carry indications for that reason (ripasudil and carmofur in Japan, melevodopa in Italy, ipidacrine
+in Russia, bupranolol in Germany, acefylline in several European countries). Drugs are shown with their status label,
+as before.
 
 ---
 
