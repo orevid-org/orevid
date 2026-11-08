@@ -7,7 +7,7 @@ chaperones are shown only where their enzyme is a gene of the disease or of a mo
         or a twin; removed pairs with a phase 3 trial are listed;
     (c) count removed candidates, extensions and exploratory entries, and removed pairs that are external-exam hits.
 
-    py -3 -m evaluation.enzyme_check    # -> docs/ENZYME_RULE.md, data/eval/enzyme_pages.json (pages to rebuild)
+    py -3 -m evaluation.enzyme_check [--reuse]   # -> docs/ENZYME_RULE.md; rebuilt pages in data/eval/enzyme_check_pages.pkl
 """
 import json
 import sys
@@ -19,12 +19,35 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 TOP = 150  # a removed drug can change a page only if it is in the model's top 150 (the page shows the top 25)
+CACHE_PAGES = ROOT / "data" / "eval" / "enzyme_check_pages.pkl"
+
+
+def rebuild(P, pages, blocked, t0):
+    """Pages with a blocked drug in the model's top TOP, rebuilt with the rule; the changes against the built pages."""
+    affected, rows, rebuilt = [], [], {}
+    for k, d in enumerate(sorted(pages)):
+        if (k + 1) % 1000 == 0:
+            print(f"  {k + 1}/{len(pages)} pages, {len(affected)} affected ({time.time() - t0:.0f} s)", flush=True)
+        drugs, score, _ = P.P.predict(d)
+        top = {int(drugs[j]) for j in np.argsort(-score)[:TOP]}
+        if not blocked(d) & top:
+            continue
+        affected.append(d)
+        new = P.disease(d)
+        rebuilt[d] = new
+        old = pages[d]
+        for sec in ("extensions", "candidates", "no_use"):
+            a = {c["name"] for c in old.get(sec) or []}
+            b = {c["name"] for c in new.get(sec) or []}
+            rows += [(old["name"], sec, "removed", n) for n in sorted(a - b)]
+            rows += [(old["name"], sec, "added", n) for n in sorted(b - a)]
+    return affected, rows, rebuilt
 
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     from graph import CLINICAL, GENES_ALL, INDICATION
-    from evaluation.twins import twin_neighbors
+    from evaluation.txgnn import CACHE
     from web.build import DEST, DiseasePages
     P = DiseasePages()
     g, gc = P.g, P.gc
@@ -35,7 +58,7 @@ def main():
 
     def blocked(d):
         gd = genes_of(d)
-        return {f for f, gs in P.enzyme.items() if not gs & gd}
+        return {f for f, gs in P.enzyme.items() if gd and not gs & gd}  # no gene known: nothing blocked
 
     # (b) approvals: every indication or confirmed Open Targets approval of a listed drug must stay allowed
     conflicts, phase3 = [], []
@@ -47,59 +70,49 @@ def main():
             if g.types[m] == "disease" and f in blocked(m):
                 phase3.append((g.name(f), g.name(m)))
 
-    # (a) pages that change: a blocked drug in the model's top TOP for the disease
+    # (c) external-exam hits among blocked pairs
+    pos = pd.read_parquet(CACHE / "external_positives.parquet")
+    hits = [(g.name(f), g.name(d)) for f, d in zip(pos.drug.astype(int), pos.disease.astype(int))
+            if f in P.enzyme and f in blocked(d)]
+    print(f"(b) {len(conflicts)} approved pairs blocked, {len(phase3)} phase 3; (c) {len(hits)} hits", flush=True)
+
+    # (a) pages that change
     pages = {}
     for fj in sorted((DEST / "d").glob("*.json")):
         pages.update({int(k): v for k, v in json.loads(fj.read_text("utf-8")).items()})
-    affected, rows = [], []
-    for k, d in enumerate(sorted(pages)):
-        if (k + 1) % 1000 == 0:
-            print(f"  {k + 1}/{len(pages)} pages, {len(affected)} affected ({time.time() - t0:.0f} s)", flush=True)
-        bl = blocked(d)
-        drugs, score, _ = P.P.predict(d)
-        top = {int(drugs[j]) for j in np.argsort(-score)[:TOP]}
-        if not bl & top:
-            continue
-        affected.append(d)
-        new = P.disease(d)
-        old = pages[d]
-        for sec in ("extensions", "candidates", "no_use"):
-            a = {c["name"] for c in old.get(sec) or []}
-            b = {c["name"] for c in new.get(sec) or []}
-            rows += [(old["name"], sec, "removed", n) for n in sorted(a - b)]
-            rows += [(old["name"], sec, "added", n) for n in sorted(b - a)]
+    if "--reuse" in sys.argv and CACHE_PAGES.exists():
+        affected, rows, rebuilt = pd.read_pickle(CACHE_PAGES)
+    else:
+        affected, rows, rebuilt = rebuild(P, pages, blocked, t0)
+        pd.to_pickle((affected, rows, rebuilt), CACHE_PAGES)
     ch = pd.DataFrame(rows, columns=["disease", "section", "change", "drug"])
     enzyme_names = {g.name(f) for f in P.enzyme}
     removed = ch[(ch.change == "removed") & ch.drug.isin(enzyme_names)]
     other_removed = ch[(ch.change == "removed") & ~ch.drug.isin(enzyme_names)]
+    changed = ch.disease.nunique()
 
-    # (c) external-exam hits among blocked pairs
-    pos = pd.read_parquet(ROOT / "data" / "cache" / "external_positives.parquet") \
-        if (ROOT / "data" / "cache" / "external_positives.parquet").exists() else None
-    hits = []
-    for f_, d_ in zip(pos.drug.astype(int), pos.disease.astype(int)):
-        if f_ in P.enzyme and f_ in blocked(d_):
-            hits.append((g.name(f_), g.name(d_)))
-
-    (ROOT / "data" / "eval" / "enzyme_pages.json").write_text(json.dumps(affected), "utf-8")
     L = ["# R5. Enzyme-specific therapies only where their enzyme is a disease gene\n",
          "Generated by `py -3 -m evaluation.enzyme_check`. Protocol: `docs/IMPROVEMENT_PLAN.md`, «Registered 08-11-2026: "
          "R5». Table: `resources/enzyme_specific_drugs.csv`; rule: `web/build.py` `enzyme_rules`.\n",
-         f"Listed drugs in the graph: {len(enzyme_names)} ({len(P.enzyme)} nodes). Pages that change: {len(affected)} "
-         f"of {len(pages)}.\n",
+         f"Listed drugs in the graph: {len(enzyme_names)} ({len(P.enzyme)} nodes). Pages rebuilt (a blocked drug in the "
+         f"model's top {TOP}): {len(affected)} of {len(pages)}; pages whose shown lists change: {changed}.\n",
          f"**(b) Approved indications blocked: {len(conflicts)}.** " +
          ("; ".join(f"{a} → {b}" for a, b in conflicts) if conflicts else "None.") + "\n",
          f"Blocked pairs with a phase 3 trial: {len(phase3)}" + (": " + "; ".join(f"{a} → {b}" for a, b in phase3)
                                                                   if phase3 else ".") + "\n",
          f"**(c) External-exam hits among blocked pairs: {len(hits)}.**" + (" " + "; ".join(f"{a} → {b}" for a, b in hits)
                                                                           if hits else "") + "\n",
-         "Removed from pages, by section: " + ", ".join(f"{s} {n}" for s, n in removed.section.value_counts().items())
-         + f". Other drugs leaving a page (pushed out by a newcomer, should be none): {len(other_removed)}.\n",
+         "Listed drugs removed from pages, by section: "
+         + (", ".join(f"{s} {n}" for s, n in removed.section.value_counts().items()) or "none")
+         + f". Other drugs leaving a page: {len(other_removed)}"
+         + (" (" + "; ".join(f"{r.drug} from {r.disease}" for r in other_removed.head(20).itertuples()) + ")"
+            if len(other_removed) else "") + ".\n",
          "## (a) Every change on the pages\n", "| Disease | Section | Change | Drug |", "|---|---|---|---|"]
-    L += [f"| {r.disease} | {r.section} | {r.change} | {r.drug} |" for r in ch.sort_values(["disease", "change"]).itertuples()]
+    L += [f"| {r.disease} | {r.section} | {r.change} | {r.drug} |"
+          for r in ch.sort_values(["disease", "change"]).itertuples()]
     text = "\n".join(L) + "\n"
     (ROOT / "docs" / "ENZYME_RULE.md").write_text(text, "utf-8")
-    print("\n".join(L[:9]))
+    print("\n".join(L[:8]))
     print(f"({time.time() - t0:.0f} s)")
 
 

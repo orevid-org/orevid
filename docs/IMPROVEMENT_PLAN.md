@@ -948,6 +948,20 @@ entries, and the removed pairs that are hits (external exam positives) — any h
 Adopted only if (b) holds and the manual check finds no wrong removal. Implementation: `web/build.py`,
 `evaluation/enzyme_check.py` → `docs/ENZYME_RULE.md`; DECISIONS on completion.
 
+**Result of the registered version (08-11-2026) and author's decision.** 771 pages changed, 894 listed drugs removed
+(857 candidates, 37 direct extensions), no other drug left a page. (b) **failed**: 2 «approved» pairs blocked, both
+Open Targets label-extraction errors (imiglucerase and velaglucerase alfa «approved» for anaemia: the label treats
+Gaucher disease type 1 *resulting in* anaemia). (c) 1 hit blocked, also an artefact (sapropterin for «nutritional
+deficiency disease»). Manual check of the 25 removals whose disease name matches a listed drug's own disease: all
+correct (pegademase off non-ADA SCID, alglucosidase alfa off non-Pompe glycogenoses, velaglucerase off saposin C
+deficiency, idursulfase off MPS I…) except 2 doubtful, both from missing data (a Wolman variant with no associated
+gene; pegademase off the broad «immunodeficiency» page, whose hierarchy does not reach ADA-SCID). Phase 3 pairs blocked
+showed that sapropterin is not enzyme-specific (trials in hypertension and ADHD: BH4 is also the cofactor of NOS and
+the aromatic amino acid hydroxylases). **The author adopted R5 by decision, after seeing these results, with two
+changes made after the results and recorded here:** sapropterin removed from the table, and no blocking for diseases
+with no associated gene in themselves or their more specific forms (an unknown gene cannot rule out the enzyme).
+The adopted version is re-run with `evaluation/enzyme_check.py` and the website patched from it.
+
 ## Registered 08-11-2026, before building it: R5b (all gene-specific therapies; genetic gene sets)
 
 **Problem** (review of 16 random pages, 08-11): the R5 error also affects genetic medicines and other therapies that

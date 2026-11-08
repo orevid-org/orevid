@@ -397,7 +397,7 @@ class DiseasePages:
         if self.enzyme:
             genes_d = {x for m in {d} | self.descendant_set(d) | set(dt) for x in g.neighbors(m, GENES_ALL)}
             enzyme_block = {f: "/".join(sorted(g.name(x) for x in gs)) for f, gs in self.enzyme.items()
-                            if not gs & genes_d}
+                            if genes_d and not gs & genes_d}  # no gene known: the enzyme cannot be ruled out
         removed_enzyme = {}
 
         def known_or_unfit(f):
@@ -807,6 +807,23 @@ def save(fragments, g, all_diseases):
     print(f"index: {len(index)} diseases ({len(with_data)} with data) -> {DEST}")
 
 
+def patch_rebuilt(path):
+    """Writes pages rebuilt by a rule check (e.g. evaluation/enzyme_check.py, R5) into the built website data:
+    {disease: page} from the check's pickle; the other pages stay as they are."""
+    _, _, rebuilt = pd.read_pickle(path)
+    by_file = defaultdict(dict)
+    for d, page in rebuilt.items():
+        by_file[int(d) % FRAGMENTS][str(int(d))] = clean(page)
+    for k, upd in by_file.items():
+        f = DEST / "d" / f"{k}.json"
+        pages = json.loads(f.read_text("utf-8"))
+        missing = set(upd) - set(pages)
+        assert not missing, f"{f}: pages not in the built data: {sorted(missing)[:5]}"
+        pages.update(upd)
+        f.write_text(json.dumps(pages, ensure_ascii=False, separators=(",", ":"), allow_nan=False), "utf-8")
+    print(f"patched {len(rebuilt)} pages in {len(by_file)} files from {path}")
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser()
@@ -815,9 +832,13 @@ def main():
     p.add_argument("--sample", type=int, help="random sample (seed 0) of N diseases with data, for the panel")
     p.add_argument("--patch", action="store_true", help="add the navigation fields to the built pages and rebuild "
                                                          "the biomarker pages (instead of a full rebuild)")
+    p.add_argument("--patch-rebuilt", metavar="PKL", help="write the pages rebuilt by a rule check (its pickle, e.g. "
+                                                         "data/eval/enzyme_check_pages.pkl) into the built data")
     a = p.parse_args()
     if a.patch:
         return patch()
+    if a.patch_rebuilt:
+        return patch_rebuilt(Path(a.patch_rebuilt))
     from graph import Graph
     g = Graph()
     pkg = np.flatnonzero((g.types == "disease") & (g.origin == "PrimeKG"))
