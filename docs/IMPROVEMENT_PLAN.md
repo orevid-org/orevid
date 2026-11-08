@@ -985,6 +985,24 @@ somatic mutation (no animal models or RNA expression), still including more spec
 Open Targets approval blocked, phase 3 pairs listed; (c) external-exam hits among blocked pairs examined). Adopted only
 if (b) holds and the manual check finds no wrong removal. Same scripts, run after R5's decision.
 
+**Result (08-11-2026): not adopted.** (b) failed with real conflicts, not only artefacts: tafamidis blocked on
+«polyneuropathy» (approved for transthyretin amyloid polyneuropathy; also an external-exam hit), burosumab on
+«osteomalacia» (approved for tumour-induced osteomalacia, which has no gene), CFTR modulators on cystic
+fibrosis-related diabetes (phase 3), and the plasma von Willebrand factor products on haemophilia (most of them also
+carry factor VIII and are approved for haemophilia A: a table error). The cause of the first three is part (2), the
+genetic-only gene sets: complications and umbrella terms do not carry the gene as genetic evidence of their own. The
+other four «approvals» were Open Targets artefacts (anaemia ×2, «Atrophy», male infertility). The page part of the
+check was stopped once (b) had failed.
+
+## Registered 08-11-2026, after R5b's result: R5c (the R5b table with R5's gene sets)
+
+Part (1) of R5b alone: the extended table of gene-specific therapies, with the plasma von Willebrand factor products
+listed with VWF and F8, and the gene sets of the adopted R5 (all associated genes of the disease and its more specific
+forms; no blocking without genes). Animal-model noise is accepted (it lets some wrong entries through but blocks
+nothing wrongly). Same criteria and scripts as R5; the Open Targets artefacts already documented in R5 and R5b
+(anaemia, «Atrophy», male infertility, primary immunodeficiency) are not counted as conflicts if they reappear, since
+they were identified before this run.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,

@@ -24,6 +24,9 @@ from graph import (CLINICAL, CONTRA, EFFECT, GENES_ALL, GENES_ANIMAL, GENES_GENE
 ROOT = Path(__file__).resolve().parent.parent
 DEST = ROOT / "web" / "public" / "data"
 FRAGMENTS = 500  # files d/<id % 500>.json
+# Gene sets of the gene-specific therapy rule (R5, R5c): every associated gene. Genetic evidence alone (R5b) failed:
+# complications and umbrella terms (CF-related diabetes, polyneuropathy) lack the gene as their own genetic evidence.
+GENES_SPECIFIC = GENES_ALL
 TEST_DISEASES = ["multiple sclerosis", "Alzheimer disease", "Parkinson disease", "cystic fibrosis",
                  "type 2 diabetes mellitus", "asthma", "rheumatoid arthritis", "amyotrophic lateral sclerosis",
                  "Huntington disease", "psoriasis", "Crohn disease", "systemic lupus erythematosus",
@@ -391,11 +394,12 @@ class DiseasePages:
                 for f in drugs_:
                     marker_block.setdefault(f, marker)
         removed_marker = {}
-        # Enzyme replacement therapies and chaperones (resources/enzyme_specific_drugs.csv, R5): only where their
-        # enzyme is a gene of the disease or of a more specific form (cerliponase alfa, TPP1, not for Gaucher).
+        # Gene-specific therapies (resources/enzyme_specific_drugs.csv: enzyme replacement, chaperones, antisense,
+        # gene therapy, single-factor replacement; R5, R5b): only where their gene has genetic evidence for the disease
+        # or a more specific form (cerliponase alfa, TPP1, not for Gaucher; nusinersen, SMN2, not for ATP7A SMA).
         enzyme_block = {}
         if self.enzyme:
-            genes_d = {x for m in {d} | self.descendant_set(d) | set(dt) for x in g.neighbors(m, GENES_ALL)}
+            genes_d = {x for m in {d} | self.descendant_set(d) | set(dt) for x in g.neighbors(m, GENES_SPECIFIC)}
             enzyme_block = {f: "/".join(sorted(g.name(x) for x in gs)) for f, gs in self.enzyme.items()
                             if genes_d and not gs & genes_d}  # no gene known: the enzyme cannot be ruled out
         removed_enzyme = {}
@@ -601,8 +605,9 @@ def practical_tables():
 
 
 def enzyme_rules(g):
-    """R5: {drug node: gene nodes of the enzyme it replaces or binds} from resources/enzyme_specific_drugs.csv
-    (enzyme replacement therapies, chaperones, sapropterin; DrugBank targets do not name these enzymes)."""
+    """R5, R5b: {drug node: genes of the diseases it is specific to} from resources/enzyme_specific_drugs.csv
+    (enzyme replacement, chaperones, antisense and gene therapies, single-factor replacement; DrugBank targets do not
+    name these genes)."""
     f = ROOT / "resources" / "enzyme_specific_drugs.csv"
     if not f.exists():
         return {}
