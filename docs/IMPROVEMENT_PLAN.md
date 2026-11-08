@@ -1037,6 +1037,15 @@ count of the pages that change. Adopted only if both hit rates are below 5 % and
 wrong drops. Implementation: `web/build.py`, `evaluation/r7_check.py` → `docs/R7_FEATURE_PARENTS.md`; DECISIONS on
 completion.
 
+**Result (08-11-2026): not adopted.** Dropped extensions hit 13.3 % on the benchmark (2 of 15; 0 of 2 on the areas;
+1 of 41 on the external exam), above the 5 % limit, and the manual check of 20 random website drops found about 9
+wrong ones: a syndrome classed under one of its features often receives that feature's treatment, which is right
+(estradiol and norethisterone in Turner syndrome for ovarian failure, dexamethasone in congenital adrenal hyperplasia,
+oseltamivir in avian influenza, chloroquine in chilblain lupus). The rule also missed the motivating case: the
+neurofibromatosis–hypertension link is a PrimeKG disease–disease edge, not a MONDO parent. Conclusion: direct
+extensions from a feature are mostly «treat the feature» proposals, shown with the neighbour they come from; no change
+to the website. `docs/R7_FEATURE_PARENTS.md` keeps the measurements.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,
