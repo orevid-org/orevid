@@ -1135,6 +1135,19 @@ non-US regulators but never launched; methylpentynol marketed 1956–1960s); 4 w
 (ChEMBL alone), sulbentine and hachimycin (ATC alone). Criterion 18/20 not met. Every failure rests on a single
 non-agency source.
 
+**Author's decision on R8c (08-11-2026): adopted** (P91), with the two misclassified terms of its hidden hits added to
+the neoplastic set by hand (the general «polycythemia», Hodgkin's paragranuloma). Implemented as the measurement was
+made: the candidate is hidden inside the top 25 (counted with the hidden drugs; no other drug takes its place).
+
+## Registered 08-11-2026, after S1's result: S1b (approval needs an agency or two sources)
+
+S1 with a stricter definition, decided from the pattern of S1's failures (all four rested on a single non-agency
+source): a drug DrugBank does not call approved counts as *approved in some country* if DrugCentral records an approval
+by an agency, or if ChEMBL (maximum phase «approval») **and** a WHO ATC code both say so. Check, fixed before drawing
+it: a new random sample of 20 drugs on the pages (seed 1; the 20 drugs of S1's sample excluded), each looked up in an
+independent public source; adopted if at least 18 are confirmed as approved or marketed in some country.
+`evaluation/s1_status.py b`.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,

@@ -337,6 +337,8 @@ class DiseasePages:
         self.n_genes = np.diff(self.g.M(GENES_ALL).indptr)
         self.markers = marker_rules(gc, self.children, self.targets_f)
         self.enzyme = enzyme_rules(gc)  # R5: enzyme-specific therapies -> the genes of their enzyme
+        self.neoplastic, self.cancer_drugs = cancer_rule_sets(gc)  # R8c (P91)
+        self.neoplastic_names = {gc.name(x) for x in self.neoplastic}
         self.practical, self.trials_pair, self.papers_pair = practical_tables()
         self.label_check, self.status_now = label_tables()  # N4 (P53): current labels and regulatory status
         pkg = (self.g.types == "disease") & (self.g.origin == "PrimeKG")
@@ -413,6 +415,16 @@ class DiseasePages:
         def excluded(f):
             return known_or_unfit(f) or f in marker_block or f in enzyme_block
 
+        # R8c (P91): on a non-neoplastic disease, an antineoplastic (L01) or endocrine-therapy (L02) drug whose
+        # shared-genes line rests only on neoplasms is hidden (imatinib on pemphigus, doxorubicin on malformations).
+        page_neoplastic = bool(set(dt) & self.neoplastic)
+
+        def cancer_only(f, expl):
+            if page_neoplastic or f not in self.cancer_drugs or "neighbour" in evidence_lines(expl):
+                return False
+            via = [m[0] for e in expl if e["t"] == "similar" for m in e["m"] if valid_similar(m)]
+            return bool(via) and all(m in self.neoplastic_names for m in via)
+
         # Abstention rule (validated, DECISIONS.md P27-P28, P31): of the top 25 non-excluded candidates
         # (direct extensions included, as in evaluation/evidence.py), only those with evidence.
         cand, ext_cands, hidden, seen = [], [], 0, 0
@@ -438,7 +450,7 @@ class DiseasePages:
                 ext_cands.append(c)
                 continue
             c = candidate(j, total[j])
-            if has_evidence(c["expl"]):
+            if has_evidence(c["expl"]) and not cancer_only(f, c["expl"]):
                 cand.append(c)
             else:
                 hidden += 1
@@ -602,6 +614,17 @@ def practical_tables():
     p = a[a.relation == "pubtator_drug_disease"].groupby(["x_index", "y_index"]).n_articles.sum()
     papers = {(int(x), int(y)): int(n) for (x, y), n in p.items()}
     return practical, trials, papers
+
+
+def cancer_rule_sets(g):
+    """R8c (P91): neoplastic diseases (MONDO's own neoplasm branch, the three MONDO roots of R8 and their descendants,
+    plus two terms MONDO leaves out: the general «polycythemia», which includes polycythaemia vera, and Hodgkin's
+    paragranuloma) and the drugs of ATC groups L01 and L02."""
+    from evaluation.r8_check import neoplastic_and_cancer_drugs
+    neo, cancer = neoplastic_and_cancer_drugs(g, "c")
+    extra = {"polycythemia (disease)", "Hodgkin's paragranuloma"}
+    neo |= {int(x) for x in np.flatnonzero(g.types == "disease") if g.name(int(x)) in extra}
+    return neo, cancer
 
 
 def enzyme_rules(g):
