@@ -24,6 +24,9 @@ def main():
     G = Graph()
     status = drug_status(G)
     ok = approved_somewhere(G)
+    variant = "b" if "b" in sys.argv[1:] else "a"
+    if variant == "b":  # S1b: an agency approval (DrugCentral), or ChEMBL and ATC together
+        ok = {f: s for f, s in ok.items() if "DrugCentral" in s or {"ChEMBL", "ATC"} <= set(s)}
     fixed = {int(f): (s, ok[int(f)]) for f, s in status.items() if s in RELABEL and int(f) in ok}
     shown = collections.Counter()
     for fj in sorted((ROOT / "web" / "public" / "data" / "d").glob("*.json")):
@@ -33,8 +36,13 @@ def main():
                     shown[c["name"]] += 1
     names = {f: G.name(f) for f in fixed}
     on_pages = {f for f in fixed if shown[names[f]]}
-    rng = np.random.default_rng(0)
+    rng = np.random.default_rng(1 if variant == "b" else 0)
     pool = sorted(on_pages)
+    if variant == "b":  # S1's sample is excluded
+        s1_drugs = {"Ibopamine", "Serotonin", "Rauwolfia serpentina root", "Levomethadone", "Grn163l", "Neridronic Acid",
+                    "Vonoprazan", "Hachimycin", "Meclocycline", "Tenidap", "Brotizolam", "Sulbentine", "Tramiprosate",
+                    "Tamibarotene", "Methylpentynol", "Gestodene", "Distigmine", "Loprazolam", "Mefenorex", "Etofenamate"}
+        pool = [f for f in pool if names[f] not in s1_drugs]
     sample = [pool[i] for i in rng.choice(len(pool), min(20, len(pool)), replace=False)]
     by = collections.Counter(s for s, _ in fixed.values())
     L = ["# S1. Approval status from four sources\n",
@@ -47,7 +55,7 @@ def main():
          "| Drug | DrugBank | Sources saying approved | Independent check |", "|---|---|---|---|"]
     L += [f"| {names[f]} | {fixed[f][0]} | {', '.join(fixed[f][1])} | (to fill) |" for f in sample]
     text = "\n".join(L) + "\n"
-    (ROOT / "docs" / "S1_APPROVAL_STATUS.md").write_text(text, "utf-8")
+    (ROOT / "docs" / ("S1B_APPROVAL_STATUS.md" if variant == "b" else "S1_APPROVAL_STATUS.md")).write_text(text, "utf-8")
     print(text)
 
 
