@@ -1066,6 +1066,41 @@ acne).
 website entries, at most 2 wrong. Implementation: `evaluation/r8_check.py` → `docs/R8_CANCER_DRUGS.md`; `web/build.py`
 only if adopted; DECISIONS on completion.
 
+**Result (08-11-2026): not adopted.** The hit-rate criterion is met (hidden candidates hit 2.1 % on the benchmark,
+4.4 % on the areas, 2.9 % on the external exam, against 32 %, 32 % and 5.6 % for the other shared-genes candidates),
+but the manual check fails: about 11 of the 20 sampled pages are neoplasms the MONDO hierarchy does not place under the
+three roots (mixed glioma, secretory meningioma, germ cell tumour, peripheral T-cell lymphoma, lymphoid leukaemia,
+breast neoplasm…), so chemotherapy was hidden from cancers. The 9 truly non-neoplastic drops were all right
+(anagrelide on a mitochondrial DNA depletion syndrome, tegafur on osteoarthritis, imatinib on a keratoderma, pazopanib
+on Barrett oesophagus).
+
+## Registered 08-11-2026, before measuring anything: S1, R6b, R8b (labels corrected from several sources)
+
+R6 and R8 failed for the same reason: a label in one source does not match reality (DrugBank «experimental» on drugs
+approved in Japan, Italy or Russia; neoplasms that the MONDO hierarchy does not place under the cancer roots). Before
+measuring: of the 107 DrugBank-«experimental» drugs with an indication in the graph, 95 are approved somewhere
+according to ChEMBL (maximum phase 4, via Open Targets), the WHO ATC classification or DrugCentral (any agency).
+
+**S1 (display).** A drug is *approved somewhere* if any of four sources says so: DrugBank group «approved» (also
+«withdrawn in some market»), DrugCentral (an approval by any agency), ChEMBL maximum phase «approval», or a WHO ATC
+code. The status shown on the pages for drugs DrugBank calls «experimental», «investigational», «withdrawn» or
+«unknown» becomes «approved in some country (source)» when they are approved somewhere. Check, fixed before running:
+20 random corrected drugs looked up in a public source independent of the four (a regulator, a national formulary or
+an encyclopaedic page citing one); adopted if at least 18 are confirmed as marketed or approved in some country.
+
+**R6b (filter).** R6 restricted to drugs *never approved anywhere*: DrugBank «experimental» or «withdrawn» (not
+«approved») and approved by none of the four sources above. The US/EU part of R6 is dropped (withdrawn drugs did have
+real indications, so their hits are expected; their current status is already shown on the pages). Criteria as R6:
+the removed shown entries hit below 5 % on the benchmark and on the areas; external reported; manual check of the 20
+most frequently removed drugs.
+
+**R8b (filter).** R8 with neoplasms also recognised by name: a disease is neoplastic if it is under the three MONDO
+roots (as R8) or its name contains one of: cancer, carcinoma, neoplasm, tumor, tumour, leukemia, leukaemia, lymphoma,
+sarcoma, glioma, blastoma, melanoma, myeloma, adenoma, mesothelioma, meningioma, neurilemmoma, schwannoma, carcinoid,
+seminoma, teratoma, myelodysplastic. Criteria as R8 (hidden < 5 % on benchmark and areas; manual check of 20 new
+random hidden website entries, at most 2 wrong). Implementation for all three: `evaluation/r6_check.py`,
+`evaluation/r8_check.py` (with a `b` argument) and `evaluation/s1_status.py`; `web/build.py` only for what is adopted.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,

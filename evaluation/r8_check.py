@@ -1,0 +1,125 @@
+"""Validation of R8 (docs/IMPROVEMENT_PLAN.md, «Registered 08-11-2026: R8»): on a non-neoplastic disease, hide a
+shared-genes candidate of ATC group L01 (antineoplastic agents) or L02 (endocrine therapy) when every disease through
+which it passes the shared-genes test is neoplastic. Criteria fixed before running: hidden candidates hit below 5 % on
+the benchmark (zero-shot seeds 1-5) and the nine areas (top 25); external exam reported; manual check of 20 random
+hidden website entries, at most 2 wrong.
+
+    py -3 -m evaluation.r8_check     # -> docs/R8_CANCER_DRUGS.md
+"""
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parent.parent
+ROOTS = ("cancer", "benign neoplasm", "hereditary neoplastic syndrome")
+
+
+def neoplastic_and_cancer_drugs(G):
+    from sources.hierarchy import load
+    h = load()
+    children = {}
+    for a, b in zip(h.parent.astype(int), h.child.astype(int)):
+        children.setdefault(a, []).append(b)
+    roots = [int(x) for x in np.flatnonzero(G.types == "disease") if G.name(int(x)) in ROOTS]
+    assert len(roots) == 3, roots
+    neo, stack = set(roots), list(roots)
+    while stack:
+        for c in children.get(stack.pop(), []):
+            if c not in neo:
+                neo.add(c)
+                stack.append(c)
+    atc2 = G.descriptions["atc_2"].fillna("").astype(str).str.lower()
+    cancer_drugs = {int(i) for i, v in atc2.items() if "antineoplastic agents" in v or "endocrine therapy" in v}
+    return neo, cancer_drugs
+
+
+def task_rates(t, gn, neo, cancer_drugs):
+    k, pv = 3, 1e-5  # the production rule («base»)
+    p = gn.pvalues(gn.N)
+    sig = (gn.K >= k) & (p < pv)  # D × M
+    non = np.array([int(m) not in neo for m in gn.M])
+    T_all = np.asarray(gn.IndM @ sig.T.astype(np.float32)) > 0
+    T_non = np.asarray(gn.IndM[:, np.flatnonzero(non)] @ sig[:, non].T.astype(np.float32)) > 0
+    g = t["g"]
+    out = {"hidden": [0, 0], "other shared-genes candidates": [0, 0]}
+    for c, d in enumerate(t["D"]):
+        if int(d) in neo:
+            continue
+        for j in t["top"][c]:
+            if t["V"][j, c] or not T_all[j, c]:
+                continue
+            key = "hidden" if int(g.drugs[j]) in cancer_drugs and not T_non[j, c] else "other shared-genes candidates"
+            out[key][0] += int(t["hits"][c][j])
+            out[key][1] += 1
+    return out
+
+
+def main():
+    sys.stdout.reconfigure(encoding="utf-8")
+    from graph import Graph
+    from evaluation.evidence_ci import Genes, bench_task, external_task
+    from evaluation.txgnn import AREAS, load_kg, node_types
+    G = Graph()
+    neo, cancer_drugs = neoplastic_and_cancer_drugs(G)
+    print(f"neoplastic diseases: {len(neo)}; L01/L02 drugs: {len(cancer_drugs)}", flush=True)
+    kg = load_kg()
+    types = node_types(kg)
+    res = {}
+    for name, tasks in {"benchmark": [("complex_disease", s) for s in (1, 2, 3, 4, 5)],
+                        "areas": [(a, 1) for a in AREAS]}.items():
+        tot = {"hidden": [0, 0], "other shared-genes candidates": [0, 0]}
+        for split, seed in tasks:
+            t = bench_task(kg, types, split, seed)
+            r = task_rates(t, Genes(t["g"], t["D"]), neo, cancer_drugs)
+            for kk in tot:
+                tot[kk] = [tot[kk][0] + r[kk][0], tot[kk][1] + r[kk][1]]
+            print(f"  {name} {split} {seed}: {r}", flush=True)
+        res[name] = tot
+    t = external_task(kg, types)
+    res["external"] = task_rates(t, Genes(t["g"], t["D"]), neo, cancer_drugs)
+    print(res, flush=True)
+
+    # website: candidates of non-neoplastic pages whose every shared-genes disease is neoplastic
+    names_neo = {G.name(int(x)) for x in neo}
+    by_name = {}
+    for x in np.flatnonzero(G.types == "drug"):
+        by_name.setdefault(G.name(int(x)), []).append(int(x))
+    hidden, pages = [], set()
+    for fj in sorted((ROOT / "web" / "public" / "data" / "d").glob("*.json")):
+        for k, v in json.loads(fj.read_text("utf-8")).items():
+            if int(k) in neo:
+                continue
+            for c in v.get("candidates") or []:
+                if not any(f in cancer_drugs for f in by_name.get(c["name"], [])):
+                    continue
+                via = [m[0] for e in c.get("expl", []) if e.get("t") == "similar" for m in e.get("m", [])]
+                if via and all(m in names_neo for m in via):
+                    hidden.append((v["name"], c["name"], ", ".join(via[:3])))
+                    pages.add(k)
+    rng = np.random.default_rng(0)
+    sample = [hidden[i] for i in rng.choice(len(hidden), min(20, len(hidden)), replace=False)]
+
+    rate = lambda x: f"{100 * x[0] / x[1]:.1f} % ({x[0]} of {x[1]})" if x[1] else "– (0)"
+    ok = all(res[n]["hidden"][1] == 0 or res[n]["hidden"][0] / res[n]["hidden"][1] < 0.05 for n in ("benchmark", "areas"))
+    L = ["# R8. Cancer drugs carried to non-neoplastic diseases only by cancer genes\n",
+         "Generated by `py -3 -m evaluation.r8_check`. Protocol: `docs/IMPROVEMENT_PLAN.md`, «Registered 08-11-2026: R8». "
+         f"Neoplastic diseases (the three MONDO roots and their descendants): {len(neo):,}; ATC L01/L02 drugs: "
+         f"{len(cancer_drugs):,}.\n",
+         "## Hit rate among shared-genes candidates of non-neoplastic diseases, top 25\n",
+         "| Test | Hidden by R8 | Other shared-genes candidates |", "|---|---|---|"]
+    L += [f"| {n} | {rate(res[n]['hidden'])} | {rate(res[n]['other shared-genes candidates'])} |"
+          for n in ("benchmark", "areas", "external")]
+    L += ["", f"**Hit-rate criterion (hidden < 5 % on benchmark and areas): {'met' if ok else 'NOT met'}.**\n",
+          "## Website\n", f"Candidates hidden: {len(hidden):,} on {len(pages):,} pages (from the shared-genes diseases listed "
+          "on each candidate).\n", "Random sample of 20 for the manual check:\n",
+          "| Disease | Drug | Shared-genes diseases (neoplastic) |", "|---|---|---|"]
+    L += [f"| {a} | {b} | {c} |" for a, b, c in sample]
+    text = "\n".join(L) + "\n"
+    (ROOT / "docs" / "R8_CANCER_DRUGS.md").write_text(text, "utf-8")
+    print(text)
+
+
+if __name__ == "__main__":
+    main()
