@@ -333,6 +333,7 @@ class DiseasePages:
             self.children[a_].append(b_)
         self.n_genes = np.diff(self.g.M(GENES_ALL).indptr)
         self.markers = marker_rules(gc, self.children, self.targets_f)
+        self.enzyme = enzyme_rules(gc)  # R5: enzyme-specific therapies -> the genes of their enzyme
         self.practical, self.trials_pair, self.papers_pair = practical_tables()
         self.label_check, self.status_now = label_tables()  # N4 (P53): current labels and regulatory status
         pkg = (self.g.types == "disease") & (self.g.origin == "PrimeKG")
@@ -390,6 +391,14 @@ class DiseasePages:
                 for f in drugs_:
                     marker_block.setdefault(f, marker)
         removed_marker = {}
+        # Enzyme replacement therapies and chaperones (resources/enzyme_specific_drugs.csv, R5): only where their
+        # enzyme is a gene of the disease or of a more specific form (cerliponase alfa, TPP1, not for Gaucher).
+        enzyme_block = {}
+        if self.enzyme:
+            genes_d = {x for m in {d} | self.descendant_set(d) | set(dt) for x in g.neighbors(m, GENES_ALL)}
+            enzyme_block = {f: "/".join(sorted(g.name(x) for x in gs)) for f, gs in self.enzyme.items()
+                            if not gs & genes_d}
+        removed_enzyme = {}
 
         def known_or_unfit(f):
             # already approved (also by name: twins), diagnostic, contraindicated here, veterinary only
@@ -398,7 +407,7 @@ class DiseasePages:
                     or f in contra or bool(fam & names_contra) or status.get(f) == "veterinary only")
 
         def excluded(f):
-            return known_or_unfit(f) or f in marker_block
+            return known_or_unfit(f) or f in marker_block or f in enzyme_block
 
         # Abstention rule (validated, DECISIONS.md P27-P28, P31): of the top 25 non-excluded candidates
         # (direct extensions included, as in evaluation/evidence.py), only those with evidence.
@@ -410,6 +419,8 @@ class DiseasePages:
             if excluded(f):
                 if f in marker_block and not known_or_unfit(f):
                     removed_marker.setdefault(g.name(f), marker_block[f])
+                elif f in enzyme_block and not known_or_unfit(f):
+                    removed_enzyme.setdefault(g.name(f), enzyme_block[f])
                 continue
             seen += 1
             in_ext = [m for m in g.neighbors(f, INDICATION) if m in extensions]
@@ -471,7 +482,8 @@ class DiseasePages:
             "narrower": [self.link(m) for m in sorted(narrower, key=lambda m: -self.n_genes[m])],
             "n_descendants": self.descendants(d),
             "markers": sorted({(m, st) for m, st, _ in self.markers.get(d, [])}),
-            "excluded_marker": [[n, m] for n, m in removed_marker.items()]}
+            "excluded_marker": [[n, m] for n, m in removed_marker.items()],
+            "excluded_enzyme": [[n, m] for n, m in removed_enzyme.items()]}
 
     def pair_label(self, f, dt):
         """[category, label] when no current label confirms the pair (N4, P53; display only), else None."""
@@ -497,14 +509,17 @@ class DiseasePages:
     def link(self, m):
         return [int(m), self.g.name(m), bool(self.has_page[m])]
 
-    def descendants(self, d):
+    def descendant_set(self, d):
         seen, stack = set(), list(self.children.get(d, []))
         while stack:
             m = stack.pop()
             if m not in seen:
                 seen.add(m)
                 stack.extend(self.children.get(m, []))
-        return len(seen)
+        return seen
+
+    def descendants(self, d):
+        return len(self.descendant_set(d))
 
     _GENERIC = {"cancer", "carcinoma", "neoplasm", "neoplasms", "tumor", "tumour", "malignant", "disease",
                 "disorder", "syndrome", "(disease)"}
@@ -583,6 +598,26 @@ def practical_tables():
     p = a[a.relation == "pubtator_drug_disease"].groupby(["x_index", "y_index"]).n_articles.sum()
     papers = {(int(x), int(y)): int(n) for (x, y), n in p.items()}
     return practical, trials, papers
+
+
+def enzyme_rules(g):
+    """R5: {drug node: gene nodes of the enzyme it replaces or binds} from resources/enzyme_specific_drugs.csv
+    (enzyme replacement therapies, chaperones, sapropterin; DrugBank targets do not name these enzymes)."""
+    f = ROOT / "resources" / "enzyme_specific_drugs.csv"
+    if not f.exists():
+        return {}
+    t = pd.read_csv(f)
+    by_name = defaultdict(list)  # a drug can have two nodes (DrugBank and ChEMBL): both are covered
+    for x in np.flatnonzero(g.types == "drug"):
+        by_name[g.name(int(x))].append(int(x))
+    gene = {g.name(int(x)): int(x) for x in np.flatnonzero(g.types == "gene/protein")}
+    res = {}
+    for drug, genes in zip(t.drug, t.genes):
+        missing = [s for s in genes.split(";") if s not in gene]
+        assert not missing, f"enzyme_specific_drugs.csv: genes not in the graph for {drug}: {missing}"
+        for x in by_name.get(drug, []):
+            res[x] = {gene[s] for s in genes.split(";")}
+    return res
 
 
 def marker_rules(g, children, targets):

@@ -924,6 +924,71 @@ website (a smaller first request); the blind sheet is offered afterwards to thos
 expert has opened are not blind any more, so the sheet uses diseases of their field whose OREVID pages they say they
 have not opened, and the second e-mail asks which pages they looked at. Everything else is unchanged.
 
+## Registered 08-11-2026, before building it: R5 (enzyme-specific therapies only where their enzyme is a disease gene)
+
+**Problem** (found reviewing the pages visited after the E1 e-mails): enzyme replacement therapies and pharmacological
+chaperones act on one enzyme, but the evidence lines move them between lysosomal diseases with a different deficient
+enzyme: cerliponase alfa (TPP1) on the Gaucher page, sebelipase alfa (LIPA) and migalastat (GLA) as direct extensions
+for neuronal ceroid lipofuscinosis. They cannot work there. DrugBank targets do not name the enzyme for these drugs
+(cerliponase → IGF2R, idursulfase → PLIN3), so a curated table is needed.
+
+**Rule.** `resources/enzyme_specific_drugs.csv` lists each enzyme replacement therapy and chaperone in the graph with
+the gene of the enzyme it replaces or binds (from the drug's label: substrate-reduction drugs such as miglustat are not
+enzyme-specific and are not listed; sapropterin, a cofactor that acts on PAH and the BH4-synthesis enzymes, is listed
+with those genes). On a disease page, such a drug is shown (direct extension, candidate or exploratory list) only if
+one of its genes is an associated gene of the disease or of one of its more specific forms (ontology descendants: the
+page's own gene set does not include them); otherwise it is removed, as the biomarker rule does (P37). Broad terms
+(e.g. «lysosomal storage disease») keep them when their descendants carry the enzymes. Other single-protein
+replacements (coagulation factors, C1 inhibitor) are left for a separate check after the page review.
+
+**Criteria, fixed before running** (as P37): (a) list every pair the rule removes from a page, for a manual check;
+(b) no removed pair may be an approved indication (DrugBank or a confirmed Open Targets approval) of that disease or a
+twin, and removed pairs with a phase 3 trial are listed; (c) count the removed candidates, extensions and exploratory
+entries, and the removed pairs that are hits (external exam positives) — any hit is examined before adoption.
+Adopted only if (b) holds and the manual check finds no wrong removal. Implementation: `web/build.py`,
+`evaluation/enzyme_check.py` → `docs/ENZYME_RULE.md`; DECISIONS on completion.
+
+## Registered 08-11-2026, before building it: R5b (all gene-specific therapies; genetic gene sets)
+
+**Problem** (review of 16 random pages, 08-11): the R5 error also affects genetic medicines and other therapies that
+work only for one gene's disease: nusinersen (SMN2) on X-linked distal spinal muscular atrophy (ATP7A) and on OPA7
+optic atrophy, golodirsen (DMD exon 53) on the same SMA page, burosumab (FGF23 excess) on three skeletal
+malformation syndromes, von Willebrand factor on cutis laxa, Ehlers–Danlos syndrome and immune thrombocytopenia. And
+R5's gene sets include animal-model associations, which let laronidase (IDUA) through on the otopalatodigital
+syndrome page (IDUA comes only from a mouse model there).
+
+**Rule.** R5 is extended in two ways, decided now and not after seeing results: (1) the table
+(`resources/enzyme_specific_drugs.csv`, renamed in meaning to «gene-specific therapies») gains antisense
+oligonucleotides, siRNAs and gene therapies, exon-skipping drugs, CFTR modulators, transthyretin stabilisers and
+silencers, single-factor coagulation and complement-pathway replacements, emicizumab and burosumab. Each drug is listed
+with the genes of the diseases its label covers (not its molecular target when that differs: givosiran → the acute
+hepatic porphyria genes, lumasiran → AGXT), from the label, before the check is run. Recombinant factor VIIa
+(a bypassing agent used across bleeding disorders) is not listed. (2) The disease's gene set for this rule keeps only
+genetic evidence: PrimeKG disease–protein links and Open Targets genetic association, genetic literature and
+somatic mutation (no animal models or RNA expression), still including more specific forms.
+
+**Criteria**: the same as R5 ((a) every change listed and checked by hand; (b) no approved indication or confirmed
+Open Targets approval blocked, phase 3 pairs listed; (c) external-exam hits among blocked pairs examined). Adopted only
+if (b) holds and the manual check finds no wrong removal. Same scripts, run after R5's decision.
+
+## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
+
+**Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,
+tretamine, mefenorex) and 298 are DrugBank «withdrawn» without «approved» (azapropazone, metharbital); others are
+withdrawn in both the US and the EU according to the current-status table (P55: pegaptanib). «Withdrawn in some
+market» alone is not a reason (flecainide, thalidomide are in use), and an empty current status does not mean
+marketed (tolcapone).
+
+**Rule.** A drug is not shown as a direct extension or candidate if its DrugBank group is «experimental», or
+«withdrawn» without «approved», or its current status (P55) is non-active (withdrawn, revoked, expired, lapsed,
+discontinued) in both the US and the EU. «Investigational» drugs stay (some are approved in one country:
+talaporfin in Japan, belotecan in Korea) and keep their label.
+
+**Criteria, fixed before running** (those of every filter, P27): the removed subset must have a hit rate below 5 % on
+the benchmark (zero-shot seeds 1–5) and on the nine areas, and its external-exam hit rate is reported; plus a manual
+check of the 20 most frequently removed drugs against their current status. Adopted only if both hold.
+Implementation: `web/build.py`, `evaluation/r6_check.py` → `docs/R6_UNAVAILABLE_DRUGS.md`; DECISIONS on completion.
+
 ---
 
 ## What to update after each item
