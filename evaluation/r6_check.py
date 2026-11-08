@@ -16,12 +16,19 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def unavailable_drugs():
-    """{drug node: reason} for R6."""
+def unavailable_drugs(variant="a"):
+    """{drug node: reason} for R6 (variant «a») or R6b (variant «b»: never approved by any of the four sources of
+    evaluation/approval.py; no US/EU part)."""
     from graph import Graph
     from predictor import drug_status
     from web.build import label_tables
-    status = drug_status(Graph())
+    G = Graph()
+    status = drug_status(G)
+    if variant == "b":
+        from evaluation.approval import approved_somewhere
+        ok = approved_somewhere(G)
+        return {int(f): f"DrugBank {s}, approved by no other source" for f, s in status.items()
+                if s in ("experimental", "withdrawn") and int(f) not in ok}
     _, now = label_tables()
     out = {}
     for f, s in status.items():
@@ -53,7 +60,8 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8")
     from evaluation.evidence_ci import Genes, bench_task, external_task
     from evaluation.txgnn import AREAS, load_kg, node_types
-    bad = unavailable_drugs()
+    variant = "b" if "b" in sys.argv[1:] else "a"
+    bad = unavailable_drugs(variant)
     print(f"unavailable drugs: {len(bad)}", collections.Counter(r.split(" (")[0].split(",")[0] for r in bad.values()), flush=True)
     kg = load_kg()
     types = node_types(kg)
@@ -101,7 +109,7 @@ def main():
           "The 20 most frequently removed drugs, for the manual check:\n", "| Drug | Pages | Reason |", "|---|---|---|"]
     L += [f"| {n} | {k} | {reason.get(n, '?')} |" for n, k in removed.most_common(20)]
     text = "\n".join(L) + "\n"
-    (ROOT / "docs" / "R6_UNAVAILABLE_DRUGS.md").write_text(text, "utf-8")
+    (ROOT / "docs" / ("R6B_NEVER_APPROVED.md" if variant == "b" else "R6_UNAVAILABLE_DRUGS.md")).write_text(text, "utf-8")
     print(text)
 
 

@@ -1101,6 +1101,25 @@ seminoma, teratoma, myelodysplastic. Criteria as R8 (hidden < 5 % on benchmark a
 random hidden website entries, at most 2 wrong). Implementation for all three: `evaluation/r6_check.py`,
 `evaluation/r8_check.py` (with a `b` argument) and `evaluation/s1_status.py`; `web/build.py` only for what is adopted.
 
+**Results of R6b and R8b (08-11-2026): neither adopted.** R6b (223 entries): the removed entries still hit (benchmark
+8 of 24, areas 10 of 16), and the manual check shows that most «approved by no source» drugs are approved somewhere
+the four sources miss (setiptiline, efonidipine and aranidipine in Japan, pirlindole in Portugal and Russia,
+demexiptiline in France, magnesium salicylate over the counter in the US, «cobalamin» is vitamin B12): proving that a
+drug was never approved anywhere is not possible with these data, so no approval-status filter. R8b: hidden candidates
+hit 24.2 % on the areas (23 of 95): neoplasms ending in «-oma» without a listed word (pilocytic astrocytoma, acoustic
+neuroma, neurofibroma, plasmacytoma, atrial myxoma) were still treated as non-neoplastic.
+
+## Registered 08-11-2026, before measuring any hit rate: R8c (neoplasms from MONDO's own neoplasm branch)
+
+R8 with the authoritative classification instead of the cut-down hierarchy or a word list: a graph disease is
+neoplastic if any of its MONDO identifiers is in the full MONDO ontology (`data/raw/mondo/mondo.obo`, is_a) under
+«neoplasm» (MONDO:0005070) or «neoplastic disease or syndrome» (MONDO:0023370): 4,471 graph nodes, against 2,519 in
+R8. Before registering, this classification (not any hit rate) was checked on the disease names of the R8 and R8b
+samples: all neoplasms there fall in the branch except Hodgkin's paragranuloma and seborrhoeic keratosis, and the
+non-neoplastic ones (pemphigus, Kabuki syndrome, osteoarthritis, Graves disease, Barrett oesophagus, LEOPARD
+syndrome) stay out. Criteria as R8: hidden candidates below 5 % on the benchmark and on the areas; external reported;
+manual check of 20 new random hidden website entries (seed 2), at most 2 wrong. `evaluation/r8_check.py c`.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,

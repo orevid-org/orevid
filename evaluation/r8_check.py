@@ -14,9 +14,12 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 ROOTS = ("cancer", "benign neoplasm", "hereditary neoplastic syndrome")
+NAME_WORDS = ("cancer", "carcinoma", "neoplasm", "tumor", "tumour", "leukemia", "leukaemia", "lymphoma", "sarcoma", "glioma",
+              "blastoma", "melanoma", "myeloma", "adenoma", "mesothelioma", "meningioma", "neurilemmoma", "schwannoma",
+              "carcinoid", "seminoma", "teratoma", "myelodysplastic")
 
 
-def neoplastic_and_cancer_drugs(G):
+def neoplastic_and_cancer_drugs(G, variant="a"):
     from sources.hierarchy import load
     h = load()
     children = {}
@@ -30,6 +33,10 @@ def neoplastic_and_cancer_drugs(G):
             if c not in neo:
                 neo.add(c)
                 stack.append(c)
+    if variant == "b":  # R8b: neoplasms also by name
+        import re
+        pat = re.compile("|".join(NAME_WORDS), re.I)
+        neo |= {int(x) for x in np.flatnonzero(G.types == "disease") if pat.search(G.name(int(x)))}
     atc2 = G.descriptions["atc_2"].fillna("").astype(str).str.lower()
     cancer_drugs = {int(i) for i, v in atc2.items() if "antineoplastic agents" in v or "endocrine therapy" in v}
     return neo, cancer_drugs
@@ -62,7 +69,8 @@ def main():
     from evaluation.evidence_ci import Genes, bench_task, external_task
     from evaluation.txgnn import AREAS, load_kg, node_types
     G = Graph()
-    neo, cancer_drugs = neoplastic_and_cancer_drugs(G)
+    variant = "b" if "b" in sys.argv[1:] else "a"
+    neo, cancer_drugs = neoplastic_and_cancer_drugs(G, variant)
     print(f"neoplastic diseases: {len(neo)}; L01/L02 drugs: {len(cancer_drugs)}", flush=True)
     kg = load_kg()
     types = node_types(kg)
@@ -98,7 +106,7 @@ def main():
                 if via and all(m in names_neo for m in via):
                     hidden.append((v["name"], c["name"], ", ".join(via[:3])))
                     pages.add(k)
-    rng = np.random.default_rng(0)
+    rng = np.random.default_rng(1 if variant == "b" else 0)  # R8b: a new sample
     sample = [hidden[i] for i in rng.choice(len(hidden), min(20, len(hidden)), replace=False)]
 
     rate = lambda x: f"{100 * x[0] / x[1]:.1f} % ({x[0]} of {x[1]})" if x[1] else "– (0)"
@@ -117,7 +125,7 @@ def main():
           "| Disease | Drug | Shared-genes diseases (neoplastic) |", "|---|---|---|"]
     L += [f"| {a} | {b} | {c} |" for a, b, c in sample]
     text = "\n".join(L) + "\n"
-    (ROOT / "docs" / "R8_CANCER_DRUGS.md").write_text(text, "utf-8")
+    (ROOT / "docs" / ("R8B_CANCER_DRUGS.md" if variant == "b" else "R8_CANCER_DRUGS.md")).write_text(text, "utf-8")
     print(text)
 
 
