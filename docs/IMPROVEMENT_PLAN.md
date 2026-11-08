@@ -1003,6 +1003,16 @@ nothing wrongly). Same criteria and scripts as R5; the Open Targets artefacts al
 (anaemia, «Atrophy», male infertility, primary immunodeficiency) are not counted as conflicts if they reappear, since
 they were identified before this run.
 
+**Result (08-11-2026): not adopted.** The same real conflicts as R5b remain with all associated genes: tafamidis on
+«polyneuropathy» (approved for TTR amyloid polyneuropathy; external-exam hit) and burosumab on «osteomalacia»
+(tumour-induced osteomalacia), plus CFTR modulators on cystic fibrosis-related diabetes and factor VIII products on
+von Willebrand disease among the phase 3 pairs. So the cause is not the evidence type: complications and umbrella
+terms are not linked to the gene of the disease that causes them in the graph, and gene-specific therapies are
+legitimately used there. Stopped here to avoid tuning the rule on its own results: the code and table are back to the
+adopted R5 (26 enzyme therapies and chaperones); the 68 other gene-specific therapies are kept, unused, in
+`resources/gene_specific_drugs_not_adopted.csv`. A future version would need a criterion that does not depend on the
+disease's gene set (e.g. the drug's own approvals and trials in related diseases), registered before any run.
+
 ## Registered 08-11-2026, before building it: R6 (drugs never approved, or withdrawn everywhere we can tell)
 
 **Problem** (same scan): of 54,075 shown entries, 1,154 are DrugBank «experimental» drugs (never approved: ethadione,
