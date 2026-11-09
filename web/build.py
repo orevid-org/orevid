@@ -28,7 +28,7 @@ FRAGMENTS = 500  # files d/<id % 500>.json
 # complications and umbrella terms (CF-related diabetes, polyneuropathy) lack the gene as their own genetic evidence.
 GENES_SPECIFIC = GENES_ALL
 # Framing fields released after their checks (docs/F1_FEATURE_FRAMING.md, P94); «features» (F1a) did not pass
-FRAMING_RELEASED = ("genes_by_source", "trial_conditions", "merged", "feature_pages")
+FRAMING_RELEASED = ("genes_by_source", "trial_conditions", "merged", "feature_pages", "trials_registered_here")  # + F2b, P95
 TEST_DISEASES = ["multiple sclerosis", "Alzheimer disease", "Parkinson disease", "cystic fibrosis",
                  "type 2 diabetes mellitus", "asthma", "rheumatoid arthritis", "amyotrophic lateral sclerosis",
                  "Huntington disease", "psoriasis", "Crohn disease", "systemic lupus erythematosus",

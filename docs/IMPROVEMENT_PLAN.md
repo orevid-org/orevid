@@ -1277,6 +1277,43 @@ The gene display is released (check passed). F1a fails both checks and is not re
 registered ClinicalTrials.gov source; the amendment's Open Targets text failed first and was dropped); F1c released
 (`docs/F1_FEATURE_FRAMING.md`). DECISIONS P93, P94.
 
+---
+
+## Registered 09-11-2026 (home PC, night), before any run: F2 (trials found through their registered conditions)
+
+**Origin.** Checking the NF group's remark on sorafenib: it was tested in malignant peripheral nerve sheath tumour
+(MPNST) inside two sarcoma trials (NCT00245102, phase 2, MPNST arm; NCT00837148, phase 2, MPNST among the registered
+conditions), but the MPNST page (36459) lists neither: the Open Targets records attach those trials to other terms.
+The page trial lists come only from Open Targets' disease mapping.
+
+**Change (display only; no candidate, ranking, model column or practical-information count changes).** For every
+Open Targets clinical-trial record (`clinical_report`, type CLINICAL_TRIAL), the conditions as registered on
+ClinicalTrials.gov (API v2) are mapped to graph diseases by two routes: (1) the record's condition MeSH terms
+(`conditionBrowseModule.meshes`, direct terms only, not ancestors) → MONDO by SSSOM exact match
+(`sources.ids.xref_to_mondo`, as `sources/ctgov.py`); (2) the registered condition string equal (case-insensitive,
+whitespace normalised) to a graph disease name or a MONDO exact synonym. Exact terms only: a trial registered for
+«sarcoma» is not shown on a sarcoma subtype. A page then shows, under its trial list, the trials registered for its
+disease (or its twins) that the list does not already contain, as «also registered for this disease», each with NCT
+id, phase and registered conditions (drugs as mapped by Open Targets).
+
+**Check, fixed now** (seed 1, by hand against ClinicalTrials.gov): 20 random added (page, trial) entries; the page's
+disease must be one of the trial's registered conditions or a direct synonym of one; criterion at least 19 of 20 right.
+Reported, not deciding: the number of added entries and pages, by route, and the MPNST page before and after (the two
+sorafenib trials must appear; if they do not, the reason is reported). Released only if the check passes.
+Implementation: `sources/ctgov.py` (conditions with MeSH for all record NCT ids), `web/framing.py`, `app.js`, i18n;
+results in `docs/F2_TRIAL_CONDITIONS.md`; DECISIONS P95.
+
+**Result F2 (09-11-2026):** 16/20 right, not passed, not released (`docs/F2_TRIAL_CONDITIONS.md`): the four errors
+all come from route (1), because ClinicalTrials.gov's condition MeSH list includes terms it derives, not only the
+registered conditions; the six route-(2) entries were right.
+
+**Registered 09-11-2026, after seeing F2's sample (post hoc, declared as such): F2b.** As F2 with route (2) only (the
+registered condition string equal to the disease name or a MONDO exact synonym). Check: a new random sample of 20
+added entries (seed 2, drawn from F2b's own entries, the F2 sample's entries excluded), same criterion (≥ 19 of 20).
+Released only if it passes. Results in `docs/F2B_TRIAL_CONDITIONS.md`; DECISIONS P95.
+
+**Result F2b (09-11-2026):** 20/20, passed and released (`docs/F2B_TRIAL_CONDITIONS.md`, P95).
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

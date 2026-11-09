@@ -111,13 +111,16 @@ CONDITIONS = ROOT / "data" / "ext" / "ctgov_conditions.parquet"
 
 
 def conditions(ncts, batch=200):
-    """F1b (docs/IMPROVEMENT_PLAN.md, «Registered 09-11-2026 … F1»): the conditions as registered on ClinicalTrials.gov
-    for the given NCT ids (API v2, public domain), added to data/ext/ctgov_conditions.parquet (nct, conditions)."""
-    old = pd.read_parquet(CONDITIONS) if CONDITIONS.exists() else pd.DataFrame(columns=["nct", "conditions"])
+    """F1b, F2 (docs/IMPROVEMENT_PLAN.md): the conditions as registered on ClinicalTrials.gov, and their MeSH terms
+    (conditionBrowseModule, direct terms only), for the given NCT ids (API v2, public domain), added to
+    data/ext/ctgov_conditions.parquet (nct, conditions, mesh). Ids already stored with their MeSH terms are skipped."""
+    old = pd.read_parquet(CONDITIONS) if CONDITIONS.exists() else pd.DataFrame(columns=["nct", "conditions", "mesh"])
+    if "mesh" not in old:
+        old = old.iloc[0:0].assign(mesh=[])
     want = sorted(set(ncts) - set(old.nct))
     rows = []
     for i in range(0, len(want), batch):
-        q = {"filter.ids": ",".join(want[i:i + batch]), "fields": "NCTId,Condition", "pageSize": 1000}
+        q = {"filter.ids": ",".join(want[i:i + batch]), "fields": "NCTId,Condition,ConditionMeshId", "pageSize": 1000}
         for k in range(5):
             try:
                 with urllib.request.urlopen(f"{API}?{urllib.parse.urlencode(q)}", timeout=120) as r:
@@ -128,22 +131,27 @@ def conditions(ncts, batch=200):
                     raise
                 time.sleep(10)
         for st in j["studies"]:
-            ps = st.get("protocolSection", {})
+            ps, ds = st.get("protocolSection", {}), st.get("derivedSection", {})
             rows.append({"nct": ps.get("identificationModule", {}).get("nctId"),
-                         "conditions": "; ".join(ps.get("conditionsModule", {}).get("conditions", []))})
-        print(f"  {min(i + batch, len(want)):,} / {len(want):,}", flush=True)
+                         "conditions": "; ".join(ps.get("conditionsModule", {}).get("conditions", [])),
+                         "mesh": ";".join(m["id"] for m in ds.get("conditionBrowseModule", {}).get("meshes", []))})
+        if (i // batch) % 50 == 0 or i + batch >= len(want):
+            print(f"  {min(i + batch, len(want)):,} / {len(want):,}", flush=True)
+            if rows:  # checkpoint
+                pd.concat([old, pd.DataFrame(rows)], ignore_index=True).drop_duplicates("nct").to_parquet(CONDITIONS, index=False)
     out = pd.concat([old, pd.DataFrame(rows)], ignore_index=True).drop_duplicates("nct")
     out.to_parquet(CONDITIONS, index=False)
     (ROOT / "data" / "raw" / "ctgov" / "CONDITIONS_VERSION").write_text(
-        f"ClinicalTrials.gov API v2 conditions, last fetched {time.strftime('%Y-%m-%d')}\n")
+        f"ClinicalTrials.gov API v2 conditions and condition MeSH ids, last fetched {time.strftime('%Y-%m-%d')}\n")
     return out
 
 
 if __name__ == "__main__":
     if sys.argv[1:] == ["download"]:
         download()
-    elif sys.argv[1:2] == ["conditions"]:  # NCT ids of the built pages' trial lists (data/eval/f1_frames.pkl)
-        f = pd.read_pickle(ROOT / "data" / "eval" / "f1_frames.pkl")
-        conditions({r[0] for v in f.values() for recs in v["trial_conditions"].values() for r in recs if r[0] != "+"})
+    elif sys.argv[1:2] == ["conditions"]:  # every NCT id of the Open Targets clinical-trial records
+        from sources import ids
+        r = pd.read_parquet(ids.OT / "clinical_report", columns=["id", "type"])
+        conditions(set(r[r.type == "CLINICAL_TRIAL"].id.str.upper()))
     else:
         build()

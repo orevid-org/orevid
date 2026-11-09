@@ -466,7 +466,7 @@ async function showDisease(id) {
       ${d.approved_ot && d.approved_ot.length ? `<dt>${t("approved_ot")}</dt><dd>${checkedList(d.approved_ot, d)}</dd>` : ""}
       ${d.approved_unconfirmed && d.approved_unconfirmed.length ? `<dt>${t("approved_unconfirmed")}</dt><dd class="muted">${list(d.approved_unconfirmed)} <div class="small">${t("approved_unconfirmed_help")}</div></dd>` : ""}
       ${d.offlabel.length ? `<dt>${t("offlabel")}</dt><dd>${list(d.offlabel)}</dd>` : ""}
-      ${trials ? `<dt>${t("trials")}</dt><dd>${trials}${trialConditions(d.trial_conditions)}</dd>` : ""}
+      ${trials || Object.keys(d.trials_registered_here || {}).length ? `<dt>${t("trials")}</dt><dd>${trials}${trialConditions(d.trial_conditions)}${registeredHere(d.trials_registered_here)}</dd>` : ""}
       ${d.stopped.length ? `<dt>${t("stopped")}</dt><dd>${list(d.stopped)}</dd>` : ""}
       ${d.contra.length ? `<dt>${t("contra")}</dt><dd>${list(d.contra)}</dd>` : ""}
     </dl></div>
@@ -503,6 +503,15 @@ function trialConditions(tc) {
   const xs = Object.entries(tc || {});
   if (!xs.length) return "";
   return `<details class="more trials-reg"><summary>${t("trials_registered")}</summary><p class="help small">${t("trials_registered_help")}</p>
+    <ul class="small">${xs.map(([drug, rs]) => `<li><b>${esc(drug)}</b>: ${rs.map((r) => r[0] === "+" ? `<span class="muted">+${r[1]}</span>` :
+      `${ext(`https://clinicaltrials.gov/study/${esc(r[0])}`, esc(r[0]))}${phaseLabel(r[1]) ? ` (${esc(tr(phaseLabel(r[1])))})` : ""}${r[2] ? ` — ${esc(r[2])}` : ""}`).join("; ")}</li>`).join("")}</ul></details>`;
+}
+
+// Trials registered for this disease on ClinicalTrials.gov that the data attach to other terms (F2, P95)
+function registeredHere(rh) {
+  const xs = Object.entries(rh || {});
+  if (!xs.length) return "";
+  return `<details class="more trials-reg"><summary>${t("trials_here").replace("{n}", xs.length)}</summary><p class="help small">${t("trials_here_help")}</p>
     <ul class="small">${xs.map(([drug, rs]) => `<li><b>${esc(drug)}</b>: ${rs.map((r) => r[0] === "+" ? `<span class="muted">+${r[1]}</span>` :
       `${ext(`https://clinicaltrials.gov/study/${esc(r[0])}`, esc(r[0]))}${phaseLabel(r[1]) ? ` (${esc(tr(phaseLabel(r[1])))})` : ""}${r[2] ? ` — ${esc(r[2])}` : ""}`).join("; ")}</li>`).join("")}</ul></details>`;
 }

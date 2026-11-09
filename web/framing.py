@@ -165,31 +165,108 @@ class Framing:
                     out.setdefault(self.g.name(x), [x, self.g.name(x), h])
         return [out[k] for k in sorted(out, key=str.lower)]
 
-    # --- trials (F1b) ---
+    # --- trials (F1b, F2) ---
     @cached_property
-    def _trials(self):
-        """{(drug node, disease node): [(NCT id, phase, registered conditions)]} from Open Targets clinical reports."""
-        from sources import ids
+    def _key_index(self):
         from sources.ids import primekg_keys
         n = self.g.nodes
         index = {}
         for i, t, nid, o in zip(n.node_index, n.node_type, n.node_id, n.origin):
             for k in (primekg_keys(t, nid) if o == "PrimeKG" else [nid]):
                 index.setdefault(k, int(i))
+        return index
+
+    @cached_property
+    def _registered(self):
+        """{NCT id: (registered conditions, [condition MeSH ids])} from ClinicalTrials.gov (sources/ctgov.py)."""
+        f = ROOT / "data" / "ext" / "ctgov_conditions.parquet"
+        if not f.exists():
+            return {}
+        t = pd.read_parquet(f)
+        mesh = t["mesh"] if "mesh" in t else pd.Series([""] * len(t))
+        return {n: (c, [m for m in str(x or "").split(";") if m]) for n, c, x in zip(t.nct, t.conditions, mesh)}
+
+    @cached_property
+    def _records(self):
+        """[(NCT id, phase, {drug nodes}, {disease nodes as mapped by Open Targets})] for the clinical-trial records."""
+        from sources import ids
+        index = self._key_index
         dmap, _, _, _ = ids.diseases()
         fmap = ids.drugs()
-        f = ROOT / "data" / "ext" / "ctgov_conditions.parquet"  # conditions as registered (F1b)
-        registered = dict(zip(*pd.read_parquet(f).T.values)) if f.exists() else {}
-        r = pd.read_parquet(ids.OT / "clinical_report", columns=["id", "type", "drugs", "diseases", "clinicalStage", "url"])
-        r = r[(r.type == "CLINICAL_TRIAL") & r.diseases.notna() & r.drugs.notna()]
-        out = defaultdict(list)
+        r = pd.read_parquet(ids.OT / "clinical_report", columns=["id", "type", "drugs", "diseases", "clinicalStage"])
+        r = r[(r.type == "CLINICAL_TRIAL") & r.drugs.notna()]
+        out = []
         for nct, drugs, dis, stage in zip(r.id, r.drugs, r.diseases, r.clinicalStage):
-            conds = registered.get(str(nct).upper(), "")
-            fs = {index.get(fmap[x["drugId"]][0]) for x in drugs if x.get("drugId") in fmap}
-            ms = {index.get(dmap.get(x.get("diseaseId"))) for x in dis}
-            for f in fs - {None}:
-                for m in ms - {None}:
-                    out[(f, m)].append((str(nct).upper(), str(stage or ""), conds))
+            fs = {index.get(fmap[x["drugId"]][0]) for x in drugs if x.get("drugId") in fmap} - {None}
+            ms = {index.get(dmap.get(x.get("diseaseId"))) for x in (dis if dis is not None else [])} - {None}
+            if fs:
+                out.append((str(nct).upper(), str(stage or ""), fs, ms))
+        return out
+
+    @cached_property
+    def _trials(self):
+        """{(drug node, disease node): [(NCT id, phase, registered conditions)]} from Open Targets clinical reports."""
+        out = defaultdict(list)
+        for nct, stage, fs, ms in self._records:
+            conds = self._registered.get(nct, ("", []))[0]
+            for f in fs:
+                for m in ms:
+                    out[(f, m)].append((nct, stage, conds))
+        return out
+
+    @cached_property
+    def _disease_by_norm(self):
+        """normalised name -> disease nodes: graph names and MONDO names / exact synonyms (F2 route 2)."""
+        out = defaultdict(set)
+        for x in np.flatnonzero(self.g.types == "disease"):
+            x = int(x)
+            out[_norm(self.g.name(x))].add(x)
+            for i in self.mondo_ids(x):
+                name, syn, _ = self._mondo.get(i, ["", [], []])
+                for s_ in [name, *syn]:
+                    if s_:
+                        out[_norm(s_)].add(x)
+        return out
+
+    @cached_property
+    def _by_condition(self):
+        """F2: {disease node: [(NCT id, phase, drug nodes, registered conditions, route)]} from the registered conditions:
+        (1) condition MeSH id -> MONDO (SSSOM exact) -> node; (2) condition string = disease name or MONDO exact synonym."""
+        from sources.ids import xref_to_mondo
+        to_mondo = xref_to_mondo()
+        index = self._key_index
+        out = defaultdict(list)
+        for nct, stage, fs, _ in self._records:
+            conds, mesh = self._registered.get(nct, ("", []))
+            hit = {}
+            for m in mesh:
+                for k in to_mondo.get(f"MESH:{m}", ()):
+                    x = index.get(k)
+                    if x is not None and self.g.types[x] == "disease":
+                        hit.setdefault(x, "MeSH")
+            for c in conds.split("; ") if conds else []:
+                for x in self._disease_by_norm.get(_norm(c), ()):
+                    hit.setdefault(x, "name")
+            for x, route in hit.items():
+                out[x].append((nct, stage, fs, conds, route))
+        return out
+
+    def trials_registered_here(self, dt, routes=("name",)):
+        """F2b (P95): trials registered for the page's disease (or its twins) that Open Targets attaches elsewhere. Only
+        the name route: F2's MeSH route failed its check (ClinicalTrials.gov derives MeSH terms beyond the registered
+        conditions)."""
+        known = {r[0] for (f, m), recs in self._trials.items() if m in dt for r in recs}
+        res = defaultdict(list)
+        for m in dt:
+            for nct, stage, fs, conds, route in self._by_condition.get(int(m), ()):
+                if nct in known or route not in routes:
+                    continue
+                for f in fs:
+                    res[self.g.name(f)].append((nct, stage, conds, route))
+        out = {}
+        for name in sorted(res, key=lambda n: (-max(PHASE_RANK.get(r[1], 0) for r in res[n]), n.lower())):
+            uniq = sorted(dict.fromkeys(res[name]), key=lambda r: (-PHASE_RANK.get(r[1], 0), r[0]))
+            out[name] = [list(r) for r in uniq[:MAX_TRIALS]] + ([["+", len(uniq) - MAX_TRIALS, "", ""]] if len(uniq) > MAX_TRIALS else [])
         return out
 
     @cached_property
@@ -235,4 +312,4 @@ def frame(F, d, dt, page, has_page):
     trial_drugs = [x for a in (page.get("trials") or {}).values() for x in (a if isinstance(a, list) else a["drugs"])]
     return {"genes_by_source": F.genes_by_source(d), "features": F.features(dt, via_names(page)),
             "trial_conditions": F.trial_conditions(dt, trial_drugs), "merged": F.merged(d),
-            "feature_pages": F.feature_pages(dt, has_page)}
+            "feature_pages": F.feature_pages(dt, has_page), "trials_registered_here": F.trials_registered_here(dt)}
