@@ -1257,6 +1257,26 @@ needs no check. Pages that the E1 experts are rating keep their candidates (F1 c
 affected. Implementation: `web/build.py`, `web/public/app.js`, i18n texts (three languages); check results in
 `docs/F1_FEATURE_FRAMING.md`; DECISIONS P94.
 
+**Amendment, 09-11-2026 (home PC), before any F1 sample was drawn or checked.** (1) F1a route: the current HPO release
+(`hp.obo` v2026-09-01, the release of the annotations already used; downloaded to `data/raw/hpo/`) no longer carries
+UMLS cross-references, so the UMLS route cannot be built. Instead a neighbour N is a feature of D when one of N's MONDO
+terms cross-references an HPO term (`xref: HP:` in MONDO) that is one of D's current HPO phenotypes, or, failing that,
+when N's name or a MONDO exact synonym equals that phenotype's name or an HPO exact synonym (case-insensitive). Exact
+match only (no HPO ancestors). The checks and their criteria are unchanged. (2) F1b source: `sources/ctgov.py` only
+holds phase 2–3 trials with posted results; the Open Targets clinical records (`clinical_report`, AACT) carry every
+trial's NCT id and its conditions as registered, and they are the records the page's trial lists come from, so they
+are used; the check against ClinicalTrials.gov is unchanged. (3) F1c: HPO annotates NF1 with «malignant peripheral
+nerve sheath tumor»; an HPO phenotype of D that is itself a disease with a page (same matching as (1)) is linked from
+D's page as «features of this disease with their own page», which is the open-source statement F1c requires. Code:
+`web/framing.py`, `evaluation/f1_apply.py`.
+
+**Results (09-11-2026, home PC).** G3a and G3b do not pass (rule 1: removed candidates hit 5.5 % and 5.1 % on the
+benchmark; rule 3: added candidates below the section); G3c does not pass (lower bounds −0.0117 benchmark, −0.0061
+areas); the shared-genes line and the model stay as they are (`docs/G3_ANIMAL_GENES.md`, `docs/G3C_FEATURE.md`).
+The gene display is released (check passed). F1a fails both checks and is not released; F1b passes (20/20, with the
+registered ClinicalTrials.gov source; the amendment's Open Targets text failed first and was dropped); F1c released
+(`docs/F1_FEATURE_FRAMING.md`). DECISIONS P93, P94.
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to

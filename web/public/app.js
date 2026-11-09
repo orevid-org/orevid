@@ -445,6 +445,11 @@ async function showDisease(id) {
       ${broader.length ? `<p><b>${t("broader")}:</b> ${nav(broader)}</p>` : ""}
       ${narrower.length ? `<p><b>${t("narrower")}:</b> ${nav(narrower.slice(0, 12))}${narrower.length > 12 ? ` <details class="more"><summary>${t("more_forms").replace("{n}", narrower.length - 12)}</summary>${nav(narrower.slice(12))}</details>` : ""}</p>` : ""}
     </div>` : "";
+  const fp = d.feature_pages || [], merged = d.merged || [];
+  const framing = (merged.length ? `<p class="muted small">${t("merged_note").replace("{n}", merged.length)} ${merged.map(([id, n]) =>
+      ext(`https://monarchinitiative.org/${id}`, esc(n || id), id)).join("; ")}</p>` : "") +
+    (fp.length ? `<div class="hierarchy"><p><b>${t("feature_pages")}:</b> ${nav(fp.slice(0, 12).map(([id, n]) => [id, n, true]))}${fp.length > 12 ?
+      ` <details class="more"><summary>${t("more_forms").replace("{n}", fp.length - 12)}</summary>${nav(fp.slice(12).map(([id, n]) => [id, n, true]))}</details>` : ""}</p></div>` : "");
   const broad = (d.n_descendants || 0) >= 5 || d.n_genes >= 500;
   view.innerHTML = `<div class="disease-page">
     <h2>${esc(d.name)}</h2>
@@ -452,15 +457,16 @@ async function showDisease(id) {
       ${ext(`https://platform.opentargets.org/search?q=${name}`, "Open Targets")} ·
       ${ext(`https://clinicaltrials.gov/search?cond=${name}`, "ClinicalTrials.gov")}${d.prevalence ? ` · <span title="${esc(t("prev_help"))}">${t("prevalence")}: ${esc(d.prevalence.c)}</span> (${ext(`https://www.orpha.net/en/disease/detail/${esc(d.prevalence.o)}`, "Orphanet")})` : ""}</div>
     ${hierarchy}
+    ${framing}
     ${broad ? `<p class="warning broad">${t("broad_term")}</p>` : ""}
     ${(d.markers || []).length ? `<p class="markers"><b>${t("markers")}:</b> ${d.markers.map(([m, st]) => `${esc(m)} ${t("marker_" + st)}`).join(", ")}</p>` : ""}
-    ${genes.length ? `<details class="genes"><summary>${t("genes_list")} (${d.n_genes})</summary><p>${genes.map((g) => `<span class="gen">${esc(g)}</span>`).join(" ")}${d.n_genes > genes.length ? " …" : ""}</p></details>` : ""}
+    ${genesBlock(d, genes)}
     <div class="card known"><h3>${t("known")}</h3><dl>
       <dt>${t("approved")}</dt><dd>${checkedList(d.approved, d)}</dd>
       ${d.approved_ot && d.approved_ot.length ? `<dt>${t("approved_ot")}</dt><dd>${checkedList(d.approved_ot, d)}</dd>` : ""}
       ${d.approved_unconfirmed && d.approved_unconfirmed.length ? `<dt>${t("approved_unconfirmed")}</dt><dd class="muted">${list(d.approved_unconfirmed)} <div class="small">${t("approved_unconfirmed_help")}</div></dd>` : ""}
       ${d.offlabel.length ? `<dt>${t("offlabel")}</dt><dd>${list(d.offlabel)}</dd>` : ""}
-      ${trials ? `<dt>${t("trials")}</dt><dd>${trials}</dd>` : ""}
+      ${trials ? `<dt>${t("trials")}</dt><dd>${trials}${trialConditions(d.trial_conditions)}</dd>` : ""}
       ${d.stopped.length ? `<dt>${t("stopped")}</dt><dd>${list(d.stopped)}</dd>` : ""}
       ${d.contra.length ? `<dt>${t("contra")}</dt><dd>${list(d.contra)}</dd>` : ""}
     </dl></div>
@@ -477,6 +483,28 @@ async function showDisease(id) {
       ${candidateTable("no_use", d.no_use, d.name, {empty: t("none")})}
       ${d.excluded.length ? `<p class="muted">${t("excluded")} ${d.excluded.map(esc).join(", ")}</p>` : ""}</details>` : ""}
   </div>`;
+}
+
+// Genes grouped by their strongest source (G3 display, P93); older pages only have the flat list.
+const GENE_GROUPS = ["genetic", "primekg", "expression", "animal"];
+function genesBlock(d, genes) {
+  const gbs = d.genes_by_source;
+  const chips = (xs) => xs.map((g) => `<span class="gen">${esc(g)}</span>`).join(" ");
+  if (!gbs) return genes.length ? `<details class="genes"><summary>${t("genes_list")} (${d.n_genes})</summary><p>${chips(genes)}${d.n_genes > genes.length ? " …" : ""}</p></details>` : "";
+  const groups = GENE_GROUPS.filter((k) => gbs[k]);
+  if (!groups.length) return "";
+  return `<details class="genes"><summary>${t("gsx_title")} (${d.n_genes})</summary><p class="help small">${t("gsx_note")}</p>
+    ${groups.map((k) => `<p><b>${t("gsx_" + k)}</b> (${gbs[k].n}):<br>${chips(gbs[k].genes)}${gbs[k].n > gbs[k].genes.length ? " …" : ""}</p>`).join("")}</details>`;
+}
+// Each trial with the condition it was registered for on ClinicalTrials.gov (F1b, P94)
+const phaseLabel = (p) => ({EARLY_PHASE_1: "early phase 1", PHASE_1: "phase 1", PHASE_1_2: "phase 1/2", PHASE_2: "phase 2",
+  PHASE_2_3: "phase 2/3", PHASE_3: "phase 3", PHASE_4: "phase 4"})[p] || "";
+function trialConditions(tc) {
+  const xs = Object.entries(tc || {});
+  if (!xs.length) return "";
+  return `<details class="more trials-reg"><summary>${t("trials_registered")}</summary><p class="help small">${t("trials_registered_help")}</p>
+    <ul class="small">${xs.map(([drug, rs]) => `<li><b>${esc(drug)}</b>: ${rs.map((r) => r[0] === "+" ? `<span class="muted">+${r[1]}</span>` :
+      `${ext(`https://clinicaltrials.gov/study/${esc(r[0])}`, esc(r[0]))}${phaseLabel(r[1]) ? ` (${esc(tr(phaseLabel(r[1])))})` : ""}${r[2] ? ` — ${esc(r[2])}` : ""}`).join("; ")}</li>`).join("")}</ul></details>`;
 }
 
 // --- method and legal notice --------------------------------------------------------------

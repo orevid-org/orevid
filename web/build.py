@@ -27,6 +27,8 @@ FRAGMENTS = 500  # files d/<id % 500>.json
 # Gene sets of the gene-specific therapy rule (R5, R5c): every associated gene. Genetic evidence alone (R5b) failed:
 # complications and umbrella terms (CF-related diabetes, polyneuropathy) lack the gene as their own genetic evidence.
 GENES_SPECIFIC = GENES_ALL
+# Framing fields released after their checks (docs/F1_FEATURE_FRAMING.md, P94); «features» (F1a) did not pass
+FRAMING_RELEASED = ("genes_by_source", "trial_conditions", "merged", "feature_pages")
 TEST_DISEASES = ["multiple sclerosis", "Alzheimer disease", "Parkinson disease", "cystic fibrosis",
                  "type 2 diabetes mellitus", "asthma", "rheumatoid arthritis", "amyotrophic lateral sclerosis",
                  "Huntington disease", "psoriasis", "Crohn disease", "systemic lupus erythematosus",
@@ -349,6 +351,8 @@ class DiseasePages:
         self.label_check, self.status_now = label_tables()  # N4 (P53): current labels and regulatory status
         pkg = (self.g.types == "disease") & (self.g.origin == "PrimeKG")
         self.has_page = pkg & ((self.n_genes > 0) | (np.diff(self.g.M("disease_phenotype_positive").indptr) > 0))
+        from web.framing import Framing
+        self.framing = Framing(gc)
         print(f"models loaded ({time.time() - t0:.0f} s)", flush=True)
 
     def disease(self, d):
@@ -485,7 +489,7 @@ class DiseasePages:
             if len(s_):
                 names = sorted({g.name(i) for i in s_})
                 trials[phase] = {"n": len(names), "drugs": names[:30]}
-        return {
+        page = {
             "id": d, "name": g.name(d), "mondo": self.ext.get(d, ""), "n_genes": int(len(g.neighbors(d, GENES_ALL))),
             "gene_sources": {k: int(len(g.neighbors(d, rel))) for k, rel in GENE_SOURCES.items()},
             "approved": sorted({g.name(i) for i in ind_pkg}),
@@ -506,6 +510,12 @@ class DiseasePages:
             "markers": sorted({(m, st) for m, st, _ in self.markers.get(d, [])}),
             "excluded_marker": [[n, m] for n, m in removed_marker.items()],
             "excluded_enzyme": [[n, m] for n, m in removed_enzyme.items()]}
+        # Display-only framing (web/framing.py): genes by source (G3 display, P93), trials with their registered
+        # condition and the MONDO / HPO notes (F1b, F1c, P94). F1a («for a feature») failed its check and is not shown.
+        from web.framing import frame
+        fr = frame(self.framing, d, dt, page, lambda x: bool(self.has_page[x]))
+        page.update({k: v for k, v in fr.items() if k in FRAMING_RELEASED and v})
+        return page
 
     def pair_label(self, f, dt):
         """[category, label] when no current label confirms the pair (N4, P53; display only), else None."""

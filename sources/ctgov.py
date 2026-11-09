@@ -107,5 +107,43 @@ def build():
     return out
 
 
+CONDITIONS = ROOT / "data" / "ext" / "ctgov_conditions.parquet"
+
+
+def conditions(ncts, batch=200):
+    """F1b (docs/IMPROVEMENT_PLAN.md, «Registered 09-11-2026 … F1»): the conditions as registered on ClinicalTrials.gov
+    for the given NCT ids (API v2, public domain), added to data/ext/ctgov_conditions.parquet (nct, conditions)."""
+    old = pd.read_parquet(CONDITIONS) if CONDITIONS.exists() else pd.DataFrame(columns=["nct", "conditions"])
+    want = sorted(set(ncts) - set(old.nct))
+    rows = []
+    for i in range(0, len(want), batch):
+        q = {"filter.ids": ",".join(want[i:i + batch]), "fields": "NCTId,Condition", "pageSize": 1000}
+        for k in range(5):
+            try:
+                with urllib.request.urlopen(f"{API}?{urllib.parse.urlencode(q)}", timeout=120) as r:
+                    j = json.load(r)
+                break
+            except Exception:
+                if k == 4:
+                    raise
+                time.sleep(10)
+        for st in j["studies"]:
+            ps = st.get("protocolSection", {})
+            rows.append({"nct": ps.get("identificationModule", {}).get("nctId"),
+                         "conditions": "; ".join(ps.get("conditionsModule", {}).get("conditions", []))})
+        print(f"  {min(i + batch, len(want)):,} / {len(want):,}", flush=True)
+    out = pd.concat([old, pd.DataFrame(rows)], ignore_index=True).drop_duplicates("nct")
+    out.to_parquet(CONDITIONS, index=False)
+    (ROOT / "data" / "raw" / "ctgov" / "CONDITIONS_VERSION").write_text(
+        f"ClinicalTrials.gov API v2 conditions, last fetched {time.strftime('%Y-%m-%d')}\n")
+    return out
+
+
 if __name__ == "__main__":
-    download() if sys.argv[1:] == ["download"] else build()
+    if sys.argv[1:] == ["download"]:
+        download()
+    elif sys.argv[1:2] == ["conditions"]:  # NCT ids of the built pages' trial lists (data/eval/f1_frames.pkl)
+        f = pd.read_pickle(ROOT / "data" / "eval" / "f1_frames.pkl")
+        conditions({r[0] for v in f.values() for recs in v["trial_conditions"].values() for r in recs if r[0] != "+"})
+    else:
+        build()
