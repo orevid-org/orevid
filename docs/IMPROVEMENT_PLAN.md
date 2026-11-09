@@ -1186,6 +1186,77 @@ as before.
 
 ---
 
+## Registered 09-11-2026, on the work PC, before any run: G3 (disease genes without animal models) and F1 (proposals framed by the feature they treat)
+
+**Origin.** The first E1 reply (09-11, STATUS) made two points, both confirmed on the live pages: the pages do not
+explain how a disease's genes are chosen, and the proposals are not framed by the clinical feature they address. On
+«neurofibromatosis» 142 of 158 associated genes come from Open Targets animal models (`ot_assoc:animal_model`,
+IMPC knockout mice with a similar phenotype; `GENES_ANIMAL` in `graph.py`), most unrelated to NF1, and they feed the
+shared-genes line (carbetocin through Noonan syndrome). Its direct extensions are antihypertensives from
+«hypertension» (R7 showed this is a PrimeKG disease–disease edge, and that extensions from a feature are mostly right
+treatments of that feature, so they are kept); sorafenib appears only in its trial list, mapped to the whole disease.
+G3 changes evidence and is measured; F1 only changes how the same candidates are presented.
+
+### G3: disease genes without animal models
+
+**Report before any result:** for all 10,042 page diseases, and for the test diseases of the benchmark, the areas and
+the external exam: genes per source (`disease_protein`, Open Targets genetic, animal, expression), the number of
+diseases whose genes are ≥ 50 % animal-model only, and how many shared-genes candidates on the website rest on at
+least one animal-only gene.
+
+**Variants, fixed now** (A and B change only the shared-genes line, in the evaluation and on the website, as R1b and
+G1; the model is not touched):
+- **G3a, animal models out of the line:** a gene–disease edge whose only source is `ot_assoc:animal_model` does not
+  count for the shared-genes line, on either side of the comparison; the hypergeometric test is recomputed over the
+  remaining edges (same population rule: non-hub genes with at least one disease; ≥ 3 shared genes; p < 10⁻⁵).
+- **G3b, human evidence only:** as G3a, and edges whose only source is `ot_assoc:rna_expression` do not count either
+  (PrimeKG `disease_protein` and Open Targets genetic association, genetic literature and somatic mutation remain).
+- **G3c, model column:** metapath 22 («similar all (OT)», Table S2) recomputed with the G3a gene sets, model retrained
+  with the production settings (`PRODUCTION`, five seeds), every other column unchanged.
+
+**Decision rules, fixed now.** G3a and G3b: the four rules of G1 (removed candidates < 5 % on the benchmark and on the
+areas, P29; on the external exam removed candidates hit no more than those kept; ≥ 20 added candidates not below the
+current section beyond the 95 % interval; the section's external-exam hit rate not lower beyond the interval), with
+G1's handling of uninformative sets. Choice: G3b if it passes, else G3a. G3c: adopted only if the paired difference in
+Recall@100 (bootstrap over diseases, `evaluation/evidence_ci.py`) has a 95 % interval whose lower bound is above
+−0.005 on both the benchmark and the areas, and the external-exam Recall@100 is not lower beyond its interval; if
+adopted, the leaderboard and the benchmark prediction files are rebuilt (new release).
+**Reported, not deciding:** the permutation null of the shared-genes line for the adopted variant (P38), and the
+«neurofibromatosis» and the 22-10 / 08-11 reviewed pages before and after.
+
+**Display, independent of the rule** (no hit rate; checked by hand): each disease page lists its genes grouped by
+source with one line on what each source means (human genetics, PrimeKG curated associations, mouse models,
+expression) and says which sources the shared-genes line uses; the Method page (three languages) explains the same.
+Check: 10 random pages read in full, every gene in the right group.
+
+**Implementation.** `evaluation/g3_animal_genes.py` (reuses `evaluation.evidence_ci` and the G1 code) →
+`docs/G3_ANIMAL_GENES.md`; DECISIONS P93; if adopted, `web/build.py` and the Method page.
+
+### F1: proposals framed by the feature they treat (display only)
+
+No candidate is added, removed or reordered; the measured hit rates do not change. What changes is what each shown
+proposal says about itself.
+- **F1a, «for: …».** Each shown candidate names the disease it comes from (already in the page data: the neighbour
+  diseases of a direct extension, the diseases of a shared-genes line). When that disease is a **feature** of the
+  page's disease, the candidate says «for a feature of this disease: <name>», and the page groups such candidates by
+  feature under the main list. A neighbour N is a feature of the page's disease D when N, through its MONDO
+  cross-references (UMLS CUI), matches one of D's HPO phenotypes (current HPO annotations,
+  `sources/hpo_current.py`, through HPO's UMLS cross-references). No threshold is tuned on hit rates.
+- **F1b, trials with their own condition.** Each trial listed on a page shows the condition as registered on
+  ClinicalTrials.gov (`sources/ctgov.py`, through the NCT identifiers of the Open Targets clinical records), so that
+  a trial on plexiform neurofibromas or on MPNST is not read as a trial on the whole disease.
+- **F1c, reaching the specific forms.** A page whose node merges several MONDO terms (as «neurofibromatosis», five
+  terms) says so next to the title. Linking a predisposition syndrome to the tumours it predisposes to (NF1 → MPNST)
+  is done only if MONDO or another open source states that relation; checking this is the first step, and without
+  such a source F1c is only the note on merged terms.
+
+**Checks, fixed now** (as R5–R8, by hand on the live data, seed 1): F1a — 20 random «feature» labels, at least 18
+right; 20 random extensions not labelled as a feature, at most 2 that should have been. F1b — 20 random trials, the
+shown condition matches ClinicalTrials.gov in all 20. F1a and F1b are released only if their checks pass; F1c's note
+needs no check. Pages that the E1 experts are rating keep their candidates (F1 changes no ranking), so E1 is not
+affected. Implementation: `web/build.py`, `web/public/app.js`, i18n texts (three languages); check results in
+`docs/F1_FEATURE_FRAMING.md`; DECISIONS P94.
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
