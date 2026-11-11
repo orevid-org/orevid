@@ -308,7 +308,7 @@ then run. Results in DECISIONS P48–P53:
 | R2 anti-infectives of the wrong pathogen class | removes an approved pair (sulfanilamide, vulvovaginal candidiasis); PrimeKG has no separate bacterial / viral classes | rejected (P49) |
 | **N1** DrugMechDB | shared genes contain a curated mechanism protein in 25.1 % of 447 pairs vs 16.9 % for random genes of the same disease (99th pct 19.2 %) | **positive** (P50); Method page says so |
 | N2 network proximity | (a) above random for no-prior-use drugs (0.178 vs 0.020; 0.061 vs 0.018), below OREVID; (b) as a feature +0.004 (0.000 to +0.011) benchmark, +0.009 (−0.011 to +0.035) areas | not adopted (P51); NeDRex comparable but not run (≥ 1,300 remote jobs) |
-| N3 Bioteque | IRB websites offline | not run (P52) |
+| N3 Bioteque | IRB websites offline until 11-11 (back online since) | not run (P52) |
 | N4 drug status audit | the six 22-10 cases right; manual check 23 wrong of 100 (gate ≤ 5 %) | **not released** (P53); code ready, `N4_RELEASED = False`; second version described in `docs/DRUG_STATUS.md` |
 | Bug | trials of a candidate on a twin drug node (belimumab, systemic sclerosis) | fixed (display) |
 
@@ -630,6 +630,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      verified negations (`resources/n4_verified_negations.csv`) as a curated list.
    - **N3 Bioteque**: when the IRB websites are back (terms from Patrick Aloy in the plan). 23-10, 20:30: the name resolves
      (84.88.74.135) but the server does not answer from the home PC (http, https, IP); `www.irbbarcelona.org` does.
+     **11-11-2026: back online** (checked from the work PC): https://bioteque.irbbarcelona.org answers, its Downloads
+     page lists `embeddings`, `node_universe` and `demo`, and BQsupports now lives at
+     https://bioteque.irbbarcelona.org/bqsupports (the old bqsupports.irbbarcelona.org still does not answer). N3 can
+     be registered in full (metapaths and drug/gene matching) and run on the home PC.
    - **A rule for the shared-genes outliers** that R1b does not remove (insulin for MS through 36 ordinary genes
      shared with type 1 diabetes; paclitaxel for Castleman through IL6, JAK1, NOTCH1); R1a failed.
    - NeDRex as a benchmark baseline: comparable but not run (≥ 1,300 remote jobs).

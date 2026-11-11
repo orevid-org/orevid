@@ -216,7 +216,7 @@ the I4 adoption rule. To fix at registration: the metapaths and how drugs and ge
 *Terms, from Patrick Aloy (e-mail of 22-10-2026):* the embeddings may be used provided the Bioteque article is cited
 and the embeddings are not modified; no other restriction. Computing similarities from them leaves them unmodified;
 OREVID-bench will not redistribute them (users download them from Bioteque; the code documents how). He also
-pointed to **BQsupports** (https://bqsupports.irbbarcelona.org, Bioinformatics 2023,
+pointed to **BQsupports** (https://bqsupports.irbbarcelona.org; since 11-11-2026 at https://bioteque.irbbarcelona.org/bqsupports; Bioinformatics 2023,
 doi:10.1093/bioinformatics/btad581), which, given a set of pairs (e.g. drug–gene interactions), finds the
 metapaths / embeddings that best explain them. It may be used to choose the metapaths **only with pairs that are
 not drug–disease** (e.g. drug–target interactions) or with training pairs of the development split, never with
