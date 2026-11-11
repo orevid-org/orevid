@@ -634,6 +634,10 @@ and the website deploy. The Claude Doc of the preprint is the source of truth fo
      page lists `embeddings`, `node_universe` and `demo`, and BQsupports now lives at
      https://bioteque.irbbarcelona.org/bqsupports (the old bqsupports.irbbarcelona.org still does not answer). N3 can
      be registered in full (metapaths and drug/gene matching) and run on the home PC.
+     **Registered in full on 11-11** (`docs/IMPROVEMENT_PLAN.md`, «N3 in full»): five embeddings fixed (B1–B4 drug to
+     disease genes: targets, targets + STRING, LINCS down and up; B5 drug to the drugs of related diseases, LINCS),
+     no disease or ATC node, matching by InChIKey and reviewed UniProt, I4's adoption rule; DECISIONS P96. **To run on
+     the home PC.**
    - **A rule for the shared-genes outliers** that R1b does not remove (insulin for MS through 36 ordinary genes
      shared with type 1 diabetes; paclitaxel for Castleman through IL6, JAK1, NOTCH1); R1a failed.
    - NeDRex as a benchmark baseline: comparable but not run (≥ 1,300 remote jobs).

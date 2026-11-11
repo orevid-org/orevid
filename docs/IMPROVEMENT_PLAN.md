@@ -1314,6 +1314,56 @@ Released only if it passes. Results in `docs/F2B_TRIAL_CONDITIONS.md`; DECISIONS
 
 **Result F2b (09-11-2026):** 20/20, passed and released (`docs/F2B_TRIAL_CONDITIONS.md`, P95).
 
+## Registered 11-11-2026, on the work PC, before any download of embeddings: N3 in full (Bioteque embeddings as model columns)
+
+Completes N3 (above) now that Bioteque is back online. Read before registering, and nothing else: Bioteque's
+documentation and its list of embeddings (`downloads/embeddings/embedding_universe.csv`, 1,041 metapath–dataset
+embeddings, 128 dimensions each, with the number of nodes and the network-preservation score). No embedding was
+downloaded and no hit rate or Recall was looked at. BQsupports is **not** used: the metapaths are fixed here.
+
+**Excluded, by rule:** every metapath with a disease node (DIS: 249 of 1,041, including CPD-trt-DIS and the side-effect
+paths CPD-cau-DIS), every metapath through PHC (ATC classes, which encode therapeutic use) and the cell-line
+sensitivity paths (CLL, cancer-specific). What remains links drugs to genes and to other drugs only.
+
+**Embeddings used, fixed now** (metapath, dataset; nodes with an embedding, drugs / genes; network preservation, cosine):
+
+| | Metapath | Dataset | Drugs | Genes | Preservation |
+|---|---|---|---|---|---|
+| B1 | CPD-int-GEN | curated_targets | 7,338 | 2,244 | 1.00 |
+| B2 | CPD-int-GEN-ppi-GEN | curated_targets-string | 5,098 | 11,588 | 0.97 |
+| B3 | CPD-dwr-GEN | lincs_hetionet | 11,258 | 5,646 | 0.96 |
+| B4 | CPD-upr-GEN | lincs_hetionet | 10,711 | 6,117 | 0.97 |
+| B5 | CPD-dwr+upr-GEN-dwr+upr-CPD | lincs_hetionet-lincs_hetionet | 12,223 | – | 0.97 |
+
+**Matching.** Drugs: Bioteque uses standard InChIKeys; OREVID drugs (DrugBank IDs) get theirs from
+DrugBank, or through UniChem or ChEMBL when DrugBank has none; biologics without an InChIKey
+have no embedding. Genes: Bioteque uses reviewed UniProt entries; OREVID genes map to them through HGNC's UniProt
+cross-references; a gene with several entries takes, for each feature, the best of its entries. **Report before any
+result:** for each embedding, the share of OREVID drugs, of benchmark test drugs and of the external exam's positive
+pairs whose drug has an embedding, and the share of disease genes that have one.
+
+**Columns, fixed now** (five, added to the production model; all computed per split from that split's training graph):
+- **B1–B4, drug to disease genes:** for drug c and disease d, the mean of the three highest cosine similarities between
+  c and the genes of d that have an embedding in that space (fewer if fewer exist); 0 when c has no embedding or no gene
+  of d has one. The genes of d are the production model's (all sources, `GENES_ALL`; G3 was not adopted on 09-11).
+- **B5, drug to the drugs of related diseases:** the highest cosine similarity between c and any other drug that the
+  split's training graph indicates for a disease linked to d by metapath 4 (indicated for a disease that shares genes)
+  or 6 (indicated for a neighbouring disease in the ontology; Table S2); 0 when none has an embedding. Masked exactly as
+  those metapaths are, so a test disease's own indications never enter.
+
+**Adoption rule (I4's, fixed now):** the five columns are adopted together only if Recall@100 on the no-prior-use
+subset improves with a 95 % interval excluding 0 on **both** the benchmark (zero-shot, five seeds) and the areas, and
+overall zero-shot Recall@100 does not fall by more than 0.01. **Reported, not deciding:** each column alone; the
+external exam (all and non-obvious); the dated 2015 temporal test (T2); coverage-weighted results (pairs whose drug has
+an embedding). If coverage of benchmark test drugs is below 30 % in every embedding, N3 is reported as uninformative
+and not run further.
+
+**Terms** (Patrick Aloy, 22-10): cite the Bioteque article (Fernández-Torras et al., Nat Commun 2022), do not modify the
+embeddings, do not redistribute them; the code downloads them from Bioteque (`sources/bioteque.py`). Implementation:
+`sources/bioteque.py` (download + matching → `data/ext/bioteque/`), `evaluation/n3_bioteque.py` →
+`docs/N3_BIOTEQUE.md`; DECISIONS P96; if adopted, `graph.py` / `evaluation/txgnn.py` feature set, leaderboard, a new
+release and the Method page.
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
