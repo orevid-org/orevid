@@ -1364,6 +1364,80 @@ embeddings, do not redistribute them; the code downloads them from Bioteque (`so
 `docs/N3_BIOTEQUE.md`; DECISIONS P96; if adopted, `graph.py` / `evaluation/txgnn.py` feature set, leaderboard, a new
 release and the Method page.
 
+## Registered 13-11-2026, on the work PC, before any download: MC1, BL1–BL3, MX1, CC1 (from Every Cure's awesome list)
+
+**Origin.** The 30 entries of https://github.com/everycure-org/awesome-ai-drug-repurposing (the list that includes
+OREVID since 25-10) were checked against what OREVID already uses (DrugMechDB, Drug Repurposing Hub, PrimeKG, Open
+Targets, Hetionet) or has ruled out (literature-mined graphs; rare-disease diagnosis; language models). Four items are
+registered here; nothing was downloaded and no result was looked at.
+
+### MC1: MeDIC (Medicines, Diseases, Indications and Contraindications; Every Cure / RENCI, NAR 2026)
+
+Curated indications and contraindications taken only from regulatory sources, mapped to ontologies (MONDO among them),
+downloadable from https://medic.renci.org (doi:10.1093/nar/gkaf1312).
+
+**Step 0, licence (before anything else).** Record MeDIC's licence from the site or its repository. If it allows reuse
+with attribution, MC1a–c may all run; if it is unclear or restrictive, only MC1a runs (an exam keeps the data local and
+publishes only counts and scores) and the author asks Every Cure; MC1b and MC1c wait for that answer.
+
+**Mapping.** Drugs by DrugBank / UNII / InChIKey / name, as `sources/drugcentral.py`; diseases by MONDO, else by the
+cross-references MeDIC gives (UMLS, MeSH, DOID) → MONDO through `sources.ids.xref_to_mondo` (SSSOM exact). **Report
+first:** MeDIC rows read, drugs and diseases mapped, graph pairs, and their overlap with PrimeKG indications, confirmed
+Open Targets approvals, DrugCentral / MED-RT (L1) and the external exam.
+
+- **MC1a, exam (as L1, P73).** Positives: MeDIC indications that are neither PrimeKG indications nor confirmed Open
+  Targets approvals. Production model vs popularity, Recall@100 per disease, paired difference resampling diseases;
+  **claim** if the interval is above 0. Reported: the same restricted to pairs that L1 does not already contain
+  (MeDIC-only), and TxGNN on those pairs (split-1 model, as the external exam).
+- **MC1b, approval status on the pages (display, as S1b, P92).** A drug that the pages call experimental,
+  investigational or withdrawn but that MeDIC lists with a regulatory indication counts as an agency source for S1b
+  («approved in some country»). Check: 20 random drugs that change label (seed 1) confirmed by hand on the regulator's
+  page; released only if at least 19 of 20 are right (S1's 18/20 failed; S1b's agency rule is the bar).
+- **MC1c, contraindications in the risk warning (display).** MeDIC contraindications join PrimeKG's in the warning
+  rule (P15) for shown candidates. Reported: how many shown candidates gain a warning. Check: 20 random new warnings
+  (seed 1) read against the label; released only if at least 18 of 20 are right.
+
+Implementation: `sources/medic.py`, `evaluation/l_exams.py` (MC1a), `web/build.py` (MC1b, MC1c) →
+`docs/MC1_MEDIC.md`; DECISIONS P97.
+
+### BL1–BL3: three more published models on OREVID-bench
+
+The preprint's Limitations say the comparison covers one graph neural network, one embedding model and simple
+baselines. Three methods with public code are added as OREVID-bench entries (comparison only; nothing is adopted into
+OREVID, and no ensemble is tried):
+- **BL1 BioPathNet** (Hu et al., Nat Biomed Eng 2025; https://github.com/emyyue/BioPathNet), path-based GNN;
+- **BL2 DREAMwalk** (Bang et al., Nat Commun 2023; https://github.com/eugenebang/DREAMwalk), multi-layer random walks;
+- **BL3 KGML-xDTD** (Ma et al., GigaScience 2023; https://github.com/chunyuma/KGML-xDTD), graph learning with paths.
+
+**Protocol, fixed now (as I5).** Each model is trained on every split's PrimeKG training edges (the graph TxGNN and
+RotatE see), with its official code and defaults; hyperparameters only from a small grid written in the model's
+`docs/` file before it is run, chosen on zero-shot seed 1 alone, then unchanged on seeds 2–5, the nine areas and the
+external exam. Predictions in OREVID-bench format, evaluated with `bench.py` and `cluster_ci.py`, added to the
+leaderboard. **Stop rules:** a model whose method cannot take PrimeKG without changing the method itself (e.g.
+KGML-xDTD's dependence on RTX-KG2 and its own pretrained paths) is reported as «not adaptable» with the reason; if one
+split takes more than 6 hours on the RTX 3060, only zero-shot seeds 1–5 are run and that is stated. Results go to the
+leaderboard and, if the JCIM review allows, to Table 1. Implementation: `benchmark/baselines/<model>/` (wrapper and
+conversion only), `docs/BL_BASELINES.md`; DECISIONS P98.
+
+### MX1: Every Cure's MATRIX (comparison)
+
+OREVID's goal includes an honest comparison with MATRIX (https://github.com/everycure-org/matrix, on EC-KG,
+https://github.com/everycure-org/ec-kg). Retraining MATRIX on OREVID-bench is out of scope. **Step 1, feasibility
+report:** licence of code, graph and any published scores; whether Every Cure publishes ranked drug–disease scores;
+how many of OREVID's test diseases and drugs map to them; and which of OREVID's exams are **absent from MATRIX's
+training data** (EC-KG includes many indication sources, so the external exam and L1 may be in it). **Run only if** a
+set of at least 50 positive pairs is absent from both systems' training data; then Recall@100 per disease, paired
+difference resampling diseases, reported both ways (no adoption: comparison only). Otherwise the report states why no
+fair comparison exists. Implementation: `evaluation/mx1_matrix.py` → `docs/MX1_MATRIX.md`; DECISIONS P99.
+
+### CC1: two clinical repurposing successes as positive controls (reported only)
+
+From the list's «Clinical successes»: **lenalidomide (with dexamethasone) for Rosai–Dorfman–Destombes disease** and
+**botulinum toxin A for major depressive disorder**. Report, for the production model and for the 2015 temporal model:
+the drug's rank on the disease's page, the section it falls in (shown, hidden, below the top 25), its evidence lines,
+and whether the pair is already a training label (then it is not a control). Two cases decide nothing; they are
+reported in `docs/CC1_CONTROLS.md` and may be cited as illustrations only.
+
 ## What to update after each item
 
 DECISIONS (new entries P41…, one per item), STATUS, the Claude Doc of the preprint (re-export to
